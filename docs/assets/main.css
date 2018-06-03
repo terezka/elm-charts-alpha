@@ -1,0 +1,177 @@
+
+body {
+	margin: 0;
+	font-family: monospace;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+a {
+	color: #848484;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a:hover {
+	color: rgb(245, 105, 215);
+}
+
+.hidden {
+	display: none;
+}
+
+button {
+	border: none;
+	background: white;
+	font-family: monospace;
+}
+
+button:hover {
+	color: rgb(245, 105, 215);
+}
+
+
+/* */
+
+
+.view {
+	margin: 200px 20px 200px 300px
+}
+
+.view__title__container {
+	position: fixed;
+	top: 40px;
+	left: 40px;
+}
+
+.view__title {
+	font-weight: lighter;
+}
+
+.view__tag-line {
+	max-width: 250px;
+}
+
+.view__body {
+	max-width: 1270px;
+}
+
+.view__example__container {
+	margin-bottom: 20px;
+}
+
+.view__example__container--full {
+	width: 100%;
+}
+
+.view__example__container--half {
+	width: 50%;
+}
+
+.view__example__toggle-source {
+	opacity: 0;
+	pointer-events: none;
+	padding-left: 5px
+	padding-bottom: 5px
+}
+
+.view__example__container:hover .view__example__toggle-source {
+	opacity: 1;
+	pointer-events: auto;
+	cursor: pointer;
+}
+
+.view__source__container {
+	max-width: 100vw;
+	width: 800px;
+	height: 100vh;
+	background: white;
+	position: fixed;
+	top: 0;
+	right: 0;
+	padding: 30px 40px;
+	transition: 0.5s ease-in-out;
+	pointer-events: auto;
+	border-left: 1px solid rgb(163, 163, 163);
+}
+
+.view__source__container--open {
+	transform: translatex(0);
+}
+
+.view__source__container--closed {
+	transform: translatex(100%);
+}
+
+.view__source__inner {
+	margin-top: 30px;
+	height: 85vh;
+}
+
+
+/* */
+
+
+.view__selection__placeholder {
+	width: 42.5%;
+    height: 0%;
+    margin-left: 5.5%;
+    margin-top: 3%;
+    margin-right: 2%;
+    padding-bottom: 28.2222%;
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+}
+
+.view__selection__placeholder__inner {
+	width: 100%;
+    height: 100%;
+    background: #a6a6a61a;
+    text-align: center;
+    position: absolute;
+    top: 50;
+}
+
+.view__selection__placeholder__inner__text {
+	text-align: center;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    padding: 0 10%;
+	transform: translateY(-50%);
+}
+
+
+/* */
+
+@media (max-width: 1500px) {
+	body {
+		font-size: 12px;
+	}
+
+	.view {
+		margin: 240px 20px 200px 20px
+	}
+
+	.view__title__container {
+		position: absolute;
+	}
+
+	.view__example__container {
+		width: 100%;
+	}
+}
+
+@media (max-width: 800px) {
+
+	.view__example__container:nth-child(2) {
+		display: none;
+	}
+
+	.view__example__container div {
+		pointer-events: none;
+	}
+}
