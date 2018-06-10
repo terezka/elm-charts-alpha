@@ -42,10 +42,8 @@ import Svg.Attributes
 import LineChart.Junk as Junk
 import LineChart.Area as Area
 import LineChart.Axis as Axis
-import LineChart.Junk as Junk
 import LineChart.Dots as Dots
 import LineChart.Grid as Grid
-import LineChart.Dots as Dots
 import LineChart.Line as Line
 import LineChart.Colors as Colors
 import LineChart.Events as Events
@@ -386,8 +384,8 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 -}
 type alias Config data msg =
-  { x : Axis.Config data msg
-  , y : Axis.Config data msg
+  { x : Axis.Config Float data msg
+  , y : Axis.Config (Maybe Float) data msg
   , container : Container.Config msg
   , intersection : Intersection.Config
   , interpolation : Interpolation.Config
@@ -482,7 +480,11 @@ viewCustom config lines =
 
     addGrid =
       Internal.Junk.addBelow
-        (Internal.Grid.view system config.x config.y config.grid)
+        (Internal.Grid.view system
+          (Internal.Axis.ticks config.x)
+          (Internal.Axis.ticks config.y)
+          config.grid
+        )
 
     junk =
        getJunk system config.junk |> addGrid
@@ -501,8 +503,6 @@ viewCustom config lines =
       Internal.Legends.view
         { system = system
         , legends = config.legends
-        , x = Internal.Axis.variable config.x
-        , y = Internal.Axis.variable config.y
         , data = dataSafe
         , series = lines
         , label = Internal.Line.label
@@ -597,10 +597,8 @@ toDataPoints config lines =
 
     addPoint datum =
       case ( x datum, y datum ) of
-        ( Just x, Just y )   -> Just <| Data.Data datum (Data.Point x y) True False
-        ( Just x, Nothing )  -> Just <| Data.Data datum (Data.Point x 0) False False
-        ( Nothing, Just y )  -> Nothing -- TODO not allowed
-        ( Nothing, Nothing ) -> Nothing
+        ( x, Just y )   -> Just <| Data.Data datum (Data.Point x y) True False
+        ( x, Nothing )  -> Just <| Data.Data datum (Data.Point x 0) False False
   in
   case config.area of
     Internal.Area.None         -> data
@@ -716,8 +714,8 @@ toSystem config data =
 
 defaultConfig : (data -> Float) -> (data -> Float) -> Config data msg
 defaultConfig toX toY =
-  { y = Axis.default 400 "" toY
-  , x = Axis.default 700 "" toX
+  { x = Axis.default 700 "" toX
+  , y = Axis.default 400 "" (Just << toY)
   , container = Container.default "line-chart-1"
   , interpolation = Interpolation.default
   , intersection = Intersection.default

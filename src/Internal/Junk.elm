@@ -14,7 +14,7 @@ import Internal.Utils as Utils
 
 {-| -}
 type Config data msg =
-  Config (List (Series data) -> (data -> Maybe Float) -> (data -> Maybe Float) -> Coordinate.System -> Layers msg)
+  Config (List (Series data) -> (data -> Float) -> (data -> Maybe Float) -> Coordinate.System -> Layers msg)
 
 
 type alias Series data =
@@ -42,7 +42,7 @@ type alias Layers msg =
 
 
 {-| -}
-getLayers : List (Series data) -> (data -> Maybe Float) -> (data -> Maybe Float) -> Coordinate.System -> Config data msg -> Layers msg
+getLayers : List (Series data) -> (data -> Float) -> (data -> Maybe Float) -> Coordinate.System -> Config data msg -> Layers msg
 getLayers series toX toY system (Config toLayers) =
   toLayers series toX toY system
 
@@ -69,14 +69,14 @@ hoverOne hovered properties =
 hoverOneHtml
   :  List (Series data)
   -> Coordinate.System
-  -> (data -> Maybe Float)
+  -> (data -> Float)
   -> (data -> Maybe Float)
   -> List ( String, data -> String )
   -> data
   -> Html.Html msg
 hoverOneHtml series system toX toY properties hovered =
   let
-    x = Maybe.withDefault (middle .x system) (toX hovered)
+    x = toX hovered
     y = Maybe.withDefault (middle .y system) (toY hovered)
 
     viewHeaderOne =
@@ -112,7 +112,7 @@ hoverMany hovered formatX formatY =
 
     first :: rest ->
       Config <| \series toX toY system ->
-        let xValue = Maybe.withDefault 0 (toX first) in -- TODO Maybe should happen - make it not.
+        let xValue = toX first in
         { below = [ Svg.verticalGrid system [] xValue ]
         , above = []
         , html  = [ hoverManyHtml system toX toY formatX formatY first hovered series ]
@@ -121,7 +121,7 @@ hoverMany hovered formatX formatY =
 
 hoverManyHtml
   :  Coordinate.System
-  -> (data -> Maybe Float)
+  -> (data -> Float)
   -> (data -> Maybe Float)
   -> (data -> String)
   -> (data -> String)
@@ -131,7 +131,7 @@ hoverManyHtml
   -> Html.Html msg
 hoverManyHtml system toX toY formatX formatY first hovered series =
   let
-    x = Maybe.withDefault (middle .x system) (toX first)
+    x = toX first
 
     viewValue ( color, label, data ) =
       Utils.viewMaybe (find hovered data) <| \hovered ->

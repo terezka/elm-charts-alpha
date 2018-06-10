@@ -30,7 +30,7 @@ import ScatterChart.Axis.Ticks as Ticks
 
 -}
 type alias Config data msg =
-  Axis.Config data msg
+  Axis.Config Float data msg
 
 
 {-| Draws a line the full length of your _data range_ and adds a little space on
@@ -164,7 +164,7 @@ custom : Properties data msg -> Config data msg
 custom props =
   Axis.custom
     { title = props.title
-    , variable = props.variable >> Just
+    , variable = props.variable
     , pixels = props.pixels
     , range = props.range
     , axisLine = props.axisLine

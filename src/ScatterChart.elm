@@ -433,11 +433,15 @@ viewCustom config lines =
       Internal.Junk.getLayers
         (List.map junkLineInfo lines)
         (Internal.Axis.variable config.x)
-        (Internal.Axis.variable config.y)
+        (Internal.Axis.variable config.y >> Just)
 
     addGrid =
       Internal.Junk.addBelow
-        (Internal.Grid.view system config.x config.y config.grid)
+        (Internal.Grid.view system
+          (Internal.Axis.ticks config.x)
+          (Internal.Axis.ticks config.y)
+          config.grid
+        )
 
     junk =
        getJunk system config.junk |> addGrid
@@ -455,8 +459,6 @@ viewCustom config lines =
       Internal.Legends.view
         { system = system
         , legends = config.legends
-        , x = Internal.Axis.variable config.x
-        , y = Internal.Axis.variable config.y
         , data = data
         , series = lines
         , label = Internal.Group.label
@@ -544,8 +546,8 @@ clipPath system =
 toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data data))
 toDataPoints config lines =
   let
-    x = Internal.Axis.variable config.x >> Maybe.withDefault 0 -- TODO never happens
-    y = Internal.Axis.variable config.y >> Maybe.withDefault 0
+    x = Internal.Axis.variable config.x
+    y = Internal.Axis.variable config.y
 
     data =
       List.map (Internal.Group.data >> toInternalData) lines

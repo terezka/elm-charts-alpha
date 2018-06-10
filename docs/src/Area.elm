@@ -122,7 +122,7 @@ view model =
 
 chartConfig : Model -> LineChart.Config Datum Msg
 chartConfig model =
-  { y = Axis.default 450 "velocity" .velocity
+  { y = Axis.default 450 "velocity" (Just << .velocity)
   , x = Axis.time 1270 "time" .time
   , container = containerConfig
   , interpolation = Interpolation.monotone

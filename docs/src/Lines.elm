@@ -153,7 +153,7 @@ chartConfig model =
 -- CHART CONFIG / AXES
 
 
-yAxisConfig : Axis.Config Datum Msg
+yAxisConfig : Axis.Config (Maybe Float) Datum Msg
 yAxisConfig =
   Axis.custom
     { title = Title.atDataMax -10 -10 "Rain"
@@ -169,11 +169,11 @@ yAxisConfig =
     }
 
 
-xAxisConfig : Axis.Config Datum Msg
+xAxisConfig : Axis.Config Float Datum Msg
 xAxisConfig =
   Axis.custom
     { title = Title.default "Time"
-    , variable = Just << .time
+    , variable = .time
     , pixels = 1270
     , range = Range.padded 20 20
     , axisLine = AxisLine.none

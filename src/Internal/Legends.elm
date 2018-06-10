@@ -107,8 +107,6 @@ type alias Arguments data serie msg =
   , label : serie -> String
   , series : List serie
   , data : List (List (Data.Data data))
-  , x : data -> Maybe Float
-  , y : data -> Maybe Float
   , legends : Config data msg
   }
 

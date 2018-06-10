@@ -445,7 +445,7 @@ viewChart data { range, junk, events, legends, dots, width, margin, id } =
     , x =
         Axis.custom
           { title = Title.default "time"
-          , variable = Just << .time
+          , variable = .time
           , pixels = width
           , range = range
           , axisLine = AxisLine.rangeFrame Colors.gray

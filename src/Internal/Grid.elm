@@ -44,15 +44,15 @@ lines =
 
 
 {-| -}
-view : Coordinate.System -> Axis.Config data msg -> Axis.Config data msg -> Config -> List (Svg.Svg msg)
-view system xAxis yAxis grid =
+view : Coordinate.System -> Ticks.Config msg -> Ticks.Config msg -> Config -> List (Svg.Svg msg)
+view system xTicks yTicks grid =
   let
     verticals =
-      Ticks.ticks system.xData system.x (Axis.ticks xAxis)
+      Ticks.ticks system.xData system.x xTicks
         |> List.filterMap hasGrid
 
     horizontals =
-      Ticks.ticks system.yData system.y (Axis.ticks yAxis)
+      Ticks.ticks system.yData system.y yTicks
         |> List.filterMap hasGrid
 
     hasGrid tick =

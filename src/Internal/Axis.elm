@@ -23,14 +23,14 @@ import Color.Convert
 
 
 {-| -}
-type Config data msg =
-  Config (Properties data msg)
+type Config value data msg =
+  Config (Properties value data msg)
 
 
 {-| -}
-type alias Properties data msg =
+type alias Properties value data msg =
   { title : Title.Config msg
-  , variable : data -> Maybe Float
+  , variable : data -> value
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
@@ -39,11 +39,11 @@ type alias Properties data msg =
 
 
 {-| -}
-default : Int -> String -> (data -> Float) -> Config data msg
+default : Int -> String -> (data -> value) -> Config value data msg
 default pixels title variable =
   custom
     { title = Title.atDataMax 0 0 title
-    , variable = Just << variable
+    , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.rangeFrame Colors.gray
@@ -61,11 +61,11 @@ default pixels title variable =
 
 
 {-| -}
-full : Int -> String -> (data -> Float) -> Config data msg
+full : Int -> String -> (data -> value) -> Config value data msg
 full pixels title variable =
   custom
     { title = Title.atAxisMax 0 0 title
-    , variable = Just << variable
+    , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
@@ -79,11 +79,11 @@ full pixels title variable =
 
 
 {-| -}
-time : Int -> String -> (data -> Float) -> Config data msg
+time : Int -> String -> (data -> value) -> Config value data msg
 time pixels title variable =
   custom
     { title = Title.atDataMax 0 0 title
-    , variable = Just << variable
+    , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.rangeFrame Colors.gray
@@ -100,11 +100,11 @@ time pixels title variable =
 
 
 {-| -}
-none : Int -> (data -> Float) ->  Config data msg
+none : Int -> (data -> value) ->  Config value data msg
 none pixels variable =
   custom
     { title = Title.default ""
-    , variable = Just << variable
+    , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.none
@@ -113,11 +113,11 @@ none pixels variable =
 
 
 {-| -}
-picky : Int -> String -> (data -> Float) -> List Float -> Config data msg
+picky : Int -> String -> (data -> value) -> List Float -> Config value data msg
 picky pixels title variable ticks =
   custom
     { title = Title.atAxisMax 0 0 title
-    , variable = Just << variable
+    , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
@@ -126,31 +126,31 @@ picky pixels title variable ticks =
 
 
 {-| -}
-custom : Properties data msg -> Config data msg
+custom : Properties value data msg -> Config value data msg
 custom =
   Config
 
 
 {-| -}
-variable : Config data msg -> (data -> Maybe Float)
+variable : Config value data msg -> (data -> value)
 variable (Config config) =
   config.variable
 
 
 {-| -}
-pixels : Config data msg -> Float
+pixels : Config value data msg -> Float
 pixels (Config config) =
   toFloat config.pixels
 
 
 {-| -}
-range : Config data msg -> Range.Config
+range : Config value data msg -> Range.Config
 range (Config config) =
   config.range
 
 
 {-| -}
-ticks : Config data msg -> Ticks.Config msg
+ticks : Config value data msg -> Ticks.Config msg
 ticks (Config config) =
   config.ticks
 
@@ -168,7 +168,7 @@ type alias ViewConfig msg =
 
 
 {-| -}
-viewHorizontal : Coordinate.System -> Intersection.Config -> Config data msg -> Svg msg
+viewHorizontal : Coordinate.System -> Intersection.Config -> Config Float data msg -> Svg msg
 viewHorizontal system intersection (Config config) =
     let
         viewConfig =
@@ -195,7 +195,7 @@ viewHorizontal system intersection (Config config) =
 
 
 {-| -}
-viewVertical : Coordinate.System -> Intersection.Config -> Config data msg -> Svg msg
+viewVertical : Coordinate.System -> Intersection.Config -> Config value data msg -> Svg msg
 viewVertical system intersection (Config config) =
     let
         viewConfig =

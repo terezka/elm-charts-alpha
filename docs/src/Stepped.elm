@@ -171,7 +171,7 @@ chart model =
         in
         Axis.custom
           { title = Title.default "Year"
-          , variable = Just << Date.toTime << toDate << .year
+          , variable = Date.toTime << toDate << .year
           , pixels = 1270
           , range = Range.padded 20 20
           , axisLine = AxisLine.full Colors.gray

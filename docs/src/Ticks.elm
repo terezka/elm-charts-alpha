@@ -166,14 +166,14 @@ chart model =
     ]
 
 
-xAxisConfig : Model -> Axis.Config Coordinate.Point msg
+xAxisConfig : Model -> Axis.Config Float Coordinate.Point msg
 xAxisConfig model =
   let formatX =
         \x -> if x == 0 then "K" else toString x
   in
   Axis.custom
     { title = Title.default "Year"
-    , variable = Just << .x
+    , variable = .x
     , pixels = 800
     , range = Range.padded 50 20
     , axisLine = AxisLine.rangeFrame Colors.gray
@@ -181,7 +181,7 @@ xAxisConfig model =
     }
 
 
-yAxisConfig : Model -> Axis.Config Coordinate.Point msg
+yAxisConfig : Model -> Axis.Config (Maybe Float) Coordinate.Point msg
 yAxisConfig model =
   let formatY =
         toString << round10
