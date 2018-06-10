@@ -39,7 +39,7 @@ type Series data =
 {-| -}
 type alias SeriesConfig data =
   { color : Color.Color
-  , shape : Dots.Shape
+  , shape : Maybe Dots.Shape
   , dashing : List Float
   , label : String
   , data : List data
@@ -53,7 +53,7 @@ label (Series config) =
 
 
 {-| -}
-shape : Series data -> Dots.Shape
+shape : Series data -> Maybe Dots.Shape
 shape (Series config) =
   config.shape
 
@@ -79,14 +79,14 @@ color (Config config) (Series line) data =
 
 
 {-| -}
-line : Color.Color -> Dots.Shape -> String -> List data -> Series data
-line color shape label data =
+line : Color.Color -> Dots.ShapeOrNone -> String -> List data -> Series data
+line color (Dots.ShapeOrNone shape) label data =
   Series <| SeriesConfig color shape [] label data
 
 
 {-| -}
-dash : Color.Color -> Dots.Shape -> String -> List Float -> List data -> Series data
-dash color shape label dashing data =
+dash : Color.Color -> Dots.ShapeOrNone -> String -> List Float -> List data -> Series data
+dash color (Dots.ShapeOrNone shape) label dashing data =
   Series <| SeriesConfig color shape dashing label data
 
 

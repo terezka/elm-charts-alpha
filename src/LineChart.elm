@@ -744,9 +744,9 @@ defaultColors =
 
 defaultShapes : List Dots.Shape
 defaultShapes =
-  [ Internal.Dots.Circle
-  , Internal.Dots.Triangle
-  , Internal.Dots.Cross
+  [ Dots.circle
+  , Dots.triangle
+  , Dots.cross
   ]
 
 

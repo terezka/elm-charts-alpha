@@ -173,7 +173,7 @@ viewDot arguments (Group lineConfig) (Style style) =
     { system = arguments.system
     , dotsConfig = arguments.dotsConfig
     , outlier = Outliers.dotConfig arguments.outliersConfig
-    , shape = lineConfig.shape
+    , shape = Just lineConfig.shape
     , color = style.color lineConfig.color
     }
 
@@ -194,7 +194,7 @@ viewSample dotsConfig lineConfig system line data sampleWidth =
       color lineConfig line data
 
     shape_ =
-      shape line
+      Just (shape line)
   in
   Svg.g
     [ Attributes.class "chart__sample" ]

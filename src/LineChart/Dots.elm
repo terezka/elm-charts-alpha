@@ -65,49 +65,49 @@ They can be different shapes (circle, square, etc.) for each line.
 
 -}
 type alias Shape =
-  Dots.Shape
+  Dots.ShapeOrNone
 
 
 {-| -}
 none : Shape
 none =
-  Dots.None
+ Dots.ShapeOrNone Nothing
 
 
 {-| -}
 circle : Shape
 circle =
-  Dots.Circle
+  Dots.ShapeOrNone (Just Dots.Circle)
 
 
 {-| -}
 triangle : Shape
 triangle =
-  Dots.Triangle
+  Dots.ShapeOrNone (Just Dots.Triangle)
 
 
 {-| -}
 square : Shape
 square =
-  Dots.Square
+  Dots.ShapeOrNone (Just Dots.Square)
 
 
 {-| -}
 diamond : Shape
 diamond =
-  Dots.Diamond
+  Dots.ShapeOrNone (Just Dots.Diamond)
 
 
 {-| -}
 plus : Shape
 plus =
-  Dots.Plus
+  Dots.ShapeOrNone (Just Dots.Plus)
 
 
 {-| -}
 cross : Shape
 cross =
-  Dots.Cross
+  Dots.ShapeOrNone (Just Dots.Cross)
 
 
 {-|

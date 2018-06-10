@@ -1,6 +1,6 @@
 module Internal.Dots exposing
   ( Config, default, custom, customAny
-  , Shape(..)
+  , Shape(..), ShapeOrNone(..)
   , Style, style, empty, disconnected, aura, full
   , Variety
   , Outlier
@@ -79,9 +79,13 @@ type Variety
 
 
 {-| -}
+type ShapeOrNone =
+  ShapeOrNone (Maybe Shape)
+
+
+{-| -}
 type Shape
-  = None
-  | Circle
+  = Circle
   | Triangle
   | Square
   | Diamond
@@ -143,7 +147,7 @@ type alias Arguments data =
   { system : Coordinate.System
   , dotsConfig : Config data
   , outlier : Outlier
-  , shape : Shape
+  , shape : Maybe Shape
   , color : Color.Color
   }
 
@@ -162,7 +166,7 @@ view arguments datum =
 
     shape =
       if datum.isOutlier
-        then arguments.outlier.shape
+        then Just arguments.outlier.shape
         else arguments.shape
 
     color =
@@ -174,7 +178,7 @@ view arguments datum =
 
 
 {-| -}
-viewSample : Config data -> Shape -> Color.Color -> Coordinate.System -> List (Data.Data data) -> Coordinate.Point -> Svg msg
+viewSample : Config data -> Maybe Shape -> Color.Color -> Coordinate.System -> List (Data.Data data) -> Coordinate.Point -> Svg msg
 viewSample (Config config) shape color system data =
   let
     (Style style) =
@@ -187,13 +191,12 @@ viewSample (Config config) shape color system data =
 -- INTERNAL / VIEW / PARTS
 
 
-viewShape : Coordinate.System -> StyleConfig -> Shape -> Color.Color -> Point -> Svg msg
+viewShape : Coordinate.System -> StyleConfig -> Maybe Shape -> Color.Color -> Point -> Svg msg
 viewShape system { radius, variety } shape color point =
   let size = 2 * pi * radius
       pointSvg = toSvg system point
-      view =
-        case shape of
-          None     -> \_ _ _ _ _ -> Svg.text ""
+      view shape_ =
+        case shape_ of
           Circle   -> viewCircle
           Triangle -> viewTriangle
           Square   -> viewSquare
@@ -201,8 +204,9 @@ viewShape system { radius, variety } shape color point =
           Cross    -> viewCross
           Plus     -> viewPlus
   in
-  view [] variety color size pointSvg
-
+  case shape of
+    Nothing  -> Svg.text ""
+    Just shape_ -> view shape_ [] variety color size pointSvg
 
 
 viewCircle : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
