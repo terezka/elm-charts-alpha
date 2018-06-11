@@ -186,7 +186,7 @@ viewTitle =
         [ Html.Attributes.class "view__title__container" ]
         [ Html.h1
             [ Html.Attributes.class "view__title" ]
-            [ Html.text "terezka/charts" ]
+            [ Html.text "elm-charts" ]
         , Html.div
             [ Html.Attributes.class "view__github-link" ]
             [ Html.a

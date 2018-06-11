@@ -43,6 +43,7 @@
         "ScatterChart.Dots",
         "ScatterChart.Events",
         "ScatterChart.Grid",
+        "ScatterChart.Group",
         "ScatterChart.Junk",
         "ScatterChart.Legends"
     ],

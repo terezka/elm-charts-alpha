@@ -17945,10 +17945,162 @@ var _terezka$line_charts$Internal_Utils$apply = F2(
 		return toNewStuff(stuff);
 	});
 
+var _terezka$line_charts$Internal_Svg$verticalBarCommands = F4(
+	function (system, borderRadius, width, _p0) {
+		var _p1 = _p0;
+		var _p3 = _p1.y;
+		var _p2 = _p1.x;
+		if (_elm_lang$core$Native_Utils.eq(borderRadius, 0)) {
+			return {
+				ctor: '::',
+				_0: _terezka$line_charts$Internal_Path$Move(
+					A2(_terezka$line_charts$Internal_Coordinate$Point, _p2, 0)),
+				_1: {
+					ctor: '::',
+					_0: _terezka$line_charts$Internal_Path$Line(
+						A2(_terezka$line_charts$Internal_Coordinate$Point, _p2, _p3)),
+					_1: {
+						ctor: '::',
+						_0: _terezka$line_charts$Internal_Path$Line(
+							A2(_terezka$line_charts$Internal_Coordinate$Point, _p2 + width, _p3)),
+						_1: {
+							ctor: '::',
+							_0: _terezka$line_charts$Internal_Path$Line(
+								A2(_terezka$line_charts$Internal_Coordinate$Point, _p2 + width, 0)),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			};
+		} else {
+			var b = _elm_lang$core$Basics$toFloat(borderRadius);
+			var rx = A2(_terezka$line_charts$Internal_Coordinate$scaleDataX, system, b);
+			var ry = A2(_terezka$line_charts$Internal_Coordinate$scaleDataY, system, b);
+			return {
+				ctor: '::',
+				_0: _terezka$line_charts$Internal_Path$Move(
+					A2(_terezka$line_charts$Internal_Coordinate$Point, _p2, 0)),
+				_1: {
+					ctor: '::',
+					_0: _terezka$line_charts$Internal_Path$Line(
+						A2(_terezka$line_charts$Internal_Coordinate$Point, _p2, _p3 - ry)),
+					_1: {
+						ctor: '::',
+						_0: A6(
+							_terezka$line_charts$Internal_Path$Arc,
+							b,
+							b,
+							-45,
+							false,
+							true,
+							A2(_terezka$line_charts$Internal_Coordinate$Point, _p2 + rx, _p3)),
+						_1: {
+							ctor: '::',
+							_0: _terezka$line_charts$Internal_Path$Line(
+								A2(_terezka$line_charts$Internal_Coordinate$Point, (_p2 + width) - rx, _p3)),
+							_1: {
+								ctor: '::',
+								_0: A6(
+									_terezka$line_charts$Internal_Path$Arc,
+									b,
+									b,
+									-45,
+									false,
+									true,
+									A2(_terezka$line_charts$Internal_Coordinate$Point, _p2 + width, _p3 - ry)),
+								_1: {
+									ctor: '::',
+									_0: _terezka$line_charts$Internal_Path$Line(
+										A2(_terezka$line_charts$Internal_Coordinate$Point, _p2 + width, 0)),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			};
+		}
+	});
+var _terezka$line_charts$Internal_Svg$horizontalBarCommands = F4(
+	function (system, borderRadius, width, _p4) {
+		var _p5 = _p4;
+		var _p7 = _p5.y;
+		var _p6 = _p5.x;
+		if (_elm_lang$core$Native_Utils.eq(borderRadius, 0)) {
+			return {
+				ctor: '::',
+				_0: _terezka$line_charts$Internal_Path$Move(
+					A2(_terezka$line_charts$Internal_Coordinate$Point, 0, _p7)),
+				_1: {
+					ctor: '::',
+					_0: _terezka$line_charts$Internal_Path$Line(
+						A2(_terezka$line_charts$Internal_Coordinate$Point, _p6, _p7)),
+					_1: {
+						ctor: '::',
+						_0: _terezka$line_charts$Internal_Path$Line(
+							A2(_terezka$line_charts$Internal_Coordinate$Point, _p6, _p7 - width)),
+						_1: {
+							ctor: '::',
+							_0: _terezka$line_charts$Internal_Path$Line(
+								A2(_terezka$line_charts$Internal_Coordinate$Point, 0, _p7 - width)),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			};
+		} else {
+			var b = _elm_lang$core$Basics$toFloat(borderRadius);
+			var rx = A2(_terezka$line_charts$Internal_Coordinate$scaleDataX, system, b);
+			var ry = A2(_terezka$line_charts$Internal_Coordinate$scaleDataY, system, b);
+			return {
+				ctor: '::',
+				_0: _terezka$line_charts$Internal_Path$Move(
+					A2(_terezka$line_charts$Internal_Coordinate$Point, 0, _p7)),
+				_1: {
+					ctor: '::',
+					_0: _terezka$line_charts$Internal_Path$Line(
+						A2(_terezka$line_charts$Internal_Coordinate$Point, _p6 - rx, _p7)),
+					_1: {
+						ctor: '::',
+						_0: A6(
+							_terezka$line_charts$Internal_Path$Arc,
+							b,
+							b,
+							-45,
+							false,
+							true,
+							A2(_terezka$line_charts$Internal_Coordinate$Point, _p6, _p7 - ry)),
+						_1: {
+							ctor: '::',
+							_0: _terezka$line_charts$Internal_Path$Line(
+								A2(_terezka$line_charts$Internal_Coordinate$Point, _p6, (_p7 - width) + ry)),
+							_1: {
+								ctor: '::',
+								_0: A6(
+									_terezka$line_charts$Internal_Path$Arc,
+									b,
+									b,
+									45,
+									false,
+									true,
+									A2(_terezka$line_charts$Internal_Coordinate$Point, _p6 - rx, _p7 - width)),
+								_1: {
+									ctor: '::',
+									_0: _terezka$line_charts$Internal_Path$Line(
+										A2(_terezka$line_charts$Internal_Coordinate$Point, 0, _p7 - width)),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			};
+		}
+	});
 var _terezka$line_charts$Internal_Svg$anchorStyle = function (anchor) {
 	var anchorString = function () {
-		var _p0 = anchor;
-		switch (_p0.ctor) {
+		var _p8 = anchor;
+		switch (_p8.ctor) {
 			case 'Start':
 				return 'start';
 			case 'Middle':
@@ -18250,15 +18402,15 @@ var _terezka$line_charts$Internal_Svg$gridDot = F3(
 			},
 			{ctor: '[]'});
 	});
-var _terezka$line_charts$Internal_Svg$withinChartArea = function (_p1) {
-	var _p2 = _p1;
+var _terezka$line_charts$Internal_Svg$withinChartArea = function (_p9) {
+	var _p10 = _p9;
 	return _elm_lang$svg$Svg_Attributes$clipPath(
 		A2(
 			_elm_lang$core$Basics_ops['++'],
 			'url(#',
 			A2(
 				_elm_lang$core$Basics_ops['++'],
-				_terezka$line_charts$Internal_Utils$toChartAreaId(_p2.id),
+				_terezka$line_charts$Internal_Utils$toChartAreaId(_p10.id),
 				')')));
 };
 var _terezka$line_charts$Internal_Svg$End = {ctor: 'End'};
@@ -18280,19 +18432,19 @@ var _terezka$line_charts$Internal_Svg$offset = F2(
 		return A2(_terezka$line_charts$Internal_Svg$Transfrom, x, y);
 	});
 var _terezka$line_charts$Internal_Svg$addPosition = F2(
-	function (_p4, _p3) {
-		var _p5 = _p4;
-		var _p6 = _p3;
-		return A2(_terezka$line_charts$Internal_Svg$Transfrom, _p6._0 + _p5._0, _p6._1 + _p5._1);
+	function (_p12, _p11) {
+		var _p13 = _p12;
+		var _p14 = _p11;
+		return A2(_terezka$line_charts$Internal_Svg$Transfrom, _p14._0 + _p13._0, _p14._1 + _p13._1);
 	});
 var _terezka$line_charts$Internal_Svg$toPosition = A2(
 	_elm_lang$core$List$foldr,
 	_terezka$line_charts$Internal_Svg$addPosition,
 	A2(_terezka$line_charts$Internal_Svg$Transfrom, 0, 0));
 var _terezka$line_charts$Internal_Svg$transform = function (translations) {
-	var _p7 = _terezka$line_charts$Internal_Svg$toPosition(translations);
-	var x = _p7._0;
-	var y = _p7._1;
+	var _p15 = _terezka$line_charts$Internal_Svg$toPosition(translations);
+	var x = _p15._0;
+	var y = _p15._1;
 	return _elm_lang$svg$Svg_Attributes$transform(
 		A2(
 			_elm_lang$core$Basics_ops['++'],
@@ -27432,7 +27584,7 @@ var _terezka$line_charts$Main$viewTitle = A2(
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text('terezka/charts'),
+				_0: _elm_lang$html$Html$text('elm-charts'),
 				_1: {ctor: '[]'}
 			}),
 		_1: {

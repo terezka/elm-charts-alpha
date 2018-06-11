@@ -8,6 +8,8 @@ module Internal.Svg exposing
   , Anchor(..), anchorStyle
   , Transfrom, transform, move, offset
   , withinChartArea
+  , horizontalBarCommands
+  , verticalBarCommands
   )
 
 {-|
@@ -41,6 +43,8 @@ module Internal.Svg exposing
 @docs Transfrom, transform, move, offset
 
 @docs withinChartArea
+
+@docs horizontalBarCommands, verticalBarCommands
 
 -}
 
@@ -275,3 +279,65 @@ toPosition =
 addPosition : Transfrom -> Transfrom -> Transfrom
 addPosition (Transfrom x y) (Transfrom xf yf) =
   Transfrom (xf + x) (yf + y)
+
+
+
+-- BARS
+
+
+{-| -}
+horizontalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
+horizontalBarCommands system borderRadius width { x, y }  =
+  if borderRadius == 0 then
+    [ Move <| Point 0 y
+    , Line <| Point x y
+    , Line <| Point x (y - width)
+    , Line <| Point 0 (y - width)
+    ]
+  else
+    let
+      b =
+        toFloat borderRadius
+
+      rx =
+        scaleDataX system b -- TODO is this right>
+
+      ry =
+        scaleDataY system b
+    in
+    [ Move <| Point 0 y
+    , Line <| Point (x - rx) y
+    , Arc b b -45 False True <| Point x (y - ry)
+    , Line <| Point x (y - width + ry)
+    , Arc b b 45 False True <| Point (x - rx) (y - width)
+    , Line <| Point 0 (y - width)
+    ]
+
+
+{-| -}
+verticalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
+verticalBarCommands system borderRadius width { x, y }  =
+  if borderRadius == 0 then
+    [ Move <| Point x 0
+    , Line <| Point x y
+    , Line <| Point (x + width) y
+    , Line <| Point (x + width) 0
+    ]
+  else
+    let
+      b =
+        toFloat borderRadius
+
+      rx =
+        scaleDataX system b
+
+      ry =
+        scaleDataY system b
+    in
+    [ Move <| Point x 0
+    , Line <| Point x (y - ry)
+    , Arc b b -45 False True <| Point (x + rx) y
+    , Line <| Point (x + width - rx) y
+    , Arc b b -45 False True <| Point (x + width) (y - ry)
+    , Line <| Point (x + width) 0
+    ]
