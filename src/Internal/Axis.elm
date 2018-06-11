@@ -273,7 +273,7 @@ attributesLine : Coordinate.System -> AxisLine.Properties msg -> List (Svg.Attri
 attributesLine system { events, width, color } =
   events ++
     [ strokeWidth (toString width)
-    , stroke (Color.Convert.colorToHex color)
+    , stroke (Color.Convert.colorToCssRgba color)
     , Svg.withinChartArea system
     ]
 
@@ -305,7 +305,7 @@ lengthOfTick { length, direction } =
 
 attributesTick : Tick.Properties msg -> List (Svg.Attribute msg)
 attributesTick { width, color } =
-  [ strokeWidth (toString width), stroke (Color.Convert.colorToHex color) ]
+  [ strokeWidth (toString width), stroke (Color.Convert.colorToCssRgba color) ]
 
 
 viewHorizontalLabel : Coordinate.System -> Tick.Properties msg -> Data.Point -> Svg msg -> Svg msg

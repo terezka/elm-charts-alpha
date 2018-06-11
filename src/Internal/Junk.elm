@@ -82,7 +82,7 @@ hoverOneHtml series system toX toY properties hovered =
     viewHeaderOne =
       Utils.viewMaybe (findSeries hovered series) <| \( color, label, _ ) ->
         viewHeader
-          [ viewColorLabel (Color.Convert.colorToHex color) label ] -- TODO to rgba
+          [ viewColorLabel (Color.Convert.colorToCssRgba color) label ] -- TODO to rgba
 
     viewColorLabel color label =
       Html.p
@@ -135,7 +135,7 @@ hoverManyHtml system toX toY formatX formatY first hovered series =
 
     viewValue ( color, label, data ) =
       Utils.viewMaybe (find hovered data) <| \hovered ->
-        viewRow (Color.Convert.colorToHex color) label (formatY hovered)
+        viewRow (Color.Convert.colorToCssRgba color) label (formatY hovered)
   in
   hover system x [] <|
     viewHeader [ Html.text (formatX first) ] :: List.map viewValue series

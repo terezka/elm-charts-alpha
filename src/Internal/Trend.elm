@@ -134,7 +134,7 @@ viewSingle system color function editWidth includeOutliers dataRaw =
     toPoint x = { x = x, y = y x }
 
     attributes =
-      [ Svg.Attributes.stroke (Color.Convert.colorToHex color)
+      [ Svg.Attributes.stroke (Color.Convert.colorToCssRgba color)
       , Svg.Attributes.strokeWidth (toString width)
       , Svg.Attributes.fill "transparent"
       , Svg.Attributes.class "chart__trend"

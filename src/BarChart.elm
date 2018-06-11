@@ -188,7 +188,6 @@ clipPath system =
 toSystem : Config data msg -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List data -> List Coordinate.Point -> Coordinate.System
 toSystem config x y data points =
   let
-
     independentRange toHeight =
       { min = Coordinate.minimumOrZero toHeight points
       , max = Coordinate.maximum toHeight points
@@ -199,21 +198,20 @@ toSystem config x y data points =
       , max = toFloat (List.length data) + 0.5
       }
 
-    ( xRange, yRange, size ) =
+    ( xRange, yRange ) =
       case config.orientation of
         Internal.Orientation.Horizontal ->
           ( independentRange .x
           , dependentRange
-          , Coordinate.Size (Internal.Axis.pixels y) (Internal.Axis.pixels x)
           )
 
         Internal.Orientation.Vertical ->
           ( dependentRange
           , independentRange .y
-          , Coordinate.Size (Internal.Axis.pixels x) (Internal.Axis.pixels y)
           )
 
     container = Internal.Container.properties identity config.container
+    size = Coordinate.Size (Internal.Axis.pixels x) (Internal.Axis.pixels y)
     frame  = Coordinate.Frame container.margin size
 
     system =

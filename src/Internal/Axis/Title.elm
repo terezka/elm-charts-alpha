@@ -25,7 +25,6 @@ type alias Properties msg =
   }
 
 
-
 {-| -}
 default : String -> Config msg
 default =

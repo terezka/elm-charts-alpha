@@ -76,7 +76,7 @@ gridDot radius color point =
     [ Attributes.cx (toString point.x)
     , Attributes.cy (toString point.y)
     , Attributes.r (toString radius)
-    , Attributes.fill (Color.Convert.colorToHex color)
+    , Attributes.fill (Color.Convert.colorToCssRgba color)
     ]
     []
 
@@ -91,7 +91,7 @@ horizontal system userAttributes y x1 x2 =
   let
     attributes =
       concat
-        [ Attributes.stroke (Color.Convert.colorToHex Colors.gray)
+        [ Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray)
         , Attributes.style "pointer-events: none;"
         ] userAttributes []
   in
@@ -108,7 +108,7 @@ vertical system userAttributes x y1 y2 =
   let
     attributes =
       concat
-        [ Attributes.stroke (Color.Convert.colorToHex Colors.gray)
+        [ Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray)
         , Attributes.style "pointer-events: none;"
         ] userAttributes []
   in
@@ -125,7 +125,7 @@ rectangle system userAttributes x1 x2 y1 y2 =
   let
     attributes =
       concat
-        [ Attributes.fill (Color.Convert.colorToHex Colors.gray) ]
+        [ Attributes.fill (Color.Convert.colorToCssRgba Colors.gray) ]
         userAttributes []
   in
     Path.view system attributes
@@ -142,7 +142,7 @@ horizontalGrid system userAttributes y =
   let
     attributes =
       concat
-        [ Attributes.stroke (Color.Convert.colorToHex Colors.gray)
+        [ Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray)
         , Attributes.style "pointer-events: none;"
         ] userAttributes []
   in
@@ -155,7 +155,7 @@ verticalGrid system userAttributes x =
   let
     attributes =
       concat
-        [ Attributes.stroke (Color.Convert.colorToHex Colors.gray)
+        [ Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray)
         , Attributes.style "pointer-events: none;"
         ] userAttributes []
   in
@@ -172,7 +172,7 @@ xTick system height userAttributes y x =
   let
     attributes =
       concat
-        [ Attributes.stroke (Color.Convert.colorToHex Colors.gray) ]
+        [ Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray) ]
         userAttributes
         [ Attributes.x1 <| toString (toSvgX system x)
         , Attributes.x2 <| toString (toSvgX system x)
@@ -190,7 +190,7 @@ yTick system width userAttributes x y =
     attributes =
       concat
         [ Attributes.class "chart__tick"
-        , Attributes.stroke (Color.Convert.colorToHex Colors.gray)
+        , Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray)
         ]
         userAttributes
         [ Attributes.x1 <| toString (toSvgX system x)

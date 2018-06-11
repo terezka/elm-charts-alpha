@@ -29,7 +29,7 @@ main =
 
 chart : Html.Html msg
 chart =
-  BarChart.view
+  BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "gender" .label
     , dependentAxis = DependentAxis.default 400 "magnesium"
     , container = Container.default "bar-chart"
@@ -41,7 +41,8 @@ chart =
     , junk = Junk.default
     , pattern = Pattern.default
     }
-    [ BarChart.barWithExpectation (always Colors.goldLight) [] .magnesium .expected
+    [ BarChart.barWithExpectation (always (Color.rgba 255 204 128 0.8)) [] .magnesium .expected
+    , BarChart.bar (always (Color.rgba 128 203 196 0.6)) [] .heartattacks
     ]
     data
 
@@ -68,6 +69,7 @@ defaultLabel position =
 defaultValueLabel : Data -> Svg msg
 defaultValueLabel data =
   Svg.text_ [] [ Svg.tspan [] [ Svg.text (toString data.magnesium) ] ]
+
 
 
 -- DATA

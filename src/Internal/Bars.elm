@@ -42,7 +42,7 @@ default =
   custom
     { label = Just defaultLabel
     , width = 100
-    , borderRadius = 5
+    , borderRadius = 3
     }
 
 
@@ -169,11 +169,10 @@ viewBarHorizontal (Config config) system totalOfGroups totalOfBars { point, inde
       barOffset index totalOfBars
 
     maxWidth =
-      (Coordinate.lengthY system) / (toFloat totalOfGroups) / (toFloat totalOfBars)
+      ((Coordinate.lengthY system) / (toFloat totalOfGroups)) - 5
 
     width =
-      config.width / (toFloat totalOfBars)
-        |> Basics.min maxWidth
+      (Basics.min maxWidth config.width) / (toFloat totalOfBars)
         |> Coordinate.scaleDataY system
 
     y =
@@ -190,7 +189,7 @@ viewBarHorizontal (Config config) system totalOfGroups totalOfBars { point, inde
   in
   Svg.g
     [ Svg.Attributes.class "bar" ]
-    [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToHex color) ]) commands
+    [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToCssRgba color) ]) commands
     , Utils.viewMaybe label viewLabel
     ]
 
@@ -202,11 +201,10 @@ viewBarVertical (Config config) system totalOfGroups totalOfBars { point, index,
       barOffset index totalOfBars
 
     maxWidth =
-      (Coordinate.lengthX system) / (toFloat totalOfGroups) / (toFloat totalOfBars)
+      ((Coordinate.lengthX system) / (toFloat totalOfGroups)) - 5
 
     width =
-      config.width / (toFloat totalOfBars)
-        |> Basics.min maxWidth
+      (Basics.min maxWidth config.width) / (toFloat totalOfBars)
         |> Coordinate.scaleDataX system
 
     x =
@@ -223,7 +221,7 @@ viewBarVertical (Config config) system totalOfGroups totalOfBars { point, index,
   in
   Svg.g
     [ Svg.Attributes.class "bar" ]
-    [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToHex color) ]) commands
+    [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToCssRgba color) ]) commands
     , Utils.viewMaybe label viewLabel
     ]
 

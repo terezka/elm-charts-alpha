@@ -55,14 +55,11 @@ toNormal data (Config config) =
     { title = config.title
     , variable = \_ -> 0 -- not used
     , pixels = config.pixels
-    , range = config.range -- TODO .window 0.5 (toFloat totalOfGroups + 0.5)
+    , range = config.range
     , axisLine = config.axisLine
     , ticks =
         Ticks.custom <| \_ _ ->
-          let
-            indexes =
-              List.range 1 (List.length data)
-          in
+          let indexes = List.range 1 (List.length data) in
           List.map2 config.tick indexes data
     }
 

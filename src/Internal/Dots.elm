@@ -338,23 +338,23 @@ varietyAttributes : Color.Color -> Variety -> List (Svg.Attribute msg)
 varietyAttributes color variety =
   case variety of
     Empty width ->
-      [ Attributes.stroke (Color.Convert.colorToHex color)
+      [ Attributes.stroke (Color.Convert.colorToCssRgba color)
       , Attributes.strokeWidth (toString width)
       , Attributes.fill "white"
       ]
 
     Aura width opacity ->
-      [ Attributes.stroke (Color.Convert.colorToHex color)
+      [ Attributes.stroke (Color.Convert.colorToCssRgba color)
       , Attributes.strokeWidth (toString width)
       , Attributes.strokeOpacity (toString opacity)
-      , Attributes.fill (Color.Convert.colorToHex color)
+      , Attributes.fill (Color.Convert.colorToCssRgba color)
       ]
 
     Disconnected width ->
       [ Attributes.stroke "white"
       , Attributes.strokeWidth (toString width)
-      , Attributes.fill (Color.Convert.colorToHex color)
+      , Attributes.fill (Color.Convert.colorToCssRgba color)
       ]
 
     Full ->
-      [ Attributes.fill (Color.Convert.colorToHex color) ]
+      [ Attributes.fill (Color.Convert.colorToCssRgba color) ]

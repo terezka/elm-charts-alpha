@@ -332,7 +332,7 @@ placed system x y xo yo =
 -}
 label : Color.Color -> String -> Svg.Svg msg
 label color =
-  Svg.label (Color.Convert.colorToHex color)
+  Svg.label (Color.Convert.colorToCssRgba color)
 
 
 

@@ -39,7 +39,7 @@ default pixels title =
     , range = Range.default
     , pixels = pixels
     , axisLine = AxisLine.default
-    , ticks =
+    , ticks = -- TODO weird oppisite axis length ticks discrepancy
         Ticks.custom <| \data range ->
           let smallest = Coordinate.smallestRange data range
               rangeLong = range.max - range.min
