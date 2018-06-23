@@ -37,12 +37,12 @@ main =
 
 
 type alias Model =
-    { hovering : Maybe Data }
+    { hovering : List Data }
 
 
 init : Model
 init =
-    { hovering = Nothing }
+    { hovering = [] }
 
 
 
@@ -57,7 +57,7 @@ update : Msg -> Model -> Model
 update msg model =
   case msg of
     Hover hovering ->
-      { model | hovering = List.head hovering }
+      { model | hovering = hovering }
 
 
 
@@ -89,75 +89,13 @@ chart model =
           ]
     , grid = Grid.default
     , bars = Bars.default
-    , junk =
-        Junk.custom <| \system ->
-          { below = []
-          , above = []
-          , html  =
-              case model.hovering of
-                Just hovered -> [ hoverOneHtml system hovered ]
-                Nothing -> []
-          }
+    , junk = Junk.hoverMany model.hovering .label (toString << .magnesium)
     , pattern = Pattern.default
     }
     [ BarChart.bar "Indonesia" (always (Color.rgba 255 204 128 0.8)) [] .magnesium
     , BarChart.bar "Malaysia" (always Colors.blueLight) [] .heartattacks
     ]
     data
-
-
-hoverOneHtml : Coordinate.System -> Data -> Html.Html msg
-hoverOneHtml system hovered =
-  let
-    data_ = List.indexedMap (,) data
-    find ( index, datum ) = if datum == hovered then Just (toFloat index + 1) else Nothing
-
-    x = List.filterMap find data_ |> List.head |> Maybe.withDefault 0
-    y = hovered.magnesium
-
-    viewValue ( label, value ) =
-      viewRow "inherit" label (value hovered)
-  in
-  hoverAt system x y [] <|
-    List.map viewValue [ ( "magnesium", toString << .magnesium ) ]
-
-
-viewRow : String -> String -> String -> Html.Html msg
-viewRow color label value =
-  Html.p
-    [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", color ) ] ]
-    [ Html.text (label ++ ": " ++ value) ]
-
-
-hoverAt : Coordinate.System -> Float -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hoverAt system x y styles view =
-  let
-    xPercentage = (Coordinate.toSvgX system x) * 100 / system.frame.size.width
-    yPercentage = (Coordinate.toSvgY system y)  * 100 / system.frame.size.height
-
-    posititonStyles =
-      [ ( "left", toString xPercentage ++ "%" )
-      , ( "top", toString yPercentage ++ "%" )
-      , ( "margin-right", "-400px" )
-      , ( "position", "absolute" )
-      , ( "transform", "translateX(-50%)" )
-      ]
-
-    containerStyles =
-      standardStyles ++ posititonStyles ++ styles
-  in
-  Html.div [ Html.Attributes.style containerStyles ] view
-
-
-standardStyles : List ( String, String )
-standardStyles =
-  [ ( "padding", "5px" )
-  , ( "min-width", "100px" )
-  , ( "background", "rgba(255,255,255,0.8)" )
-  , ( "border", "1px solid #d3d3d3" )
-  , ( "border-radius", "5px" )
-  , ( "pointer-events", "none" )
-  ]
 
 
 -- DATA

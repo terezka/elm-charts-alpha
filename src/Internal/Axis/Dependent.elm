@@ -57,13 +57,23 @@ custom =
   Config
 
 
-toNormal : Config msg -> Axis.Config Float data msg
-toNormal (Config config) =
+toNormal : List data -> Config msg -> Axis.Config Float data msg
+toNormal data (Config config) =
+  let
+    find datum =
+      List.filterMap (isOk datum)
+        >> List.head >> Maybe.withDefault 0 >> (+) 1 >> toFloat
+
+    isOk datum ( i, v ) =
+      if datum == v then Just i else Nothing
+  in
   Axis.custom
     { title = config.title
-    , variable = \_ -> 0 -- not used
+    , variable = \datum -> find datum (List.indexedMap (,) data)
     , pixels = config.pixels
     , range = config.range
     , axisLine = config.axisLine
     , ticks = config.ticks
     }
+
+

@@ -1,4 +1,4 @@
-module Internal.Bars exposing (Config, default, custom, Bar, bar, barWithExpectation, barConfigs, toGroups, viewGroup, variables)
+module Internal.Bars exposing (Config, default, custom, Bar, BarConfig, bar, barWithExpectation, barConfigs, toGroups, viewGroup, variables)
 
 {-| -}
 

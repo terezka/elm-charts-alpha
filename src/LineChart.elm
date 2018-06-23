@@ -472,12 +472,6 @@ viewCustom config lines =
        , Internal.Line.data line
        )
 
-    getJunk =
-      Internal.Junk.getLayers
-        (List.map junkLineInfo lines)
-        (Internal.Axis.variable config.x)
-        (Internal.Axis.variable config.y)
-
     addGrid =
       Internal.Junk.addBelow
         (Internal.Grid.view system
@@ -487,7 +481,8 @@ viewCustom config lines =
         )
 
     junk =
-       getJunk system config.junk |> addGrid
+       Internal.Junk.getLayers (junkDefaults config lines) system config.junk
+        |> addGrid
 
     -- View
     viewLines =
@@ -707,6 +702,83 @@ toSystem config data =
   { system
   | x = Internal.Axis.Range.applyX (Internal.Axis.range config.x) system
   , y = Internal.Axis.Range.applyY (Internal.Axis.range config.y) system
+  }
+
+
+-- INTERNAL / JUNK
+
+
+junkDefaults : Config data msg -> List (Series data) -> Internal.Junk.Defaults data
+junkDefaults config lines =
+  { hoverMany = hoverMany config lines
+  , hoverOne = hoverOne config lines
+  }
+
+
+hoverMany : Config data msg -> List (Series data) -> (data -> String) -> (data -> String) -> List data -> Internal.Junk.HoverMany
+hoverMany config lines formatX formatY hovered =
+  let
+    x = Internal.Axis.variable config.x
+    y = Internal.Axis.variable config.y
+
+    position =
+      Maybe.map x >> Maybe.withDefault 0
+
+    title =
+      Maybe.map formatX >> Maybe.withDefault ""
+
+    value line datum =
+      ( Internal.Line.color config.line line []
+      , Internal.Line.label line
+      , formatY datum
+      )
+  in
+  { withLine = True
+  , x = position (List.head hovered)
+  , title = title (List.head hovered)
+  , values = List.map2 value lines hovered
+  }
+
+
+
+hoverOne : Config data msg -> List (Series data) ->  List ( String, data -> String ) -> data -> Internal.Junk.HoverOne
+hoverOne config lines values hovered =
+  let
+    x = Internal.Axis.variable config.x
+    y = Internal.Axis.variable config.y
+
+    findLine lines_ =
+      case lines_ of
+        [] -> Nothing
+
+        line :: rest ->
+          if isLine line
+          then Just line
+          else findLine rest
+
+    isLine line =
+      List.any ((==) hovered) (Internal.Line.data line)
+
+    line =
+      findLine lines
+
+    lineColor line =
+      Internal.Line.color config.line line []
+
+    color =
+      Maybe.map lineColor >> Maybe.withDefault Colors.gray
+
+    title =
+      Maybe.map Internal.Line.label >> Maybe.withDefault ""
+
+    applyValue ( label, value ) =
+      ( label, value hovered )
+  in
+  { x = x hovered
+  , y = y hovered
+  , color = color line
+  , title = title line
+  , values = List.map applyValue values
   }
 
 

@@ -32,6 +32,7 @@ import Internal.Container
 import Internal.Pattern
 import Internal.Legends
 
+import Internal.Colors as Colors
 import Internal.Data as Data
 import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
@@ -92,13 +93,13 @@ view config bars data =
     ( horizontalAxis, verticalAxis ) =
       case config.orientation of
         Internal.Orientation.Horizontal ->
-          ( Internal.Axis.Dependent.toNormal config.dependentAxis
+          ( Internal.Axis.Dependent.toNormal data config.dependentAxis
           , Internal.Axis.Independent.toNormal data config.independentAxis
           )
 
         Internal.Orientation.Vertical ->
           ( Internal.Axis.Independent.toNormal data config.independentAxis
-          , Internal.Axis.Dependent.toNormal config.dependentAxis
+          , Internal.Axis.Dependent.toNormal data config.dependentAxis
           )
 
     -- System
@@ -109,12 +110,6 @@ view config bars data =
       toSystem config horizontalAxis verticalAxis data points
 
     -- Junk
-    getJunk =
-      Internal.Junk.getLayers
-        [] -- (List.map junkLineInfo groups)
-        (Internal.Axis.variable horizontalAxis)
-        (Internal.Axis.variable verticalAxis >> Just)
-
     addGrid =
       Internal.Junk.addBelow
         (Internal.Grid.view system
@@ -124,7 +119,8 @@ view config bars data =
         )
 
     junk =
-       getJunk system config.junk |> addGrid
+       Internal.Junk.getLayers (junkDefaults config barsConfigs horizontalAxis verticalAxis) system config.junk
+        |> addGrid
 
     intersection =
       Internal.Axis.Intersection.custom .min Internal.Axis.Intersection.towardsZero
@@ -274,6 +270,59 @@ toSystem config x y data points =
   { system
   | x = Internal.Axis.Range.applyX (Internal.Axis.range x) system
   , y = Internal.Axis.Range.applyY (Internal.Axis.range y) system
+  }
+
+
+
+-- INTERNAL / JUNK
+
+
+junkDefaults : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> Internal.Junk.Defaults data
+junkDefaults config bars xAxis yAxis =
+  { hoverMany = hoverMany config bars xAxis yAxis
+  , hoverOne = hoverOne config bars xAxis yAxis
+  }
+
+
+hoverMany : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> (data -> String) -> (data -> String) -> List data -> Internal.Junk.HoverMany
+hoverMany config bars xAxis yAxis formatX formatY hovered =
+  let
+    x = Internal.Axis.variable xAxis
+    y = Internal.Axis.variable yAxis >> Just
+
+    position =
+      Maybe.map x >> Maybe.withDefault 0
+
+    title =
+      Maybe.map formatX >> Maybe.withDefault ""
+
+    value bar datum =
+      ( bar.color datum
+      , bar.name
+      , formatY datum
+      )
+  in
+  { withLine = False
+  , x = position (List.head hovered)
+  , title = title (List.head hovered)
+  , values = List.map2 value bars hovered
+  }
+
+
+hoverOne : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List ( String, data -> String ) -> data -> Internal.Junk.HoverOne
+hoverOne config bars xAxis yAxis values hovered =
+  let
+    x = Internal.Axis.variable xAxis
+    y = Internal.Axis.variable yAxis >> Just
+
+    applyValue ( label, value ) =
+      ( label, value hovered )
+  in
+  { x = x hovered
+  , y = y hovered
+  , color = Colors.pink -- TODO
+  , title = "TODO"
+  , values = List.map applyValue values
   }
 
 

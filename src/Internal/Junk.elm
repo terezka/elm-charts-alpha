@@ -14,7 +14,13 @@ import Internal.Utils as Utils
 
 {-| -}
 type Config data msg =
-  Config (List (Series data) -> (data -> Float) -> (data -> Maybe Float) -> Coordinate.System -> Layers msg)
+  Config (Defaults data -> Coordinate.System -> Layers msg)
+
+
+type alias Defaults data =
+  { hoverMany : (data -> String) -> (data -> String) -> List data -> HoverMany
+  , hoverOne : List ( String, data -> String ) -> data -> HoverOne
+  }
 
 
 type alias Series data =
@@ -24,13 +30,13 @@ type alias Series data =
 {-| -}
 none : Config data msg
 none =
-  Config (\_ _ _ _ -> Layers [] [] [])
+  Config (\_ _ -> Layers [] [] [])
 
 
 {-| -}
 custom : (Coordinate.System -> Layers msg) -> Config data msg
 custom func =
-  Config (\_ _ _ -> func)
+  Config (\_ -> func)
 
 
 {-| -}
@@ -42,9 +48,9 @@ type alias Layers msg =
 
 
 {-| -}
-getLayers : List (Series data) -> (data -> Float) -> (data -> Maybe Float) -> Coordinate.System -> Config data msg -> Layers msg
-getLayers series toX toY system (Config toLayers) =
-  toLayers series toX toY system
+getLayers : Defaults data -> Coordinate.System -> Config data msg -> Layers msg
+getLayers defaults system (Config toLayers) =
+  toLayers defaults system
 
 
 {-| -}
@@ -59,30 +65,29 @@ addBelow below layers =
 
 hoverOne : Maybe data -> List ( String, data -> String ) -> Config data msg
 hoverOne hovered properties =
-  Config <| \series toX toY system ->
+  Config <| \defaults system ->
     { below = []
     , above = []
-    , html  = [ Utils.viewMaybe hovered (hoverOneHtml series system toX toY properties) ]
+    , html  = [ Utils.viewMaybe hovered (viewHoverOne system << defaults.hoverOne properties) ]
     }
 
 
-hoverOneHtml
-  :  List (Series data)
-  -> Coordinate.System
-  -> (data -> Float)
-  -> (data -> Maybe Float)
-  -> List ( String, data -> String )
-  -> data
-  -> Html.Html msg
-hoverOneHtml series system toX toY properties hovered =
+type alias HoverOne =
+  { x : Float
+  , y : Maybe Float
+  , color : Color.Color
+  , title : String
+  , values : List ( String, String )
+  }
+
+
+viewHoverOne : Coordinate.System -> HoverOne -> Html.Html msg
+viewHoverOne system config =
   let
-    x = toX hovered
-    y = Maybe.withDefault (middle .y system) (toY hovered)
+    y = Maybe.withDefault (middle .y system) config.y
 
     viewHeaderOne =
-      Utils.viewMaybe (findSeries hovered series) <| \( color, label, _ ) ->
-        viewHeader
-          [ viewColorLabel (Color.Convert.colorToCssRgba color) label ] -- TODO to rgba
+        viewHeader [ viewColorLabel (Color.Convert.colorToCssRgba config.color) config.title ]
 
     viewColorLabel color label =
       Html.p
@@ -94,10 +99,10 @@ hoverOneHtml series system toX toY properties hovered =
         [ Html.text label ]
 
     viewValue ( label, value ) =
-      viewRow "inherit" label (value hovered)
+      viewRow "inherit" label value
   in
-  hoverAt system x y [] <|
-    viewHeaderOne :: List.map viewValue properties
+  hoverAt system config.x y [] <|
+    viewHeaderOne :: List.map viewValue config.values
 
 
 
@@ -111,34 +116,33 @@ hoverMany hovered formatX formatY =
       none
 
     first :: rest ->
-      Config <| \series toX toY system ->
-        let xValue = toX first in
-        { below = [ Svg.verticalGrid system [] xValue ]
+      Config <| \defaults system ->
+        let
+          config =
+            defaults.hoverMany formatX formatY hovered
+        in
+        { below = if config.withLine then [ Svg.verticalGrid system [] config.x ] else []
         , above = []
-        , html  = [ hoverManyHtml system toX toY formatX formatY first hovered series ]
+        , html  = [ viewHoverMany system config ]
         }
 
 
-hoverManyHtml
-  :  Coordinate.System
-  -> (data -> Float)
-  -> (data -> Maybe Float)
-  -> (data -> String)
-  -> (data -> String)
-  -> data
-  -> List data
-  -> List (Series data)
-  -> Html.Html msg
-hoverManyHtml system toX toY formatX formatY first hovered series =
-  let
-    x = toX first
+type alias HoverMany =
+  { withLine : Bool
+  , x : Float
+  , title : String
+  , values : List ( Color.Color, String, String )
+  }
 
-    viewValue ( color, label, data ) =
-      Utils.viewMaybe (find hovered data) <| \hovered ->
-        viewRow (Color.Convert.colorToCssRgba color) label (formatY hovered)
+
+viewHoverMany : Coordinate.System -> HoverMany -> Html.Html msg
+viewHoverMany system config =
+  let
+    viewValue ( color, label, value ) =
+      viewRow (Color.Convert.colorToCssRgba color) label value
   in
-  hover system x [] <|
-    viewHeader [ Html.text (formatX first) ] :: List.map viewValue series
+  hover system config.x [] <|
+    viewHeader [ Html.text config.title ] :: List.map viewValue config.values
 
 
 standardStyles : List ( String, String )
@@ -229,30 +233,3 @@ shouldFlip : Coordinate.System -> Float -> Bool
 shouldFlip system x =
   x - system.x.min > system.x.max - x
 
-
-find : List data -> List data -> Maybe data
-find hovered data =
-  case hovered of
-    [] ->
-      Nothing
-
-    first :: rest ->
-      if List.any ((==) first) data then
-        Just first
-      else
-        find rest data
-
-
-findSeries : data -> List (Series data) -> Maybe (Series data)
-findSeries hovered datas =
-  case datas of
-    [] ->
-      Nothing
-
-    ( color, label, data ) :: rest ->
-      case find [ hovered ] data of
-        Just found ->
-          Just ( color, label, data )
-
-        Nothing ->
-          findSeries hovered rest
