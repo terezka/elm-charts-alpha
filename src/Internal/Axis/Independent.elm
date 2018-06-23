@@ -1,7 +1,7 @@
 module Internal.Axis.Independent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal
+  , toNormal, tick
   )
 
 
@@ -49,6 +49,12 @@ custom =
   Config
 
 
+{-| -}
+tick : Config data msg -> Int -> data -> Tick.Config msg
+tick (Config config) =
+  config.tick
+
+
 toNormal : List data -> Config data msg -> Axis.Config Float data msg
 toNormal data (Config config) =
   let
@@ -75,7 +81,7 @@ toNormal data (Config config) =
 defaultTick : (data -> String) -> Int -> data -> Tick.Config msg
 defaultTick label n data =
   Tick.custom
-    { position = toFloat n
+    { position = toFloat n -- TODO remove position from tick config
     , color = Colors.gray
     , width = 1
     , length = 5

@@ -8,19 +8,25 @@ import Html exposing (Html)
 import Html.Attributes
 import Internal.Coordinate as Coordinate
 import Color.Convert
-import Internal.Svg as Svg
-import Internal.Utils as Utils
 
 
 {-| -}
-type Config data msg =
-  Config (Defaults data -> Coordinate.System -> Layers msg)
+type Config chart msg =
+  Config (chart -> Coordinate.System -> Layers msg)
 
 
-type alias Defaults data =
-  { hoverMany : (data -> String) -> (data -> String) -> List data -> HoverMany
-  , hoverOne : List ( String, data -> String ) -> data -> HoverOne
-  }
+type XYChart data
+  = XYChart
+      { hoverMany : (data -> String) -> (data -> String) -> List data -> HoverMany
+      , hoverOne : List ( String, data -> String ) -> data -> HoverOne
+      }
+
+
+type BarChart data
+  = BarChart
+      { hoverMany : (data -> String) -> (Float -> String) -> List data -> HoverMany
+      , hoverOne : List ( String, data -> String ) -> data -> HoverOne
+      }
 
 
 type alias Series data =
@@ -28,13 +34,13 @@ type alias Series data =
 
 
 {-| -}
-none : Config data msg
+none : Config chart msg
 none =
   Config (\_ _ -> Layers [] [] [])
 
 
 {-| -}
-custom : (Coordinate.System -> Layers msg) -> Config data msg
+custom : (Coordinate.System -> Layers msg) -> Config chart msg
 custom func =
   Config (\_ -> func)
 
@@ -48,7 +54,7 @@ type alias Layers msg =
 
 
 {-| -}
-getLayers : Defaults data -> Coordinate.System -> Config data msg -> Layers msg
+getLayers : chart -> Coordinate.System -> Config chart msg -> Layers msg
 getLayers defaults system (Config toLayers) =
   toLayers defaults system
 
@@ -61,15 +67,6 @@ addBelow below layers =
 
 
 -- HOVERS
-
-
-hoverOne : Maybe data -> List ( String, data -> String ) -> Config data msg
-hoverOne hovered properties =
-  Config <| \defaults system ->
-    { below = []
-    , above = []
-    , html  = [ Utils.viewMaybe hovered (viewHoverOne system << defaults.hoverOne properties) ]
-    }
 
 
 type alias HoverOne =
@@ -107,24 +104,6 @@ viewHoverOne system config =
 
 
 -- HOVER MANY
-
-
-hoverMany : List data -> (data -> String) -> (data -> String) -> Config data msg
-hoverMany hovered formatX formatY =
-  case hovered of
-    [] ->
-      none
-
-    first :: rest ->
-      Config <| \defaults system ->
-        let
-          config =
-            defaults.hoverMany formatX formatY hovered
-        in
-        { below = if config.withLine then [ Svg.verticalGrid system [] config.x ] else []
-        , above = []
-        , html  = [ viewHoverMany system config ]
-        }
 
 
 type alias HoverMany =

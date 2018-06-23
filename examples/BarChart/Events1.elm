@@ -2,7 +2,6 @@ module Events1 exposing (main)
 
 import Html
 import Html.Attributes
-import Svg exposing (Svg, Attribute, g, text, text_)
 import BarChart
 import BarChart.Axis.Independent as IndependentAxis
 import BarChart.Axis.Dependent as DependentAxis
@@ -16,8 +15,6 @@ import BarChart.Bars as Bars
 import BarChart.Junk as Junk
 import BarChart.Colors as Colors
 import BarChart.Pattern as Pattern
-import BarChart.Coordinate as Coordinate
-import Internal.Junk
 -- TODO ^^^^
 import Color
 
@@ -88,8 +85,8 @@ chart model =
           , Events.onMouseLeave (Hover [])
           ]
     , grid = Grid.default
-    , bars = Bars.default
-    , junk = Junk.hoverMany model.hovering .label (toString << .magnesium)
+    , bars = Bars.custom (Bars.Properties Nothing 20 3)
+    , junk = Junk.hoverMany model.hovering .label toString
     , pattern = Pattern.default
     }
     [ BarChart.bar "Indonesia" (always (Color.rgba 255 204 128 0.8)) [] .magnesium

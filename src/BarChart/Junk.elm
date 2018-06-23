@@ -63,9 +63,9 @@ import Html
 import BarChart.Coordinate as Coordinate
 import Internal.Junk as Junk
 import Internal.Svg as Svg
+import Internal.Utils as Utils
 import Color
 import Color.Convert
-
 
 
 -- QUICK START
@@ -93,7 +93,7 @@ default =
 
 -}
 type alias Config data msg =
-  Junk.Config data msg
+  Junk.Config (Junk.BarChart data) msg
 
 
 {-| Draws the default tooltip.
@@ -111,8 +111,18 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 -}
 hoverOne : Maybe data -> List ( String, data -> String ) -> Config data msg
-hoverOne =
-  Junk.hoverOne
+hoverOne hovered values =
+  case hovered of
+      Nothing ->
+        Junk.none
+
+      Just hovered_ ->
+        Junk.Config <| \(Junk.BarChart defaults) system ->
+          { below = []
+          , above = []
+          , html  = [ Junk.viewHoverOne system (defaults.hoverOne values hovered_) ]
+          }
+
 
 
 {-| Draws the default tooltip for multiple hovered points.
@@ -136,9 +146,22 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip2.png?raw=true"></src>
 
 -}
-hoverMany : List data -> (data -> String) -> (data -> String) -> Config data msg
-hoverMany =
-  Junk.hoverMany
+hoverMany : List data -> (data -> String) -> (Float -> String) -> Config data msg
+hoverMany hovered formatX formatY =
+  case hovered of
+      [] ->
+        Junk.none
+
+      first :: rest ->
+        Junk.Config <| \(Junk.BarChart defaults) system ->
+          let
+            config =
+              defaults.hoverMany formatX formatY hovered
+          in
+          { below = if config.withLine then [ Svg.verticalGrid system [] config.x ] else []
+          , above = []
+          , html  = [ Junk.viewHoverMany system config ]
+          }
 
 
 {-| The layers where you can put your junk.

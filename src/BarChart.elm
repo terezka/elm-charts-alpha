@@ -277,18 +277,19 @@ toSystem config x y data points =
 -- INTERNAL / JUNK
 
 
-junkDefaults : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> Internal.Junk.Defaults data
+junkDefaults : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> Internal.Junk.BarChart data
 junkDefaults config bars xAxis yAxis =
-  { hoverMany = hoverMany config bars xAxis yAxis
-  , hoverOne = hoverOne config bars xAxis yAxis
-  }
+  Internal.Junk.BarChart
+    { hoverMany = hoverMany config bars xAxis yAxis
+    , hoverOne = hoverOne config bars xAxis yAxis
+    }
 
 
-hoverMany : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> (data -> String) -> (data -> String) -> List data -> Internal.Junk.HoverMany
+hoverMany : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> (data -> String) -> (Float -> String) -> List data -> Internal.Junk.HoverMany
 hoverMany config bars xAxis yAxis formatX formatY hovered =
   let
     x = Internal.Axis.variable xAxis
-    y = Internal.Axis.variable yAxis >> Just
+    y = Internal.Axis.variable yAxis
 
     position =
       Maybe.map x >> Maybe.withDefault 0
@@ -299,7 +300,7 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
     value bar datum =
       ( bar.color datum
       , bar.name
-      , formatY datum
+      , formatY (bar.variable datum)
       )
   in
   { withLine = False
