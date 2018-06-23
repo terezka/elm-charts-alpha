@@ -340,20 +340,39 @@ verticalBarCommands system borderRadius width { x, y }  =
     , Line <| Point (x + width) 0
     ]
   else
-    let
-      b =
-        toFloat borderRadius
+    if y < 0 then
+      let
+        b =
+          toFloat borderRadius
 
-      rx =
-        scaleDataX system b
+        rx =
+          scaleDataX system b
 
-      ry =
-        scaleDataY system b
-    in
-    [ Move <| Point x 0
-    , Line <| Point x (y - ry)
-    , Arc b b -45 False True <| Point (x + rx) y
-    , Line <| Point (x + width - rx) y
-    , Arc b b -45 False True <| Point (x + width) (y - ry)
-    , Line <| Point (x + width) 0
-    ]
+        ry =
+          scaleDataY system b
+      in
+      [ Move <| Point x 0
+      , Line <| Point x (y + ry)
+      , Arc b b -45 False False <| Point (x + rx) y
+      , Line <| Point (x + width - rx) y
+      , Arc b b -45 False False <| Point (x + width) (y + ry)
+      , Line <| Point (x + width) 0
+      ]
+    else
+      let
+        b =
+          toFloat borderRadius
+
+        rx =
+          scaleDataX system b
+
+        ry =
+          scaleDataY system b
+      in
+      [ Move <| Point x 0
+      , Line <| Point x (y - ry)
+      , Arc b b -45 False True <| Point (x + rx) y
+      , Line <| Point (x + width - rx) y
+      , Arc b b -45 False True <| Point (x + width) (y - ry)
+      , Line <| Point (x + width) 0
+      ]
