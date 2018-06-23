@@ -2,7 +2,7 @@ module Internal.Axis.Intersection exposing
   ( Config
   , default, atOrigin, at, custom
   -- INTERNAL
-  , getX, getY
+  , getX, getY, towardsZero
   )
 
 import Internal.Coordinate as Coordinate

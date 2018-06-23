@@ -1,6 +1,7 @@
 module Internal.Svg exposing
   ( gridDot
   , horizontal, vertical
+  , square
   , rectangle
   , horizontalGrid, verticalGrid
   , xTick, yTick
@@ -18,7 +19,7 @@ module Internal.Svg exposing
 @docs horizontal, vertical
 
 # Rectangles
-@docs rectangle
+@docs square, rectangle
 
 # Grids
 
@@ -64,6 +65,21 @@ withinChartArea : Coordinate.System -> Svg.Attribute msg
 withinChartArea { id } =
   Attributes.clipPath <| "url(#" ++ toChartAreaId id ++ ")"
 
+
+
+-- DOT
+
+
+{-| -}
+square : Float -> Color.Color -> Svg msg
+square width color =
+  Svg.rect
+    [ Attributes.y (toString (-width / 2))
+    , Attributes.width (toString width)
+    , Attributes.height (toString width)
+    , Attributes.fill (Color.Convert.colorToCssRgba color)
+    ]
+    []
 
 
 -- DOT

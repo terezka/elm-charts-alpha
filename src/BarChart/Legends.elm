@@ -1,6 +1,5 @@
 module BarChart.Legends exposing
   ( Config, none, default
-  , byEnding, byBeginning
   , grouped, groupedCustom, Legend
   )
 
@@ -43,13 +42,13 @@ import Internal.Legends as Legends
       }
 
 -}
-type alias Config data msg
-  = Legends.Config data msg
+type alias Config msg
+  = Legends.Config msg
 
 
 {-| Produces legends in the top right corner.
 -}
-default : Config data msg
+default : Config msg
 default =
   Legends.default 10 10
 
@@ -60,38 +59,9 @@ default =
 
 {-| Removes the legends.
 -}
-none : Config data msg
+none : Config msg
 none =
   Legends.none
-
-
-
--- FREE
-
-
-{-| Places the legend by the end of its line.
-
-    chartConfig : BarChart.Config Data msg
-    chartConfig =
-      { ...
-      , legends = Legends.byEnding (Junk.label Colors.black)
-      , ...
-      }
-
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example1.elm)._
-
--}
-byEnding : (String -> Svg.Svg msg) -> Config data msg
-byEnding =
-  Legends.byEnding
-
-
-{-| Same as `byEnding`, except by the beginning of the line!
--}
-byBeginning : (String -> Svg.Svg msg) -> Config data msg
-byBeginning =
-  Legends.byBeginning
 
 
 
@@ -121,7 +91,7 @@ Makes this:
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example2.elm)._
 
 -}
-grouped : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config data msg
+grouped : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config msg
 grouped =
   Legends.grouped 10
 
@@ -180,6 +150,6 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 
 -}
-groupedCustom : Float -> (Coordinate.System -> List (Legend msg) -> Svg.Svg msg) -> Config data msg
+groupedCustom : Float -> (Coordinate.System -> List (Legend msg) -> Svg.Svg msg) -> Config msg
 groupedCustom =
   Legends.groupedCustom

@@ -1,4 +1,4 @@
-module Internal.Bars exposing (Config, default, custom, Bar, bar, barWithExpectation, barConfigs, toGroups, viewGroup)
+module Internal.Bars exposing (Config, default, custom, Bar, bar, barWithExpectation, barConfigs, toGroups, viewGroup, variables)
 
 {-| -}
 
@@ -71,15 +71,15 @@ type Bar data msg =
 
 
 {-| -}
-bar : (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> Bar data msg
-bar color attributes variable =
-  Bar <| BarConfig color attributes variable Nothing
+bar : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> Bar data msg
+bar name color attributes variable =
+  Bar <| BarConfig name color attributes variable Nothing
 
 
 {-| -}
-barWithExpectation : (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> (data -> Float) -> Bar data msg
-barWithExpectation color attributes variable expectation =
-  Bar <| BarConfig color attributes variable (Just expectation)
+barWithExpectation : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> (data -> Float) -> Bar data msg
+barWithExpectation name color attributes variable expectation =
+  Bar <| BarConfig name color attributes variable (Just expectation)
 
 
 
@@ -87,7 +87,8 @@ barWithExpectation color attributes variable expectation =
 
 
 type alias BarConfig data msg =
-  { color : data -> Color.Color
+  { name : String
+  , color : data -> Color.Color
   , attributes : List (Svg.Attribute msg)
   , variable : data -> Float
   , expectation : Maybe (data -> Float)
@@ -99,7 +100,11 @@ barConfigs : Bar data msg -> List (BarConfig data msg)
 barConfigs (Bar config) =
   case config.expectation of
     Just expectation ->
-      [ config, BarConfig config.color (addMask config.attributes) expectation Nothing  ]
+      let
+        name =
+          config.name ++ " (expected)"
+      in
+      [ config, BarConfig name config.color (addMask config.attributes) expectation Nothing  ]
 
     Nothing ->
       [ config ]
@@ -108,6 +113,12 @@ barConfigs (Bar config) =
 addMask : List (Svg.Attribute msg) -> List (Svg.Attribute msg)
 addMask attributes =
   attributes ++ [ Svg.Attributes.mask "url(#mask-stripe)" ]
+
+
+{-| -}
+variables : Bar data msg -> List (data -> Float)
+variables (Bar config) =
+  List.filterMap identity [ Just config.variable, config.expectation ]
 
 
 
@@ -188,7 +199,7 @@ viewBarHorizontal (Config config) system totalOfGroups totalOfBars { point, inde
       Junk.labelAt system x (y - width / 2) (label.xOffset + 10) (label.yOffset + 3) "middle" Color.black label.text
   in
   Svg.g
-    [ Svg.Attributes.class "bar" ]
+    [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
     [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToCssRgba color) ]) commands
     , Utils.viewMaybe label viewLabel
     ]
@@ -220,7 +231,7 @@ viewBarVertical (Config config) system totalOfGroups totalOfBars { point, index,
       Junk.labelAt system (x + width / 2) y label.xOffset (label.yOffset - 5) "middle" Color.black label.text
   in
   Svg.g
-    [ Svg.Attributes.class "bar" ]
+    [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
     [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToCssRgba color) ]) commands
     , Utils.viewMaybe label viewLabel
     ]

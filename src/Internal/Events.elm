@@ -157,7 +157,7 @@ toContainerAttributes data system (Config events) =
 
 {-| -}
 type Decoder data msg =
-  Decoder (List (Data.Data data) -> System  -> Point -> msg)
+  Decoder (List (Data.Data data) -> System -> Point -> msg)
 
 
 {-| -}

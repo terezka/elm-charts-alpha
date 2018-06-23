@@ -20,6 +20,7 @@ import BarChart.Bars as Bars
 
 import Internal.Bars
 import Internal.Orientation
+import Internal.Events
 import Internal.Axis
 import Internal.Axis.Dependent
 import Internal.Axis.Independent
@@ -29,9 +30,12 @@ import Internal.Junk
 import Internal.Grid
 import Internal.Container
 import Internal.Pattern
+import Internal.Legends
 
+import Internal.Data as Data
 import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
+import Internal.Svg as Svg
 import Color
 
 
@@ -41,7 +45,7 @@ type alias Config data msg =
   , dependentAxis : AxisDependent.Config msg
   , container : Container.Config msg
   , orientation : Orientation.Config
-  , legends : Legends.Config data msg
+  , legends : Legends.Config msg
   , events : Events.Config data msg
   , pattern : Pattern.Config
   , grid : Grid.Config
@@ -56,13 +60,13 @@ type alias Bar data msg =
 
 
 {-| -}
-bar : (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> Bar data msg
+bar : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> Bar data msg
 bar =
   Internal.Bars.bar
 
 
 {-| -}
-barWithExpectation : (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> (data -> Float) -> Bar data msg
+barWithExpectation : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> (data -> Float) -> Bar data msg
 barWithExpectation =
   Internal.Bars.barWithExpectation
 
@@ -80,6 +84,9 @@ view config bars data =
 
     groups =
       Internal.Bars.toGroups config.orientation config.bars barsConfigs data
+
+    dataPoints =
+      toDataPoints bars data
 
     -- Axes
     ( horizontalAxis, verticalAxis ) =
@@ -120,7 +127,7 @@ view config bars data =
        getJunk system config.junk |> addGrid
 
     intersection =
-      Internal.Axis.Intersection.default -- TODO
+      Internal.Axis.Intersection.custom .min Internal.Axis.Intersection.towardsZero
 
     -- View
     viewGroups =
@@ -129,17 +136,32 @@ view config bars data =
     attributes =
       List.concat
         [ Internal.Container.properties .attributesSvg config.container
-        -- TODO , Internal.Events.toContainerAttributes dataAll system config.events
+        , Internal.Events.toContainerAttributes dataPoints system config.events
         , [ viewBoxAttribute system ]
         ]
+
+    toLegend width bar =
+      -- TODO color
+      { sample = Svg.square width (Maybe.map bar.color (List.head data) |> Maybe.withDefault Color.blue)
+      , label = bar.name
+      }
+
+    viewLegends =
+      Internal.Legends.view
+        { system = system
+        , config = config.legends
+        , legends = \width -> List.map (toLegend width) barsConfigs
+        }
   in
   container config system junk.html <|
     Svg.svg attributes
       [ Svg.defs [] (clipPath system :: Internal.Pattern.toDefs config.pattern)
       , Svg.g [ Svg.Attributes.class "chart__junk--below" ] junk.below
+      , chartAreaPlatform config dataPoints system
       , Svg.g [ Svg.Attributes.class "groups" ] viewGroups
       , Internal.Axis.viewHorizontal system intersection horizontalAxis
       , Internal.Axis.viewVertical system intersection verticalAxis
+      , viewLegends
       , Svg.g [ Svg.Attributes.class "chart__junk--above" ] junk.above
       ]
 
@@ -178,11 +200,37 @@ chartAreaAttributes system =
   ]
 
 
+chartAreaPlatform : Config data msg -> List (Data.Data data) -> Coordinate.System -> Svg.Svg msg
+chartAreaPlatform config data system =
+  let
+    attributes =
+      List.concat
+        [ [ Svg.Attributes.fill "transparent" ]
+        , chartAreaAttributes system
+        , Internal.Events.toChartAttributes data system config.events
+        ]
+  in
+  Svg.rect attributes []
+
+
 clipPath : Coordinate.System -> Svg.Svg msg
 clipPath system =
   Svg.clipPath
     [ Svg.Attributes.id (Utils.toChartAreaId system.id) ]
     [ Svg.rect (chartAreaAttributes system) [] ]
+
+
+toDataPoints : List (Bar data msg) -> List data -> List (Data.Data data)
+toDataPoints bars data =
+  let
+    toDataPoint index datum =
+      List.map (addPoint index datum) (List.concatMap Internal.Bars.variables bars)
+
+    addPoint index datum variable =
+      Data.Data datum (Data.Point (toFloat index + 1) (variable datum)) True False
+  in
+  List.indexedMap toDataPoint data
+    |> List.concat
 
 
 toSystem : Config data msg -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List data -> List Coordinate.Point -> Coordinate.System

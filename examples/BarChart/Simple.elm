@@ -30,7 +30,7 @@ main =
 chart : Html.Html msg
 chart =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
-    { independentAxis = IndependentAxis.default 700 "gender" .label
+    { independentAxis = IndependentAxis.default 700 "gender" .label -- TODO customize label?
     , dependentAxis = DependentAxis.default 400 "magnesium"
     , container = Container.default "bar-chart"
     , orientation = Orientation.default
@@ -45,31 +45,6 @@ chart =
     , BarChart.bar (always (Color.rgba 128 203 196 0.6)) [] .heartattacks
     ]
     data
-
-
-label : Float -> Bars.Label msg
-label =
-  Bars.Label [ style "font-size: 14px;" ] 20 -5 << toString
-
-
-barColor : Data -> Color.Color
-barColor data =
-  if data.label == "Trans" then
-    Colors.blueLight
-  else
-    Colors.pink
-
-
-{-| -}
-defaultLabel : String -> Svg msg
-defaultLabel position =
-  Svg.text_ [] [ Svg.tspan [] [ Svg.text position ] ]
-
-{-| -}
-defaultValueLabel : Data -> Svg msg
-defaultValueLabel data =
-  Svg.text_ [] [ Svg.tspan [] [ Svg.text (toString data.magnesium) ] ]
-
 
 
 -- DATA

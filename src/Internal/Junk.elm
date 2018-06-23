@@ -192,7 +192,7 @@ hover system x styles =
 
 
 {-| -}
-hoverAt : Coordinate.System  -> Float -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
+hoverAt : Coordinate.System -> Float -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
 hoverAt system x y styles view =
   let
     space = if shouldFlip system x then -15 else 15

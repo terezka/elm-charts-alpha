@@ -389,7 +389,7 @@ type alias Config data msg =
   , container : Container.Config msg
   , intersection : Intersection.Config
   , interpolation : Interpolation.Config
-  , legends : Legends.Config data msg
+  , legends : Legends.Config msg
   , events : Events.Config data msg
   , area : Area.Config
   , grid : Grid.Config
@@ -499,14 +499,16 @@ viewCustom config lines =
         , area = config.area
         }
 
+    toLegend sampleWidth serie data =
+      { sample = Internal.Line.viewSample config.dots config.line config.area system serie data sampleWidth
+      , label = Internal.Line.label serie
+      }
+
     viewLegends =
       Internal.Legends.view
         { system = system
-        , legends = config.legends
-        , data = dataSafe
-        , series = lines
-        , label = Internal.Line.label
-        , sample = viewLegendSample
+        , config = config.legends
+        , legends = \width -> List.map2 (toLegend width) lines dataSafe
         }
 
     viewLegendSample =

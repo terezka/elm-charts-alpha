@@ -35,7 +35,7 @@ main =
 chart : Html.Html msg
 chart =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" .weight
+    { y = Axis.default 450 "Weight" (Just << .weight)
     , x = Axis.default 700 "Age" .age
     , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
@@ -43,8 +43,6 @@ chart =
     , legends =
         -- Try out these different configs!
         Legends.default
-        -- Legends.byEnding (Junk.label Color.black)
-        -- Legends.byBeginning (Junk.label Color.black)
         -- Legends.grouped .max .min 0 -60 -- Arguments: x-coordinate y-coordinate x-offset y-offset
         -- Legends.groupedCustom 30 viewLegends
         -- Legends.groupedCustom 20 viewLegends
