@@ -7,12 +7,26 @@ import Internal.Coordinate exposing (..)
 
 
 {-| -}
-type alias Data data =
-  { user : data
+type alias Data chart data =
+  { chart
+  | user : data
   , point : Point
-  , isReal : Bool
-  , isOutlier : Bool
   }
+
+
+{-| -}
+type alias BarChart =
+  { group : Int }
+
+
+{-| -}
+type alias LineChart =
+  { isReal : Bool }
+
+
+{-| -}
+type alias ScatterChart =
+  { isOutlier : Bool }
 
 
 {-| -}
@@ -30,6 +44,6 @@ isWithinRange system point =
 
 
 {-| -}
-asTuple : Data data -> ( Float, Float )
+asTuple : Data chart data -> ( Float, Float )
 asTuple { point } =
     ( point.x, point.y )

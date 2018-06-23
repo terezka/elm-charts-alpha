@@ -4,7 +4,7 @@ module Internal.Dots exposing
   , Style, style, empty, disconnected, aura, full
   , Variety
   , Outlier
-  , view, viewSample
+  , viewForLines, viewForScatter, viewSample
   )
 
 {-| -}
@@ -153,8 +153,21 @@ type alias Arguments data =
 
 
 {-| -}
-view : Arguments data -> Data.Data data -> Svg msg
-view arguments datum =
+viewForLines : Arguments data -> Data.Data Data.LineChart data data -> Svg msg
+viewForLines arguments datum =
+  let
+    (Config config) =
+      arguments.dotsConfig
+
+    (Style style) =
+      config.individual datum.user
+  in
+  viewShape arguments.system style arguments.shape arguments.color datum.point
+
+
+{-| -}
+viewForScatter : Arguments data -> Data.Data Data.ScatterChart data data -> Svg msg
+viewForScatter arguments datum =
   let
     (Config config) =
       arguments.dotsConfig
@@ -178,7 +191,7 @@ view arguments datum =
 
 
 {-| -}
-viewSample : Config data -> Maybe Shape -> Color.Color -> Coordinate.System -> List (Data.Data data) -> Coordinate.Point -> Svg msg
+viewSample : Config data -> Maybe Shape -> Color.Color -> Coordinate.System -> List (Data.Data chart data) -> Coordinate.Point -> Svg msg
 viewSample (Config config) shape color system data =
   let
     (Style style) =

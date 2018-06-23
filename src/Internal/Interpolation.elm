@@ -15,7 +15,7 @@ type Config
 
 
 {-| -}
-toCommands : Config -> List (List (Data.Data data), Maybe (Data.Data data)) -> List (List Command)
+toCommands : Config -> List (List (Data.Data chart data), Maybe (Data.Data chart data)) -> List (List Command)
 toCommands interpolation data =
   let
     points =

@@ -37,6 +37,7 @@ module BarChart.Events exposing
 -}
 
 import Internal.Events as Events
+import Internal.Data as Data
 import BarChart.Coordinate as Coordinate
 
 
@@ -55,7 +56,7 @@ import BarChart.Coordinate as Coordinate
 
 -}
 type alias Config data msg =
-  Events.Config data msg
+  Events.Config Data.BarChart data msg
 
 
 {-| Adds no events.
@@ -98,8 +99,13 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 -}
 hoverMany : (List data -> msg) -> Config data msg
-hoverMany =
-  Events.hoverMany
+hoverMany msg =
+  Events.custom
+      [ Events.onMouseMove msg Events.getNearestX
+      , Events.on "touchstart" msg Events.getNearestX
+      , Events.on "touchmove" msg Events.getNearestX
+      , Events.onMouseLeave (msg [])
+      ]
 
 
 {-| Sends a given message when clicking on a dot.
@@ -147,7 +153,7 @@ custom =
 
 {-| -}
 type alias Event data msg =
-  Events.Event data msg
+  Events.Event Data.BarChart data msg
 
 
 {-| -}
@@ -228,7 +234,7 @@ This example gets you the data of the nearest dot to where you are hovering.
 
 -}
 type alias Decoder data msg =
-  Events.Decoder data msg
+  Events.Decoder Data.BarChart  data msg
 
 
 {-| Get the SVG-space coordinates of the event.

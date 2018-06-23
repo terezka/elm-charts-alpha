@@ -95,7 +95,7 @@ linear data x =
 
 
 {-| -}
-view : Coordinate.System -> Config data -> Group.Config data -> List (Group.Group data) -> List (List (Data.Data data)) -> Svg.Svg msg
+view : Coordinate.System -> Config data -> Group.Config data -> List (Group.Group data) -> List (List (Data.Data Data.ScatterChart data data)) -> Svg.Svg msg
 view system config groupConfig groups data =
   case config of
     None ->
@@ -116,7 +116,7 @@ view system config groupConfig groups data =
       Svg.g [ Svg.Attributes.class "chart__trends" ] viewTrends
 
 
-viewSingle : Coordinate.System -> Color.Color -> Function -> Width data -> Bool -> List (Data.Data data) -> Svg.Svg msg
+viewSingle : Coordinate.System -> Color.Color -> Function -> Width data -> Bool -> List (Data.Data Data.ScatterChart data data) -> Svg.Svg msg
 viewSingle system color function editWidth includeOutliers dataRaw =
   let
     data =

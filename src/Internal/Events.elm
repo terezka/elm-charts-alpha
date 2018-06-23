@@ -22,18 +22,18 @@ import Json.Decode as Json
 
 
 {-| -}
-type Config data msg
-  = Config (List (Event data msg))
+type Config chart data msg
+  = Config (List (Event chart data msg))
 
 
 {-| -}
-default : Config data msg
+default : Config chart data msg
 default =
   custom []
 
 
 {-| -}
-hoverMany : (List data -> msg) -> Config data msg
+hoverMany : (List data -> msg) -> Config chart data msg
 hoverMany msg =
   custom
     [ onMouseMove msg getNearestX
@@ -42,7 +42,7 @@ hoverMany msg =
 
 
 {-| -}
-hoverOne : (Maybe data -> msg) -> Config data msg
+hoverOne : (Maybe data -> msg) -> Config chart data msg
 hoverOne msg =
   custom
     [ onMouseMove msg (getWithin 30)
@@ -53,14 +53,14 @@ hoverOne msg =
 
 
 {-| -}
-click : (Maybe data -> msg) -> Config data msg
+click : (Maybe data -> msg) -> Config chart data msg
 click msg =
   custom
     [ onClick msg (getWithin 30) ]
 
 
 {-| -}
-custom : List (Event data msg) -> Config data msg
+custom : List (Event chart data msg) -> Config chart data msg
 custom =
   Config
 
@@ -70,49 +70,49 @@ custom =
 
 
 {-| -}
-type Event data msg
-  = Event Bool (List (Data.Data data) -> System -> Svg.Attribute msg)
+type Event chart data msg
+  = Event Bool (List (Data.Data chart data) -> System -> Svg.Attribute msg)
 
 
-onClick : (a -> msg) -> Decoder data a -> Event data msg
+onClick : (a -> msg) -> Decoder chart data a -> Event chart data msg
 onClick =
   on "click"
 
 
 {-| -}
-onMouseMove : (a -> msg) -> Decoder data a -> Event data msg
+onMouseMove : (a -> msg) -> Decoder chart data a -> Event chart data msg
 onMouseMove =
   on "mousemove"
 
 
 {-| -}
-onMouseDown : (a -> msg) -> Decoder data a -> Event data msg
+onMouseDown : (a -> msg) -> Decoder chart data a -> Event chart data msg
 onMouseDown =
   on "mousedown"
 
 
 {-| -}
-onMouseUp : (a -> msg) -> Decoder data a -> Event data msg
+onMouseUp : (a -> msg) -> Decoder chart data a -> Event chart data msg
 onMouseUp =
   on "mouseup"
 
 
 {-| -}
-onMouseLeave : msg -> Event data msg
+onMouseLeave : msg -> Event chart data msg
 onMouseLeave msg =
   Event False <| \_ _ ->
     Svg.Events.on "mouseleave" (Json.succeed msg)
 
 
 {-| -}
-on : String -> (a -> msg) -> Decoder data a -> Event data msg
+on : String -> (a -> msg) -> Decoder chart data a -> Event chart data msg
 on event toMsg decoder =
   Event False <| \data system ->
     Svg.Events.on event (toJsonDecoder data system (map toMsg decoder))
 
 
 {-| -}
-onWithOptions : String -> Options -> (a -> msg) -> Decoder data a -> Event data msg
+onWithOptions : String -> Options -> (a -> msg) -> Decoder chart data a -> Event chart data msg
 onWithOptions event options toMsg decoder =
   Event options.catchOutsideChart <| \data system ->
     Html.Events.onWithOptions event
@@ -132,7 +132,7 @@ type alias Options =
 
 
 {-| -}
-toChartAttributes : List (Data.Data data) -> System -> Config data msg -> List (Svg.Attribute msg)
+toChartAttributes : List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
 toChartAttributes data system (Config events) =
   let
     order (Event outside event) =
@@ -142,7 +142,7 @@ toChartAttributes data system (Config events) =
 
 
 {-| -}
-toContainerAttributes : List (Data.Data data) -> System -> Config data msg -> List (Svg.Attribute msg)
+toContainerAttributes : List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
 toContainerAttributes data system (Config events) =
   let
     order (Event outside event) =
@@ -156,26 +156,26 @@ toContainerAttributes data system (Config events) =
 
 
 {-| -}
-type Decoder data msg =
-  Decoder (List (Data.Data data) -> System -> Point -> msg)
+type Decoder chart data msg =
+  Decoder (List (Data.Data chart data) -> System -> Point -> msg)
 
 
 {-| -}
-getSvg : Decoder data Point
+getSvg : Decoder chart data Point
 getSvg =
   Decoder <| \points system searched ->
     searched
 
 
 {-| -}
-getData : Decoder data Point
+getData : Decoder chart data Point
 getData =
   Decoder <| \points system searchedSvg ->
     Coordinate.toData system searchedSvg
 
 
 {-| -}
-getNearest : Decoder data (Maybe data)
+getNearest : Decoder chart data (Maybe data)
 getNearest =
   Decoder <| \points system searchedSvg ->
     let
@@ -187,7 +187,7 @@ getNearest =
 
 
 {-| -}
-getWithin : Float -> Decoder data (Maybe data)
+getWithin : Float -> Decoder chart data (Maybe data)
 getWithin radius =
   Decoder <| \points system searchedSvg ->
     let
@@ -204,7 +204,7 @@ getWithin radius =
 
 
 {-| -}
-getNearestX : Decoder data (List data)
+getNearestX : Decoder chart data (List data)
 getNearestX =
   Decoder <| \points system searchedSvg ->
     let
@@ -216,7 +216,7 @@ getNearestX =
 
 
 {-| -}
-getWithinX : Float -> Decoder data (List data)
+getWithinX : Float -> Decoder chart data (List data)
 getWithinX radius =
   Decoder <| \points system searchedSvg ->
     let
@@ -236,19 +236,19 @@ getWithinX radius =
 
 
 {-| -}
-map : (a -> msg) -> Decoder data a -> Decoder data msg
+map : (a -> msg) -> Decoder chart data a -> Decoder chart data msg
 map f (Decoder a) =
   Decoder <| \ps s p -> f (a ps s p)
 
 
 {-| -}
-map2 : (a -> b -> msg) -> Decoder data a -> Decoder data b -> Decoder data msg
+map2 : (a -> b -> msg) -> Decoder chart data a -> Decoder chart data b -> Decoder chart data msg
 map2 f (Decoder a) (Decoder b) =
   Decoder <| \ps s p -> f (a ps s p) (b ps s p)
 
 
 {-| -}
-map3 : (a -> b -> c -> msg) -> Decoder data a -> Decoder data b -> Decoder data c -> Decoder data msg
+map3 : (a -> b -> c -> msg) -> Decoder chart data a -> Decoder chart data b -> Decoder chart data c -> Decoder chart data msg
 map3 f (Decoder a) (Decoder b) (Decoder c) =
   Decoder <| \ps s p -> f (a ps s p) (b ps s p) (c ps s p)
 
@@ -257,7 +257,7 @@ map3 f (Decoder a) (Decoder b) (Decoder c) =
 -- HELPERS
 
 
-getNearestHelp : List (Data.Data data) -> System -> Point -> Maybe (Data.Data data)
+getNearestHelp : List (Data.Data chart data) -> System -> Point -> Maybe (Data.Data chart data)
 getNearestHelp points system searched =
   let
       distance_ =
@@ -268,10 +268,10 @@ getNearestHelp points system searched =
             then closest
             else point
   in
-  withFirst (List.filter .isReal points) (List.foldl getClosest)
+  withFirst points (List.foldl getClosest)
 
 
-getNearestXHelp : List (Data.Data data) -> System -> Point -> List (Data.Data data)
+getNearestXHelp : List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
 getNearestXHelp points system searched =
   let
       distanceX_ =
@@ -324,7 +324,7 @@ withinRadiusX system radius searched dot =
 
 
 {-| -}
-toJsonDecoder : List (Data.Data data) -> System -> Decoder data msg -> Json.Decoder msg
+toJsonDecoder : List (Data.Data chart data) -> System -> Decoder chart data msg -> Json.Decoder msg
 toJsonDecoder data system (Decoder decoder) =
   let
     handle mouseX mouseY { left, top, height, width } =

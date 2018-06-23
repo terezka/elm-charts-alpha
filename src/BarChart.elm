@@ -196,7 +196,7 @@ chartAreaAttributes system =
   ]
 
 
-chartAreaPlatform : Config data msg -> List (Data.Data data) -> Coordinate.System -> Svg.Svg msg
+chartAreaPlatform : Config data msg -> List (Data.Data Data.BarChart data) -> Coordinate.System -> Svg.Svg msg
 chartAreaPlatform config data system =
   let
     attributes =
@@ -216,14 +216,17 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toDataPoints : List (Bar data msg) -> List data -> List (Data.Data data)
+toDataPoints : List (Bar data msg) -> List data -> List (Data.Data Data.BarChart data)
 toDataPoints bars data =
   let
     toDataPoint index datum =
-      List.map (addPoint index datum) (List.concatMap Internal.Bars.variables bars)
+      List.map (addDataPoint index datum) (List.concatMap Internal.Bars.variables bars)
 
-    addPoint index datum variable =
-      Data.Data datum (Data.Point (toFloat index + 1) (variable datum)) True False
+    addDataPoint index datum variable =
+      { group = index
+      , user = datum
+      , point = Data.Point (toFloat index + 1) (variable datum)
+      }
   in
   List.indexedMap toDataPoint data
     |> List.concat

@@ -512,7 +512,7 @@ viewCustom config lines =
     attributes =
       List.concat
         [ Internal.Container.properties .attributesSvg config.container
-        , Internal.Events.toContainerAttributes dataAll system config.events
+        , Internal.Events.toContainerAttributes dataAllSafe system config.events -- All?
         , [ viewBoxAttribute system ]
         ]
   in

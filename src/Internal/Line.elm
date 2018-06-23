@@ -65,7 +65,7 @@ data (Series config) =
 
 
 {-| -}
-color : Config data -> Series data -> List (Data.Data data) -> Color.Color
+color : Config data -> Series data -> List (Data.Data Data.LineChart data data) -> Color.Color
 color (Config config) (Series line) data =
   let
     (Style style) =
@@ -149,7 +149,7 @@ type alias Arguments data =
 
 
 {-| -}
-view : Arguments data -> List (Series data) -> List (List (Data.Data data)) -> Svg.Svg msg
+view : Arguments data -> List (Series data) -> List (List (Data.Data Data.LineChart data data)) -> Svg.Svg msg
 view arguments lines datas =
   let
     container =
@@ -186,7 +186,7 @@ viewStacked area ( areas, lines, dots ) =
   ]
 
 
-viewSingle : Arguments data -> Series data -> List (Data.Data data) -> ( Svg.Svg msg, Svg.Svg msg, Svg.Svg msg )
+viewSingle : Arguments data -> Series data -> List (Data.Data Data.LineChart data data) -> ( Svg.Svg msg, Svg.Svg msg, Svg.Svg msg )
 viewSingle arguments line data =
   let
     -- Parting
@@ -232,7 +232,7 @@ viewSingle arguments line data =
 -- VIEW / DOT
 
 
-viewDot : Arguments data -> Series data -> Style -> Data.Data data -> Svg.Svg msg
+viewDot : Arguments data -> Series data -> Style -> Data.Data Data.LineChart data data -> Svg.Svg msg
 viewDot arguments (Series lineConfig) (Style style) =
   Dots.view
     { system = arguments.system
@@ -247,7 +247,7 @@ viewDot arguments (Series lineConfig) (Style style) =
 -- VIEW / LINE
 
 
-viewSeries : Arguments data -> Series data -> Style -> List Path.Command -> List (Data.Data data) -> Svg.Svg msg
+viewSeries : Arguments data -> Series data -> Style -> List Path.Command -> List (Data.Data Data.LineChart data data) -> Svg.Svg msg
 viewSeries { system, lineConfig } line style interpolation data =
   let
     attributes =
@@ -272,7 +272,7 @@ toSeriesAttributes (Series { color, dashing }) (Style style) =
 -- VIEW / AREA
 
 
-viewArea : Arguments data -> Series data -> Style -> List Path.Command -> List (Data.Data data) -> Svg.Svg msg
+viewArea : Arguments data -> Series data -> Style -> List Path.Command -> List (Data.Data Data.LineChart data data) -> Svg.Svg msg
 viewArea { system, lineConfig, area } line style interpolation data =
   let
     ground point =
@@ -304,7 +304,7 @@ toAreaAttributes (Series { color }) (Style style) area =
 
 
 {-| -}
-viewSample : Dots.Config data -> Config data -> Area.Config -> Coordinate.System -> Series data -> List (Data.Data data) -> Float -> Svg.Svg msg
+viewSample : Dots.Config data -> Config data -> Area.Config -> Coordinate.System -> Series data -> List (Data.Data Data.LineChart data data) -> Float -> Svg.Svg msg
 viewSample dotsConfig lineConfig area system line data sampleWidth =
   let
     dotPosition =
@@ -324,7 +324,7 @@ viewSample dotsConfig lineConfig area system line data sampleWidth =
     ]
 
 
-viewLineSample : Config data -> Series data -> Area.Config -> List (Data.Data data) -> Float -> Svg.Svg msg
+viewLineSample : Config data -> Series data -> Area.Config -> List (Data.Data Data.LineChart data data) -> Float -> Svg.Svg msg
 viewLineSample (Config look) line area data sampleWidth =
   let
     style =
