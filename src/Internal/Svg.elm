@@ -311,23 +311,42 @@ horizontalBarCommands system borderRadius width { x, y }  =
     , Line <| Point 0 (y - width)
     ]
   else
-    let
-      b =
-        toFloat borderRadius
+    if x < 0 then
+      let
+        b =
+          toFloat borderRadius
 
-      rx =
-        scaleDataX system b -- TODO is this right>
+        rx =
+          scaleDataX system b
 
-      ry =
-        scaleDataY system b
-    in
-    [ Move <| Point 0 y
-    , Line <| Point (x - rx) y
-    , Arc b b -45 False True <| Point x (y - ry)
-    , Line <| Point x (y - width + ry)
-    , Arc b b 45 False True <| Point (x - rx) (y - width)
-    , Line <| Point 0 (y - width)
-    ]
+        ry =
+          scaleDataY system b
+      in
+      [ Move <| Point 0 y
+      , Line <| Point (x + rx) y
+      , Arc b b -45 False False <| Point x (y - ry)
+      , Line <| Point x (y - width + ry)
+      , Arc b b 45 False False <| Point (x + rx) (y - width)
+      , Line <| Point 0 (y - width)
+      ]
+    else
+      let
+        b =
+          toFloat borderRadius
+
+        rx =
+          scaleDataX system b
+
+        ry =
+          scaleDataY system b
+      in
+      [ Move <| Point 0 y
+      , Line <| Point (x - rx) y
+      , Arc b b -45 False True <| Point x (y - ry)
+      , Line <| Point x (y - width + ry)
+      , Arc b b 45 False True <| Point (x - rx) (y - width)
+      , Line <| Point 0 (y - width)
+      ]
 
 
 {-| -}
