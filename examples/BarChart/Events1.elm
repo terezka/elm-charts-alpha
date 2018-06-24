@@ -83,10 +83,12 @@ chart model =
     , junk = Junk.hoverOne model.hovering [ ( "ok", toString << .magnesium ) ]
     , pattern = Pattern.default
     }
-    [ BarChart.bar "Indonesia" (always (Color.rgba 255 204 128 0.8)) [] .magnesium
-    , BarChart.bar "Malaysia" (always Colors.blueLight) [] .heartattacks
+    [ BarChart.bar "Indonesia" (always (Color.rgba 245 105 215 0.5)) [] .magnesium
+    , BarChart.bar "Malaysia" (always (Color.rgba 0 229 255 0.5)) [] .heartattacks
+    , BarChart.bar "Vietnam" (always (Color.rgba 3 169 244 0.5)) [] .expected
     ]
     data
+
 
 
 -- DATA

@@ -1,7 +1,7 @@
 module BarChart.Events exposing
   ( Config, default, hoverOne, hoverGroup, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-  , Decoder, getSvg, getData, getNearest, getGroup, getWithin, getWithinX
+  , Decoder, getSvg, getData, getNearest, getNearestX, getGroup, getWithin, getWithinX
   , Found, data
   , map, map2, map3
   )
@@ -83,9 +83,9 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 hoverOne : (Maybe (Found data) -> msg) -> Config data msg
 hoverOne msg =
   custom
-    [ onMouseMove msg getNearest
-    , on "touchstart" msg getNearest
-    , on "touchmove" msg getNearest
+    [ onMouseMove msg getNearestX
+    , on "touchstart" msg getNearestX
+    , on "touchmove" msg getNearestX
     , onMouseLeave (msg Nothing)
     ]
 
@@ -265,6 +265,13 @@ getNearest : Decoder data (Maybe (Found data))
 getNearest =
   Events.getNearest
 
+
+{-| Get the data coordinates nearest to the event.
+Returns `Nothing` if you have no data showing.
+-}
+getNearestX : Decoder data (Maybe (Found data))
+getNearestX =
+  map List.head Events.getNearestX
 
 
 {-| Get the data coordinates horizontally nearest to the event.
