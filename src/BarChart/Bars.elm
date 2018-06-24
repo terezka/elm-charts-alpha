@@ -8,34 +8,33 @@ import Svg
 
 
 {-| -}
-type alias Config msg =
-  Internal.Bars.Config msg
+type alias Config =
+  Internal.Bars.Config
 
 
 {-| -}
-default : Config msg
+default : Config
 default =
   Internal.Bars.default
 
 
 {-| -}
-custom : Properties msg -> Config msg
+custom : Properties -> Config
 custom =
   Internal.Bars.custom
 
 
 {-| -}
-type alias Properties msg =
-  { label : Maybe (Float -> Label msg)
+type alias Properties =
+  { label : Maybe (Float -> Label)
   , width : Float
   , borderRadius : Int
   }
 
 
 {-| -}
-type alias Label msg =
-  { attributes : List (Svg.Attribute msg)
-  , xOffset : Float
+type alias Label =
+  { xOffset : Float
   , yOffset : Float
   , text : String
   }

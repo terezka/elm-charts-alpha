@@ -87,9 +87,9 @@ chart model =
     data
 
 
-indonesia : Maybe (Events.Found Data) -> BarChart.Bar Data
+indonesia : Maybe (Events.Found Data) -> BarChart.Series Data
 indonesia hovering =
-  BarChart.bar
+  BarChart.series
     { title = "Indonesia"
     , style =
         { base = { fill = Color.rgba 245 105 215 0.5, border = Color.rgba 245 105 215 1 }
@@ -104,9 +104,9 @@ indonesia hovering =
     }
 
 
-malaysia : BarChart.Bar Data
+malaysia : BarChart.Series Data
 malaysia =
-  BarChart.bar
+  BarChart.series
     { title = "Malaysia"
     , style =
         { base = { fill = Color.rgba 0 229 255 0.4, border = Color.rgba 0 229 255 1 }
@@ -117,9 +117,9 @@ malaysia =
     }
 
 
-vietnam : BarChart.Bar Data
+vietnam : BarChart.Series Data
 vietnam =
-  BarChart.bar
+  BarChart.series
     { title = "Vietnam"
     , style =
         { base = { fill = Color.rgba 3 169 244 0.5, border = Color.rgba 3 169 244 1 }

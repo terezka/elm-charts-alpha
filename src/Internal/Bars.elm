@@ -1,10 +1,10 @@
 module Internal.Bars
   exposing
     ( Config, default, custom
-    , Bar, BarConfig, bar
+    , Series, SeriesProps, series
     -- INTERNAL
     , borderRadius
-    , barConfig, viewGroup, variable
+    , seriesProps, viewGroup, variable
     , userWidth, toHorizontalBar, toVerticalBar
     )
 
@@ -24,29 +24,28 @@ import Internal.Colors as Colors
 
 
 {-| -}
-type Config msg =
-  Config (Properties msg)
+type Config =
+  Config (ConfigProps)
 
 
 {-| -}
-type alias Properties msg =
-  { label : Maybe (Float -> Label msg)
+type alias ConfigProps =
+  { label : Maybe (Float -> Label)
   , width : Float
   , borderRadius : Int
   }
 
 
 {-| -}
-type alias Label msg =
-  { attributes : List (Svg.Attribute msg)
-  , xOffset : Float
+type alias Label =
+  { xOffset : Float
   , yOffset : Float
   , text : String
   }
 
 
 {-| -}
-default : Config msg
+default : Config
 default =
   custom
     { label = Just defaultLabel
@@ -55,29 +54,28 @@ default =
     }
 
 
-defaultLabel : Float -> Label msg
+defaultLabel : Float -> Label
 defaultLabel n =
-  { attributes = []
-  , xOffset = 0
+  { xOffset = 0
   , yOffset = 0
   , text = toString n
   }
 
 
 {-| -}
-custom : Properties msg -> Config msg
+custom : ConfigProps -> Config
 custom =
   Config
 
 
 {-| -}
-userWidth : Config msg -> Float
+userWidth : Config -> Float
 userWidth (Config config) =
   config.width
 
 
 {-| -}
-borderRadius : Config msg -> Int
+borderRadius : Config -> Int
 borderRadius (Config config) =
   config.borderRadius
 
@@ -88,12 +86,12 @@ borderRadius (Config config) =
 
 
 {-| -}
-type Bar data =
-  Bar (BarConfig data)
+type Series data =
+  Series (SeriesProps data)
 
 
 {-| -}
-type alias BarConfig data =
+type alias SeriesProps data =
   { title : String
   , style : { base : Style, emphasized : data -> Style }
   , variable : data -> Float
@@ -108,20 +106,20 @@ type alias Style =
 
 
 {-| -}
-bar : BarConfig data -> Bar data
-bar =
-  Bar
+series : SeriesProps data -> Series data
+series =
+  Series
 
 
 {-| -}
-barConfig : Bar data -> BarConfig data
-barConfig (Bar config) =
+seriesProps : Series data -> SeriesProps data
+seriesProps (Series config) =
   config
 
 
 {-| -}
-variable : Bar data -> data -> Float
-variable (Bar config) =
+variable : Series data -> data -> Float
+variable (Series config) =
   config.variable
 
 
@@ -129,10 +127,10 @@ variable (Bar config) =
 -- INTERNAL / GROUP
 
 
-viewGroup : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> List (Bar data, Data.Data Data.BarChart data) -> Svg.Svg msg
+viewGroup : Orientation.Config -> Config -> Coordinate.System -> Int -> Int -> List (Series data, Data.Data Data.BarChart data) -> Svg.Svg msg
 viewGroup orientation (Config config) system totalOfGroups totalOfBars bars =
   let
-    viewBarWith toProps toCommands toLabel ( Bar bar, data ) =
+    viewBarWith toProps toCommands toLabel (Series bar, data) =
       let
         ( width, point ) =
           toProps system config.width totalOfGroups totalOfBars data.barIndex data.point
@@ -179,7 +177,7 @@ toHorizontalBar system userWidth totalOfGroups totalOfBars barIndex point =
       horizontalMaxWidth system userWidth totalOfGroups totalOfBars
 
     adjusted =
-      { x = point.x + width * offset + width / 2
+      { x = point.x + width * offset -- + width / 2 for data point
       , y = point.y
       }
   in
@@ -198,7 +196,7 @@ horizontalMaxWidth system userWidth totalOfGroups totalOfBars =
   Coordinate.scaleDataY system width
 
 
-horizontalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label msg -> Svg.Svg msg
+horizontalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label -> Svg.Svg msg
 horizontalLabel system width point label =
   let y = point.y - width / 2 -- move to middle
       xOffset = label.xOffset + 10 -- lift above bar
@@ -221,7 +219,7 @@ toVerticalBar system userWidth totalOfGroups totalOfBars barIndex point =
       verticalMaxWidth system userWidth totalOfGroups totalOfBars
 
     adjusted =
-      { x = point.x + width * offset + width / 2
+      { x = point.x + width * offset
       , y = point.y
       }
   in
@@ -240,7 +238,7 @@ verticalMaxWidth system userWidth totalOfGroups totalOfBars =
   Coordinate.scaleDataX system width
 
 
-verticalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label msg -> Svg.Svg msg
+verticalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label -> Svg.Svg msg
 verticalLabel system width point label =
   let x = point.x + width / 2 -- move to middle
       yOffset = label.yOffset - 5 -- lift above bar

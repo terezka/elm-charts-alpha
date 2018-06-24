@@ -1,4 +1,4 @@
-module BarChart exposing (view, Config, Bar, bar)
+module BarChart exposing (view, Config, Series, series)
 
 {-| -}
 
@@ -50,15 +50,15 @@ type alias Config data msg =
   , legends : Legends.Config msg
   , events : Events.Config data msg
   , grid : Grid.Config
-  , bars : Bars.Config msg
+  , bars : Bars.Config
   , junk : Junk.Config data msg
   , pattern : Pattern.Config
   }
 
 
 {-| -}
-type alias Bar data =
-  Internal.Bars.Bar data
+type alias Series data =
+  Internal.Bars.Series data
 
 
 {-| -}
@@ -69,23 +69,26 @@ type alias Style =
 
 
 {-| -}
-bar :
+type alias SeriesConfig data =
   { title : String
   , style : { base : Style, emphasized : data -> Style }
   , variable : data -> Float
   , pattern : Bool
   }
-  -> Bar data
-bar =
-  Internal.Bars.bar
 
 
 {-| -}
-view : Config data msg -> List (Bar data) -> List data -> Svg.Svg msg
+series : SeriesConfig data -> Series data
+series =
+  Internal.Bars.series
+
+
+{-| -}
+view : Config data msg -> List (Series data) -> List data -> Svg.Svg msg
 view config bars data =
   let
     -- Data
-    barsConfigs = List.map Internal.Bars.barConfig bars
+    barsConfigs = List.map Internal.Bars.seriesProps bars
     naiveDataPoints = toNaiveDataPoints config bars data
     naiveDataPointsAll = List.concat naiveDataPoints
 
@@ -217,7 +220,7 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toNaiveDataPoints : Config data msg -> List (Bar data) -> List data -> List (List (Data.Data Data.BarChart data))
+toNaiveDataPoints : Config data msg -> List (Series data) -> List data -> List (List (Data.Data Data.BarChart data))
 toNaiveDataPoints config bars data =
   let
     toBars groupIndex datum barIndex bar =
@@ -240,7 +243,7 @@ toNaiveDataPoints config bars data =
   List.indexedMap toGroups data
 
 
-toDataPoints : Config data msg -> Coordinate.System -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data) -> List (Data.Data Data.BarChart data)
+toDataPoints : Config data msg -> Coordinate.System -> List (Series data) -> List data -> List (Data.Data Data.BarChart data) -> List (Data.Data Data.BarChart data)
 toDataPoints config system bars data naiveDataPoints =
   let
     userWidth =
@@ -316,7 +319,7 @@ toSystem config x y data points =
 
 junkDefaults :
   Config data msg
-  -> List (Internal.Bars.BarConfig data)
+  -> List (Internal.Bars.SeriesProps data)
   -> Internal.Axis.Config Float data msg
   -> Internal.Axis.Config Float data msg
   -> Internal.Junk.BarChart data
@@ -329,7 +332,7 @@ junkDefaults config bars xAxis yAxis =
 
 hoverMany :
   Config data msg
-  -> List (Internal.Bars.BarConfig data)
+  -> List (Internal.Bars.SeriesProps data)
   -> Internal.Axis.Config Float data msg
   -> Internal.Axis.Config Float data msg
   -> (data -> String)
@@ -362,7 +365,7 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
 
 hoverOne :
   Config data msg
-  -> List (Internal.Bars.BarConfig data)
+  -> List (Internal.Bars.SeriesProps data)
   -> List ( String, data -> String )
   -> Internal.Events.Found Data.BarChart data
   -> Internal.Junk.HoverOne
