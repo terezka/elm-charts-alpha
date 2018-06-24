@@ -4,7 +4,7 @@ module Internal.Bars
     , Bar, BarConfig, bar
     -- INTERNAL
     , borderRadius
-    , barConfig, toGroups, viewGroup, variable
+    , barConfig, viewGroup, variable
     , userWidth, toHorizontalBar, toVerticalBar
     )
 
@@ -17,6 +17,7 @@ import BarChart.Junk as Junk
 import Internal.Coordinate as Coordinate
 import Internal.Orientation as Orientation
 import Internal.Svg as Svg
+import Internal.Data as Data
 import Internal.Path as Path
 import Internal.Utils as Utils
 import Internal.Colors as Colors
@@ -124,63 +125,33 @@ variable (Bar config) =
   config.variable
 
 
+
 -- INTERNAL / GROUP
 
 
-type alias BarInfo msg =
-  { point : Coordinate.Point
-  , index : Int
-  , color : { fill : Color.Color, border : Color.Color }
-  , label : Maybe (Label msg)
-  , pattern : Bool
-  }
-
-
-toGroups : Orientation.Config -> Config msg -> List (BarConfig data) -> List data -> List (List (BarInfo msg))
-toGroups orientation (Config config) barsConfigs data =
+viewGroup : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> List (Bar data, Data.Data Data.BarChart data) -> Svg.Svg msg
+viewGroup orientation (Config config) system totalOfGroups totalOfBars bars =
   let
-    groupInfo groupIndex datum =
-      List.indexedMap (barInfo groupIndex datum) barsConfigs
-
-    barInfo groupIndex datum index bar =
-      { point = point (bar.variable datum) (toFloat groupIndex + 1)
-      , index = index
-      , color = bar.style.emphasized datum
-      , label = Maybe.map (\v -> v (bar.variable datum)) config.label
-      , pattern = bar.pattern
-      }
-
-    point value position =
-      case orientation of
-        Orientation.Horizontal ->
-          Coordinate.Point value position
-
-        Orientation.Vertical ->
-          Coordinate.Point position value
-  in
-  List.indexedMap groupInfo data
-
-
-viewGroup : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> List (BarInfo msg) -> Svg.Svg msg
-viewGroup orientation (Config config) system totalOfGroups totalOfBars group =
-  let
-    viewBarWith toProps toCommands toLabel bar =
+    viewBarWith toProps toCommands toLabel ( Bar bar, data ) =
       let
         ( width, point ) =
-          toProps system config.width totalOfGroups totalOfBars bar.index bar.point
+          toProps system config.width totalOfGroups totalOfBars data.barIndex data.point
+
+        style =
+          bar.style.emphasized data.user
 
         attributes =
           List.concat
             [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
-            , [ Svg.Attributes.fill (Colors.toString bar.color.fill)
-              , Svg.Attributes.stroke (Colors.toString bar.color.border)
+            , [ Svg.Attributes.fill (Colors.toString style.fill)
+              , Svg.Attributes.stroke (Colors.toString style.border)
               ]
             ]
       in
       Svg.g
         [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
         [ Path.view system attributes (toCommands system config.borderRadius width point)
-        , Utils.viewMaybe bar.label (toLabel system width point)
+        , Utils.viewMaybe config.label (Utils.apply (bar.variable data.user) >> toLabel system width point)
         ]
 
     viewBar =
@@ -191,7 +162,7 @@ viewGroup orientation (Config config) system totalOfGroups totalOfBars group =
         Orientation.Vertical ->
           viewBarWith toVerticalBar Svg.verticalBarCommands verticalLabel
   in
-  Svg.g [ Svg.Attributes.class "group" ] (List.map viewBar group)
+  Svg.g [ Svg.Attributes.class "group" ] (List.map viewBar bars)
 
 
 

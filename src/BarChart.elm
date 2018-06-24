@@ -85,17 +85,9 @@ view : Config data msg -> List (Bar data) -> List data -> Svg.Svg msg
 view config bars data =
   let
     -- Data
-    barsConfigs =
-      List.map Internal.Bars.barConfig bars
-
-    totalOfBars =
-      List.length barsConfigs
-
-    naiveDataPoints =
-      toNaiveDataPoints config bars data
-
-    groups =
-      Internal.Bars.toGroups config.orientation config.bars barsConfigs data
+    barsConfigs = List.map Internal.Bars.barConfig bars
+    naiveDataPoints = toNaiveDataPoints config bars data
+    naiveDataPointsAll = List.concat naiveDataPoints
 
     -- Axes
     ( horizontalAxis, verticalAxis ) =
@@ -112,10 +104,10 @@ view config bars data =
 
     -- System
     system =
-      toSystem config horizontalAxis verticalAxis data (List.map .point naiveDataPoints)
+      toSystem config horizontalAxis verticalAxis data (List.map .point naiveDataPointsAll)
 
     dataPoints =
-      toDataPoints config system bars data naiveDataPoints
+      toDataPoints config system bars data naiveDataPointsAll
 
     -- Junk
     addGrid =
@@ -135,7 +127,9 @@ view config bars data =
 
     -- View
     viewGroups =
-      List.map (Internal.Bars.viewGroup config.orientation config.bars system (List.length data) totalOfBars) groups
+      List.map
+        (Internal.Bars.viewGroup config.orientation config.bars system (List.length data) (List.length barsConfigs))
+        (List.map (List.map2 (,) bars) naiveDataPoints)
 
     attributes =
       List.concat
@@ -145,7 +139,6 @@ view config bars data =
         ]
 
     toLegend width bar =
-      -- TODO color
       { sample = Svg.square width (Internal.Bars.borderRadius config.bars) bar.style.base.fill bar.style.base.border
       , label = bar.title
       }
@@ -224,7 +217,7 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toNaiveDataPoints : Config data msg -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data)
+toNaiveDataPoints : Config data msg -> List (Bar data) -> List data -> List (List (Data.Data Data.BarChart data))
 toNaiveDataPoints config bars data =
   let
     toBars groupIndex datum barIndex bar =
@@ -244,7 +237,7 @@ toNaiveDataPoints config bars data =
     toGroups groupIndex datum =
       List.indexedMap (toBars groupIndex datum) bars
   in
-  List.concat (List.indexedMap toGroups data)
+  List.indexedMap toGroups data
 
 
 toDataPoints : Config data msg -> Coordinate.System -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data) -> List (Data.Data Data.BarChart data)
