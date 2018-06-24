@@ -1,4 +1,11 @@
-module Internal.Bars exposing (Config, default, custom, Bar, BarConfig, bar, barWithExpectation, barConfigs, toGroups, viewGroup, variables)
+module Internal.Bars
+  exposing
+    ( Config, default, custom
+    , Bar, BarConfig, bar, barWithExpectation
+    -- INTERNAL
+    , barConfigs, toGroups, viewGroup, variables
+    , userWidth, horizontalAdjust, verticalAdjust
+    )
 
 {-| -}
 
@@ -59,6 +66,12 @@ defaultLabel n =
 custom : Properties msg -> Config msg
 custom =
   Config
+
+
+{-| -}
+userWidth : Config msg -> Float
+userWidth (Config config) =
+  config.width
 
 
 
@@ -179,12 +192,8 @@ viewBarHorizontal (Config config) system totalOfGroups totalOfBars { point, inde
     offset =
       barOffset index totalOfBars
 
-    maxWidth =
-      ((Coordinate.lengthY system) / (toFloat totalOfGroups)) - 5
-
     width =
-      (Basics.min maxWidth config.width) / (toFloat totalOfBars)
-        |> Coordinate.scaleDataY system
+      horizontalMaxWidth system config.width totalOfGroups totalOfBars
 
     y =
       point.y - width * offset
@@ -211,12 +220,8 @@ viewBarVertical (Config config) system totalOfGroups totalOfBars { point, index,
     offset =
       barOffset index totalOfBars
 
-    maxWidth =
-      ((Coordinate.lengthX system) / (toFloat totalOfGroups)) - 5
-
     width =
-      (Basics.min maxWidth config.width) / (toFloat totalOfBars)
-        |> Coordinate.scaleDataX system
+      verticalMaxWidth system config.width totalOfGroups totalOfBars
 
     x =
       point.x + width * offset
@@ -237,8 +242,62 @@ viewBarVertical (Config config) system totalOfGroups totalOfBars { point, index,
     ]
 
 
+
+-- CALCULATIONS
+
+
+horizontalAdjust : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> Coordinate.Point
+horizontalAdjust system userWidth totalOfGroups totalOfBars barIndex point =
+  let
+    offset =
+      barOffset barIndex totalOfBars
+
+    width =
+      horizontalMaxWidth system userWidth totalOfGroups totalOfBars
+  in
+  { x = point.x + width * offset + width / 2
+  , y = point.y
+  }
+
+
+horizontalMaxWidth : Coordinate.System -> Float -> Int -> Int -> Float
+horizontalMaxWidth system userWidth totalOfGroups totalOfBars =
+  let
+    maxWidth =
+      Coordinate.lengthY system / toFloat totalOfGroups - 5
+
+    width =
+      Basics.min maxWidth userWidth / toFloat totalOfBars
+  in
+  Coordinate.scaleDataY system width
+
+
+verticalAdjust : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> Coordinate.Point
+verticalAdjust system userWidth totalOfGroups totalOfBars barIndex point =
+  let
+    offset =
+      barOffset barIndex totalOfBars
+
+    width =
+      verticalMaxWidth system userWidth totalOfGroups totalOfBars
+  in
+  { x = point.x + width * offset + width / 2
+  , y = point.y
+  }
+
+
+verticalMaxWidth : Coordinate.System -> Float -> Int -> Int -> Float
+verticalMaxWidth system userWidth totalOfGroups totalOfBars =
+  let
+    maxWidth =
+      Coordinate.lengthX system / toFloat totalOfGroups - 5
+
+    width =
+      Basics.min maxWidth userWidth / toFloat totalOfBars
+  in
+  Coordinate.scaleDataX system width
+
+
 barOffset : Int -> Int -> Float
 barOffset index totalOfBars =
-  toFloat index - (toFloat totalOfBars / 2)
-
-
+  toFloat index - toFloat totalOfBars / 2

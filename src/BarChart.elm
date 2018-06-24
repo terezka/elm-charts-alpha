@@ -6,6 +6,7 @@ import Html
 import Html.Attributes
 import Svg
 import Svg.Attributes
+import Array
 
 import BarChart.Junk as Junk
 import BarChart.Axis.Dependent as AxisDependent
@@ -86,9 +87,6 @@ view config bars data =
     groups =
       Internal.Bars.toGroups config.orientation config.bars barsConfigs data
 
-    dataPoints =
-      toDataPoints bars data
-
     -- Axes
     ( horizontalAxis, verticalAxis ) =
       case config.orientation of
@@ -108,6 +106,9 @@ view config bars data =
 
     system =
       toSystem config horizontalAxis verticalAxis data points
+
+    dataPoints =
+      toDataPoints config system bars data
 
     -- Junk
     addGrid =
@@ -216,17 +217,34 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toDataPoints : List (Bar data msg) -> List data -> List (Data.Data Data.BarChart data)
-toDataPoints bars data =
+toDataPoints : Config data msg -> Coordinate.System -> List (Bar data msg) -> List data -> List (Data.Data Data.BarChart data)
+toDataPoints config system bars data =
   let
-    toDataPoint index datum =
-      List.map (addDataPoint index datum) (List.concatMap Internal.Bars.variables bars)
+    userWidth =
+      Internal.Bars.userWidth config.bars
 
-    addDataPoint index datum variable =
-      { group = index
+    totalOfGroups =
+      List.length data
+
+    totalOfBars =
+      List.length bars
+
+    toDataPoint groupIndex datum =
+      List.indexedMap (addDataPoint groupIndex datum) (List.concatMap Internal.Bars.variables bars)
+
+    addDataPoint groupIndex datum barIndex variable =
+      { barIndex = barIndex
       , user = datum
-      , point = Data.Point (toFloat index + 1) (variable datum)
+      , point = point barIndex <| Data.Point (toFloat groupIndex + 1) (variable datum)
       }
+
+    point barIndex =
+      case config.orientation of
+        Internal.Orientation.Horizontal ->
+          Internal.Bars.horizontalAdjust system userWidth totalOfGroups totalOfBars barIndex
+
+        Internal.Orientation.Vertical ->
+          Internal.Bars.verticalAdjust system userWidth totalOfGroups totalOfBars barIndex
   in
   List.indexedMap toDataPoint data
     |> List.concat
@@ -313,19 +331,25 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
   }
 
 
-hoverOne : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List ( String, data -> String ) -> data -> Internal.Junk.HoverOne
-hoverOne config bars xAxis yAxis values hovered =
+hoverOne : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List ( String, data -> String ) -> Int -> data -> Internal.Junk.HoverOne
+hoverOne config bars xAxis yAxis values barIndex hovered =
   let
     x = Internal.Axis.variable xAxis
     y = Internal.Axis.variable yAxis >> Just
+
+    ( title, color ) =
+      Array.fromList bars
+        |> Array.get barIndex
+        |> Maybe.map (\bar -> ( bar.name, bar.color hovered ))
+        |> Maybe.withDefault ( "", Colors.pink )
 
     applyValue ( label, value ) =
       ( label, value hovered )
   in
   { x = x hovered
   , y = y hovered
-  , color = Colors.pink -- TODO
-  , title = "TODO"
+  , color = color
+  , title = title
   , values = List.map applyValue values
   }
 

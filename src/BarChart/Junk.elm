@@ -110,17 +110,17 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip1.png?raw=true"></src>
 
 -}
-hoverOne : Maybe data -> List ( String, data -> String ) -> Config data msg
+hoverOne : Maybe ( Int, data ) -> List ( String, data -> String ) -> Config data msg
 hoverOne hovered values =
   case hovered of
       Nothing ->
         Junk.none
 
-      Just hovered_ ->
+      Just ( barIndex, hovered_ ) ->
         Junk.Config <| \(Junk.BarChart defaults) system ->
           { below = []
           , above = []
-          , html  = [ Junk.viewHoverOne system (defaults.hoverOne values hovered_) ]
+          , html  = [ Junk.viewHoverOne system (defaults.hoverOne values barIndex hovered_) ]
           }
 
 

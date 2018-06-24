@@ -16,7 +16,7 @@ type alias Data chart data =
 
 {-| -}
 type alias BarChart =
-  { group : Int }
+  { barIndex : Int }
 
 
 {-| -}

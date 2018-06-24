@@ -25,7 +25,7 @@ type XYChart data
 type BarChart data
   = BarChart
       { hoverMany : (data -> String) -> (Float -> String) -> List data -> HoverMany
-      , hoverOne : List ( String, data -> String ) -> data -> HoverOne
+      , hoverOne : List ( String, data -> String ) -> Int -> data -> HoverOne
       }
 
 

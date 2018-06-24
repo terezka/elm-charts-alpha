@@ -36,6 +36,7 @@ module LineChart.Events exposing
 
 -}
 
+import Internal.Data as Data
 import Internal.Events as Events
 import LineChart.Coordinate as Coordinate
 
@@ -55,7 +56,7 @@ import LineChart.Coordinate as Coordinate
 
 -}
 type alias Config data msg =
-  Events.Config data msg
+  Events.Config Data.LineChart data msg
 
 
 {-| Adds no events.
@@ -80,7 +81,12 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 -}
 hoverOne : (Maybe data -> msg) -> Config data msg
 hoverOne =
-  Events.hoverOne
+  custom
+    [ onMouseMove msg (getWithin 30)
+    , on "touchstart" msg (getWithin 100)
+    , on "touchmove" msg (getWithin 100)
+    , onMouseLeave (msg Nothing)
+    ]
 
 
 {-| Sends a message when the mouse is within a 30 pixel distance of a
@@ -98,8 +104,11 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 -}
 hoverMany : (List data -> msg) -> Config data msg
-hoverMany =
-  Events.hoverMany
+hoverMany msg =
+  custom
+    [ onMouseMove msg getNearestX
+    , onMouseLeave (msg [])
+    ]
 
 
 {-| Sends a given message when clicking on a dot.
@@ -250,7 +259,7 @@ Returns `Nothing` if you have no data showing.
 -}
 getNearest : Decoder data (Maybe data)
 getNearest =
-  Events.getNearest
+  map .user Events.getNearest
 
 
 {-| Get the data coordinates nearest of the event within the radius
@@ -258,14 +267,14 @@ you provide in the first argument. Returns `Nothing` if you have no data showing
 -}
 getWithin : Float -> Decoder data (Maybe data)
 getWithin =
-  Events.getWithin
+  map .user Events.getWithin
 
 
 {-| Get the data coordinates horizontally nearest to the event.
 -}
 getNearestX : Decoder data (List data)
 getNearestX =
-  Events.getNearestX
+  map .user Events.getNearestX
 
 
 {-| Finds the data coordinates horizontally nearest to the event, within the
@@ -273,7 +282,7 @@ distance you provide in the first argument.
 -}
 getWithinX : Float -> Decoder data (List data)
 getWithinX =
-  Events.getWithinX
+  map .user Events.getWithinX
 
 
 

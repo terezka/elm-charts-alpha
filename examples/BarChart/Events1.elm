@@ -34,12 +34,12 @@ main =
 
 
 type alias Model =
-    { hovering : List Data }
+    { hovering : Maybe ( Int, Data) }
 
 
 init : Model
 init =
-    { hovering = [] }
+    { hovering = Nothing }
 
 
 
@@ -47,7 +47,7 @@ init =
 
 
 type Msg
-  = Hover (List Data)
+  = Hover (Maybe (Int, Data))
 
 
 update : Msg -> Model -> Model
@@ -73,20 +73,14 @@ chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "gender" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "$" -- TODO negative labels
+    , dependentAxis = DependentAxis.default 400 "$" -- TODO negative labels -- TODO horizontal border radius
     , container = Container.default "bar-chart"
     , orientation = Orientation.default
     , legends = Legends.default
-    , events =
-        Events.custom
-          [ Events.onMouseMove Hover (Events.getNearestX)
-          , Events.on "touchstart" Hover (Events.getNearestX)
-          , Events.on "touchmove" Hover (Events.getNearestX)
-          , Events.onMouseLeave (Hover [])
-          ]
+    , events = Events.hoverOne Hover
     , grid = Grid.default
-    , bars = Bars.custom (Bars.Properties Nothing 20 3)
-    , junk = Junk.hoverMany model.hovering .label toString
+    , bars = Bars.custom (Bars.Properties Nothing 50 3) -- TODO set y on hover
+    , junk = Junk.hoverOne model.hovering [ ( "ok", toString << .magnesium ) ]
     , pattern = Pattern.default
     }
     [ BarChart.bar "Indonesia" (always (Color.rgba 255 204 128 0.8)) [] .magnesium
@@ -108,7 +102,7 @@ type alias Data =
 
 data : List Data
 data =
-  [ Data 1 5 8 "Female"
+  [ Data 1 -5 -2 "Female"
   , Data 2 6 3 "Male"
   , Data 3 7 6 "Trans"
   , Data 4 8 3 "Fluid"
