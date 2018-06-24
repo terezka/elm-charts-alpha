@@ -163,62 +163,36 @@ toGroups orientation (Config config) barsConfigs data =
 
 
 viewGroup : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> List (BarInfo msg) -> Svg.Svg msg
-viewGroup orientation config system totalOfGroups totalOfBars group =
-  Svg.g
-    [ Svg.Attributes.class "group" ]
-    (List.map (viewBar orientation config system totalOfGroups totalOfBars) group)
-
-
-viewBar : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> BarInfo msg -> Svg.Svg msg
-viewBar orientation =
-  case orientation of
-    Orientation.Horizontal ->
-      viewBarHorizontal
-
-    Orientation.Vertical ->
-      viewBarVertical
-
-
-viewBarHorizontal : Config msg -> Coordinate.System -> Int -> Int -> BarInfo msg -> Svg.Svg msg
-viewBarHorizontal (Config config) system totalOfGroups totalOfBars bar =
+viewGroup orientation (Config config) system totalOfGroups totalOfBars group =
   let
-    ( width, point ) =
-      toHorizontalBar system config.width totalOfGroups totalOfBars bar.index bar.point
+    viewBarWith toProps toCommands toLabel bar =
+      let
+        ( width, point ) =
+          toProps system config.width totalOfGroups totalOfBars bar.index bar.point
 
-    attributes =
-      List.concat
-        [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
-        , [ Svg.Attributes.fill (Colors.toString bar.color.fill)
-          , Svg.Attributes.stroke (Colors.toString bar.color.border)
-          ]
+        attributes =
+          List.concat
+            [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
+            , [ Svg.Attributes.fill (Colors.toString bar.color.fill)
+              , Svg.Attributes.stroke (Colors.toString bar.color.border)
+              ]
+            ]
+      in
+      Svg.g
+        [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
+        [ Path.view system attributes (toCommands system config.borderRadius width point)
+        , Utils.viewMaybe bar.label (toLabel system width point)
         ]
+
+    viewBar =
+      case orientation of
+        Orientation.Horizontal ->
+          viewBarWith toHorizontalBar Svg.horizontalBarCommands horizontalLabel
+
+        Orientation.Vertical ->
+          viewBarWith toVerticalBar Svg.verticalBarCommands verticalLabel
   in
-  Svg.g
-    [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
-    [ Path.view system attributes (Svg.horizontalBarCommands system config.borderRadius width point)
-    , Utils.viewMaybe bar.label (horizontalLabel system width point)
-    ]
-
-
-viewBarVertical : Config msg -> Coordinate.System -> Int -> Int -> BarInfo msg -> Svg.Svg msg
-viewBarVertical (Config config) system totalOfGroups totalOfBars bar =
-  let
-    ( width, point ) =
-      toVerticalBar system config.width totalOfGroups totalOfBars bar.index bar.point
-
-    attributes =
-      List.concat
-        [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
-        , [ Svg.Attributes.fill (Colors.toString bar.color.fill)
-          , Svg.Attributes.stroke (Colors.toString bar.color.border)
-          ]
-        ]
-  in
-  Svg.g
-    [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
-    [ Path.view system attributes (Svg.verticalBarCommands system config.borderRadius width point)
-    , Utils.viewMaybe bar.label (verticalLabel system width point)
-    ]
+  Svg.g [ Svg.Attributes.class "group" ] (List.map viewBar group)
 
 
 
