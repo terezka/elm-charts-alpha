@@ -91,6 +91,9 @@ view config bars data =
     totalOfBars =
       List.length barsConfigs
 
+    naiveDataPoints =
+      toNaiveDataPoints config bars data
+
     groups =
       Internal.Bars.toGroups config.orientation config.bars barsConfigs data
 
@@ -108,14 +111,11 @@ view config bars data =
           )
 
     -- System
-    points =
-      List.concatMap (List.map .point) groups
-
     system =
-      toSystem config horizontalAxis verticalAxis data points
+      toSystem config horizontalAxis verticalAxis data (List.map .point naiveDataPoints)
 
     dataPoints =
-      toDataPoints config system bars data
+      toDataPoints config system bars data naiveDataPoints
 
     -- Junk
     addGrid =
@@ -224,8 +224,31 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toDataPoints : Config data msg -> Coordinate.System -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data)
-toDataPoints config system bars data =
+toNaiveDataPoints : Config data msg -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data)
+toNaiveDataPoints config bars data =
+  let
+    toBars groupIndex datum barIndex bar =
+        { point = point (Internal.Bars.variable bar datum) (toFloat groupIndex + 1)
+        , barIndex = barIndex
+        , user = datum
+        }
+
+    point value position =
+      case config.orientation of
+        Internal.Orientation.Horizontal ->
+          Coordinate.Point value position
+
+        Internal.Orientation.Vertical ->
+          Coordinate.Point position value
+
+    toGroups groupIndex datum =
+      List.indexedMap (toBars groupIndex datum) bars
+  in
+  List.concat (List.indexedMap toGroups data)
+
+
+toDataPoints : Config data msg -> Coordinate.System -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data) -> List (Data.Data Data.BarChart data)
+toDataPoints config system bars data naiveDataPoints =
   let
     userWidth =
       Internal.Bars.userWidth config.bars
@@ -236,16 +259,10 @@ toDataPoints config system bars data =
     totalOfBars =
       List.length bars
 
-    toDataPoint groupIndex datum =
-      List.indexedMap (addDataPoint groupIndex datum) (List.map Internal.Bars.variable bars)
+    toDataPoint naiveDataPoint =
+      { naiveDataPoint | point = adjust naiveDataPoint.barIndex naiveDataPoint.point |> Tuple.second }
 
-    addDataPoint groupIndex datum barIndex variable =
-      { barIndex = barIndex
-      , user = datum
-      , point = point barIndex (Data.Point (toFloat groupIndex + 1) (variable datum)) |> Tuple.second
-      }
-
-    point =
+    adjust =
       case config.orientation of
         Internal.Orientation.Horizontal ->
           Internal.Bars.toHorizontalBar system userWidth totalOfGroups totalOfBars
@@ -253,8 +270,7 @@ toDataPoints config system bars data =
         Internal.Orientation.Vertical ->
           Internal.Bars.toVerticalBar system userWidth totalOfGroups totalOfBars
   in
-  List.indexedMap toDataPoint data
-    |> List.concat
+  List.map toDataPoint naiveDataPoints
 
 
 toSystem : Config data msg -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List data -> List Coordinate.Point -> Coordinate.System

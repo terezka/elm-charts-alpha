@@ -20,7 +20,6 @@ import Internal.Svg as Svg
 import Internal.Path as Path
 import Internal.Utils as Utils
 import Internal.Colors as Colors
-import Color.Convert
 
 
 {-| -}
