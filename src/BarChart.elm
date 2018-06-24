@@ -235,16 +235,16 @@ toDataPoints config system bars data =
     addDataPoint groupIndex datum barIndex variable =
       { barIndex = barIndex
       , user = datum
-      , point = point barIndex <| Data.Point (toFloat groupIndex + 1) (variable datum)
+      , point = point barIndex (Data.Point (toFloat groupIndex + 1) (variable datum))
       }
 
-    point barIndex =
+    point =
       case config.orientation of
         Internal.Orientation.Horizontal ->
-          Internal.Bars.horizontalAdjust system userWidth totalOfGroups totalOfBars barIndex
+          Internal.Bars.horizontalAdjust system userWidth totalOfGroups totalOfBars
 
         Internal.Orientation.Vertical ->
-          Internal.Bars.verticalAdjust system userWidth totalOfGroups totalOfBars barIndex
+          Internal.Bars.verticalAdjust system userWidth totalOfGroups totalOfBars
   in
   List.indexedMap toDataPoint data
     |> List.concat
@@ -302,7 +302,7 @@ junkDefaults : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Int
 junkDefaults config bars xAxis yAxis =
   Internal.Junk.BarChart
     { hoverMany = hoverMany config bars xAxis yAxis
-    , hoverOne = hoverOne config bars xAxis yAxis
+    , hoverOne = hoverOne config bars
     }
 
 
@@ -331,23 +331,25 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
   }
 
 
-hoverOne : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List ( String, data -> String ) -> Int -> data -> Internal.Junk.HoverOne
-hoverOne config bars xAxis yAxis values barIndex hovered =
+hoverOne :
+  Config data msg
+  -> List (Internal.Bars.BarConfig data msg)
+  -> List ( String, data -> String )
+  -> Internal.Events.Found Data.BarChart data
+  -> Internal.Junk.HoverOne
+hoverOne config bars values (Internal.Events.Found hovered) =
   let
-    x = Internal.Axis.variable xAxis
-    y = Internal.Axis.variable yAxis >> Just
-
     ( title, color ) =
       Array.fromList bars
-        |> Array.get barIndex
-        |> Maybe.map (\bar -> ( bar.name, bar.color hovered ))
+        |> Array.get hovered.barIndex
+        |> Maybe.map (\bar -> ( bar.name, bar.color hovered.user ))
         |> Maybe.withDefault ( "", Colors.pink )
 
     applyValue ( label, value ) =
-      ( label, value hovered )
+      ( label, value hovered.user )
   in
-  { x = x hovered
-  , y = y hovered
+  { x = hovered.point.x
+  , y = Just hovered.point.y
   , color = color
   , title = title
   , values = List.map applyValue values

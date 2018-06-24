@@ -2,6 +2,7 @@ module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
     , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+    , Found(..), data
     , map, map2, map3
     -- INTERNAL
     , toChartAttributes
@@ -148,7 +149,7 @@ getData =
 
 
 {-| -}
-getNearest : Decoder chart data (Maybe (Data.Data chart data))
+getNearest : Decoder chart data (Maybe (Found chart data))
 getNearest =
   Decoder <| \points system searchedSvg ->
     let
@@ -156,10 +157,11 @@ getNearest =
         Coordinate.toData system searchedSvg
     in
     getNearestHelp points system searched
+      |> Maybe.map Found
 
 
 {-| -}
-getWithin : Float -> Decoder chart data (Maybe (Data.Data chart data))
+getWithin : Float -> Decoder chart data (Maybe (Found chart data))
 getWithin radius =
   Decoder <| \points system searchedSvg ->
     let
@@ -173,10 +175,11 @@ getWithin radius =
     in
     getNearestHelp points system searched
       |> Maybe.andThen keepIfEligible
+      |> Maybe.map Found
 
 
 {-| -}
-getNearestX : Decoder chart data (List (Data.Data chart data))
+getNearestX : Decoder chart data (List (Found chart data))
 getNearestX =
   Decoder <| \points system searchedSvg ->
     let
@@ -184,10 +187,11 @@ getNearestX =
         Coordinate.toData system searchedSvg
     in
     getNearestXHelp points system searched
+      |> List.map Found
 
 
 {-| -}
-getWithinX : Float -> Decoder chart data (List (Data.Data chart data))
+getWithinX : Float -> Decoder chart data (List (Found chart data))
 getWithinX radius =
   Decoder <| \points system searchedSvg ->
     let
@@ -199,6 +203,18 @@ getWithinX radius =
     in
     getNearestXHelp points system searched
       |> List.filter keepIfEligible
+      |> List.map Found
+
+
+{-| -}
+type Found chart data =
+  Found (Data.Data chart data)
+
+
+{-| -}
+data : Found chart data -> data
+data (Found data) =
+  data.user
 
 
 

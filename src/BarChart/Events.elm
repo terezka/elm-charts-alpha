@@ -2,6 +2,7 @@ module BarChart.Events exposing
   ( Config, default, hoverOne, hoverGroup, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
   , Decoder, getSvg, getData, getNearest, getGroup, getWithin, getWithinX
+  , Found, data
   , map, map2, map3
   )
 
@@ -79,7 +80,7 @@ Pass a message taking the data of the data point hovered.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example1.elm)._
 
 -}
-hoverOne : (Maybe ( Int, data ) -> msg) -> Config data msg
+hoverOne : (Maybe (Found data) -> msg) -> Config data msg
 hoverOne msg =
   custom
     [ onMouseMove msg getNearest
@@ -125,7 +126,7 @@ Pass a message taking the data of the data points clicked.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example3.elm)._
 
 -}
-click : (Maybe ( Int, data ) -> msg) -> Config data msg
+click : (Maybe (Found data) -> msg) -> Config data msg
 click msg =
   custom
     [ onClick msg (getWithin 30) ]
@@ -260,9 +261,9 @@ getData =
 {-| Get the data coordinates nearest to the event.
 Returns `Nothing` if you have no data showing.
 -}
-getNearest : Decoder data (Maybe ( Int, data ))
+getNearest : Decoder data (Maybe (Found data))
 getNearest =
-  map (Maybe.map withBarIndex) Events.getNearest
+  Events.getNearest
 
 
 
@@ -270,15 +271,15 @@ getNearest =
 -}
 getGroup : Decoder data (Maybe data)
 getGroup =
-  map (Maybe.map .user) Events.getNearest
+  map (Maybe.map data) Events.getNearest
 
 
 {-| Finds the data coordinates horizontally nearest to the event, within the
 distance you provide in the first argument.
 -}
-getWithin : Float -> Decoder data (Maybe ( Int, data ))
+getWithin : Float -> Decoder data (Maybe (Found data))
 getWithin d =
-  map (Maybe.map withBarIndex) (Events.getWithin d)
+  Events.getWithin d
 
 
 {-| Finds the data coordinates horizontally nearest to the event, within the
@@ -286,12 +287,22 @@ distance you provide in the first argument.
 -}
 getWithinX : Float -> Decoder data (List data)
 getWithinX d =
-  map (List.map .user) (Events.getWithinX d)
+  map (List.map data) (Events.getWithinX d)
 
 
-withBarIndex : Data.Data Data.BarChart data -> ( Int, data )
-withBarIndex data =
-  ( data.barIndex, data.user )
+
+-- DATA
+
+
+{-| -}
+type alias Found data =
+  Events.Found Data.BarChart data
+
+
+{-| -}
+data : Found data -> data
+data =
+  Events.data
 
 
 

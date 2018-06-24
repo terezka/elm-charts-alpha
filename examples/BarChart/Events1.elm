@@ -34,7 +34,7 @@ main =
 
 
 type alias Model =
-    { hovering : Maybe ( Int, Data) }
+    { hovering : Maybe (Events.Found Data) }
 
 
 init : Model
@@ -47,7 +47,7 @@ init =
 
 
 type Msg
-  = Hover (Maybe (Int, Data))
+  = Hover (Maybe (Events.Found Data))
 
 
 update : Msg -> Model -> Model

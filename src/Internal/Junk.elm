@@ -7,6 +7,8 @@ import Svg exposing (Svg)
 import Html exposing (Html)
 import Html.Attributes
 import Internal.Coordinate as Coordinate
+import Internal.Events as Events
+import Internal.Data as Data
 import Color.Convert
 
 
@@ -25,7 +27,7 @@ type XYChart data
 type BarChart data
   = BarChart
       { hoverMany : (data -> String) -> (Float -> String) -> List data -> HoverMany
-      , hoverOne : List ( String, data -> String ) -> Int -> data -> HoverOne
+      , hoverOne : List ( String, data -> String ) -> Events.Found Data.BarChart data -> HoverOne
       }
 
 

@@ -61,9 +61,9 @@ import Svg
 import Svg.Attributes as Attributes
 import Html
 import BarChart.Coordinate as Coordinate
+import BarChart.Events as Events
 import Internal.Junk as Junk
 import Internal.Svg as Svg
-import Internal.Utils as Utils
 import Color
 import Color.Convert
 
@@ -110,17 +110,17 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip1.png?raw=true"></src>
 
 -}
-hoverOne : Maybe ( Int, data ) -> List ( String, data -> String ) -> Config data msg
+hoverOne : Maybe (Events.Found data) -> List ( String, data -> String ) -> Config data msg
 hoverOne hovered values =
   case hovered of
       Nothing ->
         Junk.none
 
-      Just ( barIndex, hovered_ ) ->
+      Just hovered_ ->
         Junk.Config <| \(Junk.BarChart defaults) system ->
           { below = []
           , above = []
-          , html  = [ Junk.viewHoverOne system (defaults.hoverOne values barIndex hovered_) ]
+          , html  = [ Junk.viewHoverOne system (defaults.hoverOne values hovered_) ]
           }
 
 
