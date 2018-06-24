@@ -1,4 +1,4 @@
-module BarChart.Grid exposing (Config, default, dots, lines)
+module BarChart.Grid exposing (Config, default, none, dots, lines)
 
 {-|
 
@@ -41,6 +41,13 @@ type alias Config =
 default : Config
 default =
   Grid.default
+
+
+{-| -}
+none : Config
+none =
+  -- TODO add this to other charts
+  Grid.none
 
 
 {-| Gets you a grid dots of a given radius and color.

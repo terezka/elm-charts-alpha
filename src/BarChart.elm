@@ -1,4 +1,4 @@
-module BarChart exposing (view, Config, bar, barWithExpectation)
+module BarChart exposing (view, Config, Bar, bar)
 
 {-| -}
 
@@ -49,37 +49,44 @@ type alias Config data msg =
   , orientation : Orientation.Config
   , legends : Legends.Config msg
   , events : Events.Config data msg
-  , pattern : Pattern.Config
   , grid : Grid.Config
   , bars : Bars.Config msg
   , junk : Junk.Config data msg
+  , pattern : Pattern.Config
   }
 
 
 {-| -}
-type alias Bar data msg =
-  Internal.Bars.Bar data msg
+type alias Bar data =
+  Internal.Bars.Bar data
 
 
 {-| -}
-bar : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> Bar data msg
+type alias Style =
+  { fill : Color.Color
+  , border : Color.Color
+  }
+
+
+{-| -}
+bar :
+  { title : String
+  , style : { base : Style, emphasized : data -> Style }
+  , variable : data -> Float
+  , pattern : Bool
+  }
+  -> Bar data
 bar =
   Internal.Bars.bar
 
 
 {-| -}
-barWithExpectation : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> (data -> Float) -> Bar data msg
-barWithExpectation =
-  Internal.Bars.barWithExpectation
-
-
-{-| -}
-view : Config data msg -> List (Bar data msg) -> List data -> Svg.Svg msg
+view : Config data msg -> List (Bar data) -> List data -> Svg.Svg msg
 view config bars data =
   let
     -- Data
     barsConfigs =
-      List.concatMap Internal.Bars.barConfigs bars
+      List.map Internal.Bars.barConfig bars
 
     totalOfBars =
       List.length barsConfigs
@@ -139,8 +146,8 @@ view config bars data =
 
     toLegend width bar =
       -- TODO color
-      { sample = Svg.square width (Maybe.map bar.color (List.head data) |> Maybe.withDefault Color.blue)
-      , label = bar.name
+      { sample = Svg.square width (Internal.Bars.borderRadius config.bars) bar.style.base.fill bar.style.base.border
+      , label = bar.title
       }
 
     viewLegends =
@@ -217,7 +224,7 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toDataPoints : Config data msg -> Coordinate.System -> List (Bar data msg) -> List data -> List (Data.Data Data.BarChart data)
+toDataPoints : Config data msg -> Coordinate.System -> List (Bar data) -> List data -> List (Data.Data Data.BarChart data)
 toDataPoints config system bars data =
   let
     userWidth =
@@ -230,21 +237,21 @@ toDataPoints config system bars data =
       List.length bars
 
     toDataPoint groupIndex datum =
-      List.indexedMap (addDataPoint groupIndex datum) (List.concatMap Internal.Bars.variables bars)
+      List.indexedMap (addDataPoint groupIndex datum) (List.map Internal.Bars.variable bars)
 
     addDataPoint groupIndex datum barIndex variable =
       { barIndex = barIndex
       , user = datum
-      , point = point barIndex (Data.Point (toFloat groupIndex + 1) (variable datum))
+      , point = point barIndex (Data.Point (toFloat groupIndex + 1) (variable datum)) |> Tuple.second
       }
 
     point =
       case config.orientation of
         Internal.Orientation.Horizontal ->
-          Internal.Bars.horizontalAdjust system userWidth totalOfGroups totalOfBars
+          Internal.Bars.toHorizontalBar system userWidth totalOfGroups totalOfBars
 
         Internal.Orientation.Vertical ->
-          Internal.Bars.verticalAdjust system userWidth totalOfGroups totalOfBars
+          Internal.Bars.toVerticalBar system userWidth totalOfGroups totalOfBars
   in
   List.indexedMap toDataPoint data
     |> List.concat
@@ -298,7 +305,12 @@ toSystem config x y data points =
 -- INTERNAL / JUNK
 
 
-junkDefaults : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> Internal.Junk.BarChart data
+junkDefaults :
+  Config data msg
+  -> List (Internal.Bars.BarConfig data)
+  -> Internal.Axis.Config Float data msg
+  -> Internal.Axis.Config Float data msg
+  -> Internal.Junk.BarChart data
 junkDefaults config bars xAxis yAxis =
   Internal.Junk.BarChart
     { hoverMany = hoverMany config bars xAxis yAxis
@@ -306,7 +318,15 @@ junkDefaults config bars xAxis yAxis =
     }
 
 
-hoverMany : Config data msg -> List (Internal.Bars.BarConfig data msg) -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> (data -> String) -> (Float -> String) -> List data -> Internal.Junk.HoverMany
+hoverMany :
+  Config data msg
+  -> List (Internal.Bars.BarConfig data)
+  -> Internal.Axis.Config Float data msg
+  -> Internal.Axis.Config Float data msg
+  -> (data -> String)
+  -> (Float -> String)
+  -> List data
+  -> Internal.Junk.HoverMany
 hoverMany config bars xAxis yAxis formatX formatY hovered =
   let
     x = Internal.Axis.variable xAxis
@@ -319,8 +339,8 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
       Maybe.map formatX >> Maybe.withDefault ""
 
     value bar datum =
-      ( bar.color datum
-      , bar.name
+      ( bar.style.base.border
+      , bar.title
       , formatY (bar.variable datum)
       )
   in
@@ -333,7 +353,7 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
 
 hoverOne :
   Config data msg
-  -> List (Internal.Bars.BarConfig data msg)
+  -> List (Internal.Bars.BarConfig data)
   -> List ( String, data -> String )
   -> Internal.Events.Found Data.BarChart data
   -> Internal.Junk.HoverOne
@@ -342,7 +362,7 @@ hoverOne config bars values (Internal.Events.Found hovered) =
     ( title, color ) =
       Array.fromList bars
         |> Array.get hovered.barIndex
-        |> Maybe.map (\bar -> ( bar.name, bar.color hovered.user ))
+        |> Maybe.map (\bar -> ( bar.title, bar.style.base.border ))
         |> Maybe.withDefault ( "", Colors.pink )
 
     applyValue ( label, value ) =

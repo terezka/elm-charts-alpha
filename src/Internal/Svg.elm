@@ -67,17 +67,21 @@ withinChartArea { id } =
 
 
 
--- DOT
+-- SQUARE
 
 
 {-| -}
-square : Float -> Color.Color -> Svg msg
-square width color =
+square : Float -> Int -> Color.Color -> Color.Color -> Svg msg
+square width radius fill border =
+  -- TODO add pattern and border radius
   Svg.rect
     [ Attributes.y (toString (-width / 2))
     , Attributes.width (toString width)
     , Attributes.height (toString width)
-    , Attributes.fill (Color.Convert.colorToCssRgba color)
+    , Attributes.fill (Color.Convert.colorToCssRgba fill)
+    , Attributes.stroke (Color.Convert.colorToCssRgba border)
+    , Attributes.rx (toString radius)
+    , Attributes.ry (toString radius)
     ]
     []
 
@@ -395,3 +399,4 @@ verticalBarCommands system borderRadius width { x, y }  =
       , Arc b b -45 False True <| Point (x + width) (y - ry)
       , Line <| Point (x + width) 0
       ]
+

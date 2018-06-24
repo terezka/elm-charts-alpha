@@ -1,10 +1,11 @@
 module Internal.Bars
   exposing
     ( Config, default, custom
-    , Bar, BarConfig, bar, barWithExpectation
+    , Bar, BarConfig, bar
     -- INTERNAL
-    , barConfigs, toGroups, viewGroup, variables
-    , userWidth, horizontalAdjust, verticalAdjust
+    , borderRadius
+    , barConfig, toGroups, viewGroup, variable
+    , userWidth, toHorizontalBar, toVerticalBar
     )
 
 {-| -}
@@ -18,6 +19,7 @@ import Internal.Orientation as Orientation
 import Internal.Svg as Svg
 import Internal.Path as Path
 import Internal.Utils as Utils
+import Internal.Colors as Colors
 import Color.Convert
 
 
@@ -74,65 +76,53 @@ userWidth (Config config) =
   config.width
 
 
+{-| -}
+borderRadius : Config msg -> Int
+borderRadius (Config config) =
+  config.borderRadius
+
+
+
 
 -- BAR
 
 
 {-| -}
-type Bar data msg =
-  Bar (BarConfig data msg)
+type Bar data =
+  Bar (BarConfig data)
 
 
 {-| -}
-bar : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> Bar data msg
-bar name color attributes variable =
-  Bar <| BarConfig name color attributes variable Nothing
-
-
-{-| -}
-barWithExpectation : String -> (data -> Color.Color) -> List (Svg.Attribute msg) -> (data -> Float) -> (data -> Float) -> Bar data msg
-barWithExpectation name color attributes variable expectation =
-  Bar <| BarConfig name color attributes variable (Just expectation)
-
-
-
--- INTERNAL
-
-
-type alias BarConfig data msg =
-  { name : String
-  , color : data -> Color.Color
-  , attributes : List (Svg.Attribute msg)
+type alias BarConfig data =
+  { title : String
+  , style : { base : Style, emphasized : data -> Style }
   , variable : data -> Float
-  , expectation : Maybe (data -> Float)
+  , pattern : Bool
+  }
+
+
+type alias Style =
+  { fill : Color.Color
+  , border : Color.Color
   }
 
 
 {-| -}
-barConfigs : Bar data msg -> List (BarConfig data msg)
-barConfigs (Bar config) =
-  case config.expectation of
-    Just expectation ->
-      let
-        name =
-          config.name ++ " (expected)"
-      in
-      [ config, BarConfig name config.color (addMask config.attributes) expectation Nothing  ]
-
-    Nothing ->
-      [ config ]
-
-
-addMask : List (Svg.Attribute msg) -> List (Svg.Attribute msg)
-addMask attributes =
-  attributes ++ [ Svg.Attributes.mask "url(#mask-stripe)" ]
+bar : BarConfig data -> Bar data
+bar =
+  Bar
 
 
 {-| -}
-variables : Bar data msg -> List (data -> Float)
-variables (Bar config) =
-  List.filterMap identity [ Just config.variable, config.expectation ]
+barConfig : Bar data -> BarConfig data
+barConfig (Bar config) =
+  config
 
+
+{-| -}
+variable : Bar data -> data -> Float
+variable (Bar config) =
+  config.variable
 
 
 -- INTERNAL / GROUP
@@ -140,14 +130,14 @@ variables (Bar config) =
 
 type alias BarInfo msg =
   { point : Coordinate.Point
-  , attributes : List (Svg.Attribute msg)
   , index : Int
-  , color : Color.Color
+  , color : { fill : Color.Color, border : Color.Color }
   , label : Maybe (Label msg)
+  , pattern : Bool
   }
 
 
-toGroups : Orientation.Config -> Config msg -> List (BarConfig data msg) -> List data -> List (List (BarInfo msg))
+toGroups : Orientation.Config -> Config msg -> List (BarConfig data) -> List data -> List (List (BarInfo msg))
 toGroups orientation (Config config) barsConfigs data =
   let
     groupInfo groupIndex datum =
@@ -155,10 +145,10 @@ toGroups orientation (Config config) barsConfigs data =
 
     barInfo groupIndex datum index bar =
       { point = point (bar.variable datum) (toFloat groupIndex + 1)
-      , attributes = bar.attributes
       , index = index
-      , color = bar.color datum
+      , color = bar.style.emphasized datum
       , label = Maybe.map (\v -> v (bar.variable datum)) config.label
+      , pattern = bar.pattern
       }
 
     point value position =
@@ -174,90 +164,82 @@ toGroups orientation (Config config) barsConfigs data =
 
 viewGroup : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> List (BarInfo msg) -> Svg.Svg msg
 viewGroup orientation config system totalOfGroups totalOfBars group =
-  let
-    viewBar =
-      case orientation of
-        Orientation.Horizontal ->
-          viewBarHorizontal
+  Svg.g
+    [ Svg.Attributes.class "group" ]
+    (List.map (viewBar orientation config system totalOfGroups totalOfBars) group)
 
-        Orientation.Vertical ->
-          viewBarVertical
-  in
-  Svg.g [ Svg.Attributes.class "group" ] (List.map (viewBar config system totalOfGroups totalOfBars) group)
+
+viewBar : Orientation.Config -> Config msg -> Coordinate.System -> Int -> Int -> BarInfo msg -> Svg.Svg msg
+viewBar orientation =
+  case orientation of
+    Orientation.Horizontal ->
+      viewBarHorizontal
+
+    Orientation.Vertical ->
+      viewBarVertical
 
 
 viewBarHorizontal : Config msg -> Coordinate.System -> Int -> Int -> BarInfo msg -> Svg.Svg msg
-viewBarHorizontal (Config config) system totalOfGroups totalOfBars { point, index, color, label, attributes } =
+viewBarHorizontal (Config config) system totalOfGroups totalOfBars bar =
   let
-    offset =
-      barOffset index totalOfBars
+    ( width, point ) =
+      toHorizontalBar system config.width totalOfGroups totalOfBars bar.index bar.point
 
-    width =
-      horizontalMaxWidth system config.width totalOfGroups totalOfBars
-
-    y =
-      point.y - width * offset
-
-    x =
-      point.x
-
-    commands =
-      Svg.horizontalBarCommands system config.borderRadius width (Coordinate.Point x y)
-
-    viewLabel label =
-      Junk.labelAt system x (y - width / 2) (label.xOffset + 10) (label.yOffset + 3) "middle" Color.black label.text
+    attributes =
+      List.concat
+        [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
+        , [ Svg.Attributes.fill (Colors.toString bar.color.fill)
+          , Svg.Attributes.stroke (Colors.toString bar.color.border)
+          ]
+        ]
   in
   Svg.g
     [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
-    [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToCssRgba color) ]) commands
-    , Utils.viewMaybe label viewLabel
+    [ Path.view system attributes (Svg.horizontalBarCommands system config.borderRadius width point)
+    , Utils.viewMaybe bar.label (horizontalLabel system width point)
     ]
 
 
 viewBarVertical : Config msg -> Coordinate.System -> Int -> Int -> BarInfo msg -> Svg.Svg msg
-viewBarVertical (Config config) system totalOfGroups totalOfBars { point, index, color, label, attributes } =
+viewBarVertical (Config config) system totalOfGroups totalOfBars bar =
   let
-    offset =
-      barOffset index totalOfBars
+    ( width, point ) =
+      toVerticalBar system config.width totalOfGroups totalOfBars bar.index bar.point
 
-    width =
-      verticalMaxWidth system config.width totalOfGroups totalOfBars
-
-    x =
-      point.x + width * offset
-
-    y =
-      point.y
-
-    commands =
-      Svg.verticalBarCommands system config.borderRadius width (Coordinate.Point x y)
-
-    viewLabel label =
-      Junk.labelAt system (x + width / 2) y label.xOffset (label.yOffset - 5) "middle" Color.black label.text
+    attributes =
+      List.concat
+        [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
+        , [ Svg.Attributes.fill (Colors.toString bar.color.fill)
+          , Svg.Attributes.stroke (Colors.toString bar.color.border)
+          ]
+        ]
   in
   Svg.g
     [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
-    [ Path.view system (attributes ++ [ Svg.Attributes.fill (Color.Convert.colorToCssRgba color) ]) commands
-    , Utils.viewMaybe label viewLabel
+    [ Path.view system attributes (Svg.verticalBarCommands system config.borderRadius width point)
+    , Utils.viewMaybe bar.label (verticalLabel system width point)
     ]
 
 
 
--- CALCULATIONS
+-- HORIZONTAL / CALCULATIONS
 
 
-horizontalAdjust : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> Coordinate.Point
-horizontalAdjust system userWidth totalOfGroups totalOfBars barIndex point =
+toHorizontalBar : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> ( Float, Coordinate.Point )
+toHorizontalBar system userWidth totalOfGroups totalOfBars barIndex point =
   let
     offset =
       barOffset barIndex totalOfBars
 
     width =
       horizontalMaxWidth system userWidth totalOfGroups totalOfBars
+
+    adjusted =
+      { x = point.x + width * offset + width / 2
+      , y = point.y
+      }
   in
-  { x = point.x + width * offset + width / 2
-  , y = point.y
-  }
+  ( width, adjusted )
 
 
 horizontalMaxWidth : Coordinate.System -> Float -> Int -> Int -> Float
@@ -272,18 +254,34 @@ horizontalMaxWidth system userWidth totalOfGroups totalOfBars =
   Coordinate.scaleDataY system width
 
 
-verticalAdjust : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> Coordinate.Point
-verticalAdjust system userWidth totalOfGroups totalOfBars barIndex point =
+horizontalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label msg -> Svg.Svg msg
+horizontalLabel system width point label =
+  let y = point.y - width / 2 -- move to middle
+      xOffset = label.xOffset + 10 -- lift above bar
+      yOffset = label.yOffset + 3
+  in
+  Junk.labelAt system point.x y xOffset yOffset "middle" Color.black label.text
+
+
+
+-- VERTICAL / CALCULATIONS
+
+
+toVerticalBar : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> ( Float, Coordinate.Point )
+toVerticalBar system userWidth totalOfGroups totalOfBars barIndex point =
   let
     offset =
       barOffset barIndex totalOfBars
 
     width =
       verticalMaxWidth system userWidth totalOfGroups totalOfBars
+
+    adjusted =
+      { x = point.x + width * offset + width / 2
+      , y = point.y
+      }
   in
-  { x = point.x + width * offset + width / 2
-  , y = point.y
-  }
+  ( width, adjusted )
 
 
 verticalMaxWidth : Coordinate.System -> Float -> Int -> Int -> Float
@@ -296,6 +294,14 @@ verticalMaxWidth system userWidth totalOfGroups totalOfBars =
       Basics.min maxWidth userWidth / toFloat totalOfBars
   in
   Coordinate.scaleDataX system width
+
+
+verticalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label msg -> Svg.Svg msg
+verticalLabel system width point label =
+  let x = point.x + width / 2 -- move to middle
+      yOffset = label.yOffset - 5 -- lift above bar
+  in
+  Junk.labelAt system x point.y label.xOffset yOffset "middle" Color.black label.text
 
 
 barOffset : Int -> Int -> Float

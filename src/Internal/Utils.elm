@@ -12,6 +12,12 @@ import Internal.Coordinate as Coordinate
 
 
 {-| -}
+addIf : Bool -> List a -> List a
+addIf condition stuff =
+  if condition then stuff else []
+
+
+{-| -}
 apply : a -> (a -> b) -> b
 apply stuff toNewStuff =
     toNewStuff stuff

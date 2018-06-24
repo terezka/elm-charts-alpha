@@ -72,22 +72,63 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
-    { independentAxis = IndependentAxis.default 700 "gender" .label -- TODO customize label?
+    { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
     , dependentAxis = DependentAxis.default 400 "$" -- TODO negative labels -- TODO horizontal border radius
     , container = Container.default "bar-chart"
     , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
-    , grid = Grid.default
-    , bars = Bars.custom (Bars.Properties Nothing 50 3) -- TODO set y on hover
+    , grid = Grid.none
+    , bars = Bars.custom (Bars.Properties Nothing 100 2) -- TODO set y on hover
     , junk = Junk.hoverOne model.hovering [ ( "ok", toString << .magnesium ) ]
     , pattern = Pattern.default
     }
-    [ BarChart.bar "Indonesia" (always (Color.rgba 245 105 215 0.5)) [] .magnesium
-    , BarChart.bar "Malaysia" (always (Color.rgba 0 229 255 0.5)) [] .heartattacks
-    , BarChart.bar "Vietnam" (always (Color.rgba 3 169 244 0.5)) [] .expected
-    ]
+    [ indonesia model.hovering, malaysia, vietnam ]
     data
+
+
+indonesia : Maybe (Events.Found Data) -> BarChart.Bar Data
+indonesia hovering =
+  BarChart.bar
+    { title = "Indonesia"
+    , style =
+        { base = { fill = Color.rgba 245 105 215 0.5, border = Color.rgba 245 105 215 1 }
+        , emphasized = \datum ->
+            if Maybe.map Events.data hovering == Just datum then
+              { fill = Color.rgba 245 105 215 0.7, border = Color.rgba 245 105 215 1 }
+            else
+              { fill = Color.rgba 245 105 215 0.5, border = Color.rgba 245 105 215 1 }
+        }
+    , variable = .magnesium
+    , pattern = False
+    }
+
+
+malaysia : BarChart.Bar Data
+malaysia =
+  BarChart.bar
+    { title = "Malaysia"
+    , style =
+        { base = { fill = Color.rgba 0 229 255 0.4, border = Color.rgba 0 229 255 1 }
+        , emphasized = \_ -> { fill = Color.rgba 0 229 255 0.4, border = Color.rgba 0 229 255 1 }
+        }
+    , variable = .heartattacks
+    , pattern = False
+    }
+
+
+vietnam : BarChart.Bar Data
+vietnam =
+  BarChart.bar
+    { title = "Vietnam"
+    , style =
+        { base = { fill = Color.rgba 3 169 244 0.5, border = Color.rgba 3 169 244 1 }
+        , emphasized = \_ -> { fill = Color.rgba 3 169 244 0.5, border = Color.rgba 3 169 244 1 }
+        }
+    , variable = .heartattacks
+    , pattern = False
+    }
+
 
 
 
@@ -104,8 +145,8 @@ type alias Data =
 
 data : List Data
 data =
-  [ Data 1 -5 -2 "Female"
-  , Data 2 6 3 "Male"
-  , Data 3 7 6 "Trans"
-  , Data 4 8 3 "Fluid"
+  [ Data 1 -5 -2 "1st"
+  , Data 2 6 3 "2nd"
+  , Data 3 7 6 "3rd"
+  , Data 4 8 3 "4th"
   ]

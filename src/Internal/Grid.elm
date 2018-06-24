@@ -1,4 +1,4 @@
-module Internal.Grid exposing (Config, default, dots, lines, view)
+module Internal.Grid exposing (Config, default, none, dots, lines, view)
 
 
 {-| -}
@@ -8,7 +8,6 @@ import Svg.Attributes as Attributes
 import Internal.Svg as Svg
 import Internal.Colors as Colors
 import Internal.Coordinate as Coordinate
-import Internal.Axis as Axis
 import Internal.Axis.Ticks as Ticks
 import Color
 import Color.Convert
@@ -25,6 +24,12 @@ type Config
 default : Config
 default =
   lines 1 Colors.grayLightest
+
+
+{-| -}
+none : Config
+none =
+   dots 0 Colors.transparent
 
 
 {-| -}

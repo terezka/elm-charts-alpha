@@ -2,6 +2,7 @@ module Internal.Colors exposing
   ( pink, blue, gold, red, green, cyan, teal, purple, rust, strongBlue
   , pinkLight, blueLight, goldLight, redLight, greenLight, cyanLight, tealLight, purpleLight
   , black, gray, grayLight, grayLightest, transparent
+  , toString
   )
 
 {-|
@@ -20,6 +21,7 @@ module Internal.Colors exposing
 -}
 
 import Color
+import Color.Convert
 
 
 
@@ -163,3 +165,12 @@ grayLightest =
 transparent : Color.Color
 transparent =
   Color.rgba 0 0 0 0
+
+
+-- INTERNAL
+
+
+{-| -}
+toString : Color.Color -> String
+toString =
+  Color.Convert.colorToCssRgba
