@@ -309,10 +309,10 @@ addPosition (Transfrom x y) (Transfrom xf yf) =
 horizontalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
 horizontalBarCommands system borderRadius width { x, y }  =
   if borderRadius == 0 then
-    [ Move <| Point 0 y
-    , Line <| Point x y
-    , Line <| Point x (y + width)
-    , Line <| Point 0 (y + width)
+    [ Move <| Point 0 (y - width / 2)
+    , Line <| Point x (y - width / 2)
+    , Line <| Point x (y + width / 2)
+    , Line <| Point 0 (y + width / 2)
     ]
   else
     if x < 0 then
@@ -326,12 +326,12 @@ horizontalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point 0 y
-      , Line <| Point (x + rx) y
-      , Arc b b -45 False True <| Point x (y + ry)
-      , Line <| Point x (y + width - ry)
-      , Arc b b 45 False True <| Point (x + rx) (y + width)
-      , Line <| Point 0 (y + width)
+      [ Move <| Point 0 (y - width / 2)
+      , Line <| Point (x + rx) (y - width / 2)
+      , Arc b b -45 False True <| Point x (y - width / 2 + ry)
+      , Line <| Point x (y + width / 2 - ry)
+      , Arc b b 45 False True <| Point (x + rx) (y + width / 2)
+      , Line <| Point 0 (y + width / 2)
       ]
     else
       let
@@ -344,12 +344,12 @@ horizontalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point 0 y
-      , Line <| Point (x - rx) y
-      , Arc b b -45 False False <| Point x (y + ry)
-      , Line <| Point x (y + width - ry)
-      , Arc b b 45 False False <| Point (x - rx) (y + width)
-      , Line <| Point 0 (y + width)
+      [ Move <| Point 0 (y - width / 2)
+      , Line <| Point (x - rx) (y - width / 2)
+      , Arc b b -45 False False <| Point x (y  - width / 2 + ry)
+      , Line <| Point x (y + width / 2 - ry)
+      , Arc b b 45 False False <| Point (x - rx) (y + width / 2)
+      , Line <| Point 0 (y + width / 2)
       ]
 
 
@@ -357,10 +357,10 @@ horizontalBarCommands system borderRadius width { x, y }  =
 verticalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
 verticalBarCommands system borderRadius width { x, y }  =
   if borderRadius == 0 then
-    [ Move <| Point x 0
-    , Line <| Point x y
-    , Line <| Point (x + width) y
-    , Line <| Point (x + width) 0
+    [ Move <| Point (x - width / 2) 0
+    , Line <| Point (x - width / 2) y
+    , Line <| Point (x + width / 2) y
+    , Line <| Point (x + width / 2) 0
     ]
   else
     if y < 0 then
@@ -374,12 +374,12 @@ verticalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point x 0
-      , Line <| Point x (y + ry)
-      , Arc b b -45 False False <| Point (x + rx) y
-      , Line <| Point (x + width - rx) y
-      , Arc b b -45 False False <| Point (x + width) (y + ry)
-      , Line <| Point (x + width) 0
+      [ Move <| Point (x - width / 2) 0
+      , Line <| Point (x - width / 2) (y + ry)
+      , Arc b b -45 False False <| Point (x - width / 2 + rx) y
+      , Line <| Point (x + width / 2 - rx) y
+      , Arc b b -45 False False <| Point (x + width / 2) (y + ry)
+      , Line <| Point (x + width / 2) 0
       ]
     else
       let
@@ -392,11 +392,11 @@ verticalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point x 0
-      , Line <| Point x (y - ry)
-      , Arc b b -45 False True <| Point (x + rx) y
-      , Line <| Point (x + width - rx) y
-      , Arc b b -45 False True <| Point (x + width) (y - ry)
-      , Line <| Point (x + width) 0
+      [ Move <| Point (x - width / 2) 0
+      , Line <| Point (x - width / 2) (y - ry)
+      , Arc b b -45 False True <| Point (x - width / 2 + rx) y
+      , Line <| Point (x + width / 2 - rx) y
+      , Arc b b -45 False True <| Point (x + width / 2) (y - ry)
+      , Line <| Point (x + width / 2) 0
       ]
 

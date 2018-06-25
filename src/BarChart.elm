@@ -240,7 +240,7 @@ toDataPoints config system countOfSeries countOfData width seriesAll data =
         }
 
     eachBar dataIndex datum seriesIndex series =
-      let offset = toFloat seriesIndex - countOfSeries / 2
+      let offset = toFloat seriesIndex - countOfSeries / 2 + 0.5
           independent = toFloat dataIndex + 1 + offset * width
           dependent = Internal.Bars.variable series datum
       in

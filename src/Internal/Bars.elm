@@ -153,7 +153,7 @@ viewSeries system orientation (Config config) width countOfSeries data seriesInd
     viewBarWith toCommands toPoint toLabel dataIndex datum =
       let
         style = series.style.emphasized datum
-        offset = toFloat seriesIndex - countOfSeries / 2
+        offset = toFloat seriesIndex - countOfSeries / 2 + 0.5
         independent = toFloat dataIndex + 1 + offset * width
         dependent = series.variable datum
         point = toPoint independent dependent
