@@ -79,7 +79,7 @@ Pass a message taking the data of the data point hovered.
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example1.elm)._
 
--}
+-}  -- TODO add orientation information to fix horizontal hover
 hoverOne : (Maybe (Found data) -> msg) -> Config data msg
 hoverOne msg =
   custom

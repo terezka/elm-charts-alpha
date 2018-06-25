@@ -19,6 +19,7 @@ import BarChart.Junk as Junk
 import Internal.Coordinate as Coordinate
 import Internal.Orientation as Orientation
 import Internal.Svg as Svg
+import Internal.Data as Data
 import Internal.Path as Path
 import Internal.Utils as Utils
 import Internal.Colors as Colors
@@ -145,18 +146,13 @@ width length scale system (Config config) countOfSeries countOfData =
 
 
 {-| -}
-viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Float -> List data -> Int -> Series data -> Svg.Svg msg
-viewSeries system orientation (Config config) width countOfSeries data seriesIndex (Series series) =
+viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Series data -> Data.Data Data.BarChart data -> Svg.Svg msg
+viewSeries system orientation (Config config) width (Series series) datum =
   let
-    countOfData = toFloat (List.length data)
-
-    viewBarWith toCommands toPoint toLabel dataIndex datum =
+    viewBarWith toCommands toPoint toLabel =
       let
-        style = series.style.emphasized datum
-        offset = toFloat seriesIndex - countOfSeries / 2 + 0.5
-        independent = toFloat dataIndex + 1 + offset * width
-        dependent = series.variable datum
-        point = toPoint independent dependent
+        style =
+          series.style.emphasized datum.user
 
         attributes =
           List.concat
@@ -167,18 +163,15 @@ viewSeries system orientation (Config config) width countOfSeries data seriesInd
             ]
       in
       Svg.g
-        [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
-        [ Path.view system attributes (toCommands system config.borderRadius width point)
-        , Utils.viewMaybe config.label (Utils.apply dependent >> toLabel system width point)
+        [ Svg.Attributes.class "chart__bar", Svg.Attributes.style "pointer-events: none;" ]
+        [ Path.view system attributes (toCommands system config.borderRadius width datum.point)
+        , Utils.viewMaybe config.label (Utils.apply datum.point.y >> toLabel system width datum.point)
         ]
-
-    viewBar =
-      Orientation.chooses orientation
-        { horizontal = viewBarWith Svg.horizontalBarCommands Coordinate.horizontalPoint horizontalLabel
-        , vertical = viewBarWith Svg.verticalBarCommands Coordinate.verticalPoint verticalLabel
-        }
   in
-  Svg.g [ Svg.Attributes.class "series" ] (List.indexedMap viewBar data)
+  Orientation.chooses orientation
+    { horizontal = viewBarWith Svg.horizontalBarCommands Coordinate.horizontalPoint horizontalLabel
+    , vertical = viewBarWith Svg.verticalBarCommands Coordinate.verticalPoint verticalLabel
+    }
 
 
 

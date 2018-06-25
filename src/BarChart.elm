@@ -119,7 +119,7 @@ view config bars data =
           }
 
     dataPoints = toDataPoints config system countOfSeries countOfData width bars data
-    dataPointsAll = List.concat dataPoints |> Debug.log "here"
+    dataPointsAll = List.concat dataPoints
 
     -- Junk
     addGrid =
@@ -137,8 +137,12 @@ view config bars data =
         }
 
     -- View
-    viewSeries =
-      List.indexedMap (Internal.Bars.viewSeries system config.orientation config.bars width countOfSeries data) bars
+    viewSeries data =
+      Svg.g [ Svg.Attributes.class "chart__group" ] <|
+        List.map2 (Internal.Bars.viewSeries system config.orientation config.bars width) bars data
+
+    viewAllSeries =
+      List.map viewSeries dataPoints
 
     attributes =
       List.concat
@@ -164,7 +168,7 @@ view config bars data =
       [ Svg.defs [] (clipPath system :: Internal.Pattern.toDefs config.pattern)
       , Svg.g [ Svg.Attributes.class "chart__junk--below" ] junk.below
       , chartAreaPlatform config dataPointsAll system
-      , Svg.g [ Svg.Attributes.class "groups" ] viewSeries
+      , Svg.g [ Svg.Attributes.class "chart__groups" ] viewAllSeries
       , Internal.Axis.viewHorizontal system intersection horizontalAxis
       , Internal.Axis.viewVertical system intersection verticalAxis
       , viewLegends
