@@ -1,4 +1,4 @@
-module BarChart exposing (view, Config, Series, series)
+module BarChart exposing (view, Config, Series, series, Style, solid, bordered, alternate, isBar, isGroup)
 
 {-| -}
 
@@ -61,17 +61,11 @@ type alias Series data =
   Internal.Bars.Series data
 
 
-{-| -}
-type alias Style =
-  { fill : Color.Color
-  , border : Color.Color
-  }
-
 
 {-| -}
 type alias SeriesConfig data =
   { title : String
-  , style : { base : Style, emphasized : data -> Style }
+  , style : Style data
   , variable : data -> Float
   , pattern : Bool
   }
@@ -81,6 +75,47 @@ type alias SeriesConfig data =
 series : SeriesConfig data -> Series data
 series =
   Internal.Bars.series
+
+
+-- STYLE
+
+
+{-| -}
+type alias Style data =
+  Internal.Bars.Style data
+
+
+{-| -}
+solid : Color.Color -> Style data
+solid =
+  Internal.Bars.solid
+
+
+{-| -}
+bordered : Color.Color -> Color.Color -> Style data
+bordered =
+  Internal.Bars.bordered
+
+
+{-| -}
+alternate : (Int -> data -> Bool) -> Style data -> Style data -> Style data
+alternate =
+  Internal.Bars.alternate
+
+
+{-| -} -- TODO move elsewhere
+isBar : Maybe (Events.Found data) -> Int -> data -> Bool
+isBar =
+  Internal.Bars.isBar
+
+
+{-| -}
+isGroup : Maybe (Events.Found data) -> Int -> data -> Bool
+isGroup =
+  Internal.Bars.isGroup
+
+
+-- VIEW
 
 
 {-| -}
@@ -152,7 +187,7 @@ view config bars data =
         ]
 
     toLegend width bar =
-      { sample = Svg.square width (Internal.Bars.borderRadius config.bars) bar.style.base.fill bar.style.base.border
+      { sample = Svg.square width (Internal.Bars.borderRadius config.bars) (Internal.Bars.fill bar.style) (Internal.Bars.border bar.style)
       , label = bar.title
       }
 
@@ -338,7 +373,7 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
       Maybe.map formatX >> Maybe.withDefault ""
 
     value bar datum =
-      ( bar.style.base.border
+      ( Internal.Bars.border bar.style
       , bar.title
       , formatY (bar.variable datum)
       )
@@ -361,7 +396,7 @@ hoverOne config bars values (Internal.Events.Found hovered) =
     ( title, color ) =
       Array.fromList bars
         |> Array.get hovered.barIndex
-        |> Maybe.map (\bar -> ( bar.title, bar.style.base.border ))
+        |> Maybe.map (\bar -> ( bar.title, Internal.Bars.border bar.style ))
         |> Maybe.withDefault ( "", Colors.pink )
 
     applyValue ( label, value ) =

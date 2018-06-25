@@ -4,7 +4,6 @@ module BarChart.Bars exposing (Config, default, custom, Properties, Label)
 
 
 import Internal.Bars
-import Svg
 
 
 {-| -}

@@ -2,7 +2,10 @@ module Internal.Bars
   exposing
     ( Config, default, custom
     , Series, SeriesProps, series
+    , Style, solid, bordered, alternate
     -- INTERNAL
+    , fill, border
+    , isBar, isGroup
     , borderRadius
     , seriesProps, variable
     , userWidth, toHorizontalBar, toVerticalBar
@@ -16,6 +19,7 @@ import Svg
 import Svg.Attributes
 import Color
 import BarChart.Junk as Junk
+import BarChart.Events as Events
 import Internal.Coordinate as Coordinate
 import Internal.Orientation as Orientation
 import Internal.Svg as Svg
@@ -23,6 +27,7 @@ import Internal.Data as Data
 import Internal.Path as Path
 import Internal.Utils as Utils
 import Internal.Colors as Colors
+import Internal.Events
 
 
 {-| -}
@@ -95,15 +100,9 @@ type Series data =
 {-| -}
 type alias SeriesProps data =
   { title : String
-  , style : { base : Style, emphasized : data -> Style }
+  , style : Style data
   , variable : data -> Float
   , pattern : Bool
-  }
-
-
-type alias Style =
-  { fill : Color.Color
-  , border : Color.Color
   }
 
 
@@ -123,6 +122,80 @@ seriesProps (Series config) =
 variable : Series data -> data -> Float
 variable (Series config) =
   config.variable
+
+
+
+-- STYLE
+
+
+{-| -}
+type Style data =
+  Style (StyleProps data)
+
+
+type alias StyleProps data =
+  { base : Colors.Style
+  , alternate : Int -> data -> Colors.Style
+  }
+
+
+{-| -}
+solid : Color.Color -> Style data
+solid color =
+  Style
+    { base = Colors.Style color color
+    , alternate = \_ _ -> Colors.Style color color
+    }
+
+
+{-| -}
+bordered : Color.Color -> Color.Color -> Style data
+bordered fill border =
+  Style
+    { base = Colors.Style fill border
+    , alternate = \_ _ -> Colors.Style fill border
+    }
+
+
+{-| -}
+alternate : (Int -> data -> Bool) -> Style data -> Style data -> Style data
+alternate condition (Style first) (Style second) =
+  Style
+    { base = first.base
+    , alternate = \index data ->
+        if condition index data
+          then second.alternate index data
+          else first.alternate index data
+    }
+
+
+{-| -}
+fill : Style data -> Color.Color
+fill (Style style) =
+  style.base.fill
+
+
+{-| -}
+border : Style data -> Color.Color
+border (Style style) =
+  style.base.border
+
+
+
+{-| -}
+isBar : Maybe (Events.Found data) -> Int -> data -> Bool
+isBar found index datum =
+  case found of
+    Just (Internal.Events.Found data) -> data.barIndex == index && data.user == datum
+    Nothing -> False
+
+
+{-| -}
+isGroup : Maybe (Events.Found data) -> Int -> data -> Bool
+isGroup found index datum =
+  case found of
+    Just (Internal.Events.Found data) -> data.user == datum
+    Nothing -> False
 
 
 
@@ -151,14 +224,17 @@ viewSeries system orientation (Config config) width (Series series) datum =
   let
     viewBarWith toCommands toPoint toLabel =
       let
-        style =
-          series.style.emphasized datum.user
+        (Style style) =
+          series.style
+
+        { fill, border } =
+          style.alternate datum.barIndex datum.user
 
         attributes =
           List.concat
             [ Utils.addIf series.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
-            , [ Svg.Attributes.fill (Colors.toString style.fill)
-              , Svg.Attributes.stroke (Colors.toString style.border)
+            , [ Svg.Attributes.fill (Colors.toString fill)
+              , Svg.Attributes.stroke (Colors.toString border)
               ]
             ]
       in

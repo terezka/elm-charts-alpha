@@ -3,6 +3,7 @@ module Internal.Colors exposing
   , pinkLight, blueLight, goldLight, redLight, greenLight, cyanLight, tealLight, purpleLight
   , black, gray, grayLight, grayLightest, transparent
   , toString
+  , Style, attributes
   )
 
 {-|
@@ -20,6 +21,8 @@ module Internal.Colors exposing
 
 -}
 
+import Svg
+import Svg.Attributes
 import Color
 import Color.Convert
 
@@ -174,3 +177,18 @@ transparent =
 toString : Color.Color -> String
 toString =
   Color.Convert.colorToCssRgba
+
+
+{-| -}
+type alias Style =
+  { fill : Color.Color
+  , border : Color.Color
+  }
+
+
+{-| -}
+attributes : Style -> List (Svg.Attribute msg)
+attributes style =
+  [ Svg.Attributes.fill (toString style.fill)
+  , Svg.Attributes.stroke (toString style.border)
+  ]
