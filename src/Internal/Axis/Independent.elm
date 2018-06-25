@@ -27,7 +27,8 @@ type alias Properties data msg =
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
-  , tick : Int -> data -> Tick.Config msg
+  , label : data -> String
+  , tick : Tick.Config msg
   }
 
 
@@ -39,7 +40,8 @@ default pixels title label =
     , range = Range.default
     , pixels = pixels
     , axisLine = AxisLine.default
-    , tick = defaultTick label
+    , label = label
+    , tick = defaultTick
     }
 
 
@@ -50,7 +52,7 @@ custom =
 
 
 {-| -}
-tick : Config data msg -> Int -> data -> Tick.Config msg
+tick : Config data msg -> Tick.Config msg
 tick (Config config) =
   config.tick
 
@@ -73,19 +75,20 @@ toNormal data (Config config) =
     , axisLine = config.axisLine
     , ticks =
         Ticks.custom <| \_ _ ->
-          let indexes = List.range 1 (List.length data) in
-          List.map2 config.tick indexes data
+          let position = Tuple.first >> (+) 1 >> toFloat
+              label = Tuple.second >> config.label
+          in
+          [ Ticks.set config.tick label position (List.indexedMap (,) data) ]
     }
 
 
-defaultTick : (data -> String) -> Int -> data -> Tick.Config msg
-defaultTick label n data =
+defaultTick : Tick.Config msg
+defaultTick =
   Tick.custom
-    { position = toFloat n -- TODO remove position from tick config
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = Tick.Negative
-    , label = Just (Svg.label "inherit" (label data))
+    , label = Svg.label "inherit"
     }

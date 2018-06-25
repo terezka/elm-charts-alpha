@@ -23,13 +23,12 @@ type Config msg =
 
 {-| -}
 type alias Properties msg =
-  { position : Float
-  , color : Color.Color
+  { color : Color.Color
   , width : Float
   , length : Float
   , grid : Bool
   , direction : Direction
-  , label : Maybe (Svg msg)
+  , label : String -> Svg msg
   }
 
 
@@ -59,100 +58,93 @@ isPositive direction =
 
 
 {-| -}
-int : Int -> Config msg
-int n =
+int : Config msg
+int =
   custom
-    { position = toFloat n
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = Negative
-    , label = Just <| Svg.label "inherit" (toString n)
+    , label = Svg.label "inherit"
     }
 
 
 {-| -}
-float : Float -> Config msg
-float n =
+float : Config msg
+float =
   custom
-    { position = n
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = Negative
-    , label = Just <| Svg.label "inherit" (toString n)
+    , label = Svg.label "inherit"
     }
 
 
 {-| -}
-gridless : Float -> Config msg
-gridless n =
+gridless : Config msg
+gridless =
   custom
-    { position = n
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 5
     , grid = False
     , direction = Negative
-    , label = Just <| Svg.label "inherit" (toString n)
+    , label = Svg.label "inherit"
     }
 
 
 {-| -}
-labelless : Float -> Config msg
-labelless n =
+labelless : Config msg
+labelless =
   custom
-    { position = n
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = Negative
-    , label = Nothing
+    , label = always (Svg.text "")
     }
 
 
 {-| -}
-long : Float -> Config msg
-long n =
+long : Config msg
+long =
   custom
-    { position = n
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 20
     , grid = True
     , direction = Negative
-    , label = Just <| Svg.label "inherit" (toString n)
+    , label = Svg.label "inherit"
     }
 
 
 {-| -}
-opposite : Float -> Config msg
-opposite n =
+opposite : Config msg
+opposite =
   custom
-    { position = n
-    , color = Colors.gray
+    { color = Colors.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = Positive
-    , label = Just <| Svg.label "inherit" (toString n)
+    , label = Svg.label "inherit"
     }
 
 
 {-| -}
-time : Time -> Config msg
-time time =
+time : Config msg
+time =
   custom
-    { position = time.timestamp
-    , color = Color.gray
+    { color = Color.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = Negative
-    , label = Just <| Svg.label "inherit" (format time)
+    , label = Svg.label "inherit"
     }
 
 

@@ -13,10 +13,20 @@ import BarChart.Events as Events
 import BarChart.Grid as Grid
 import BarChart.Bars as Bars
 import BarChart.Junk as Junk
-import BarChart.Colors as Colors
 import BarChart.Pattern as Pattern
--- TODO ^^^^
 import Color
+
+
+
+-- TODO
+-- - ticks api
+-- - add units
+-- - overlap fix
+-- - SVG clean up
+-- - hover position and arrow
+-- - fix pattern border issue
+-- - add unit to axis
+
 
 
 
@@ -73,17 +83,20 @@ chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "$" -- TODO negative labels -- TODO horizontal border radius
+    , dependentAxis = DependentAxis.default 400 "income" -- TODO negative labels -- TODO horizontal border radius
     , container = Container.default "bar-chart"
     , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , grid = Grid.none
-    , bars = Bars.custom (Bars.Properties Nothing 100 2) -- TODO set y on hover
-    , junk = Junk.hoverOne model.hovering [ ( "ok", toString << .magnesium ) ]
+    , bars = Bars.custom (Bars.Properties Nothing 50 2) -- TODO set y on hover
+    , junk = Junk.hoverOne model.hovering [  ( "quarter", .label ), ( "income", toString << .indonesia ) ]
     , pattern = Pattern.default
     }
-    [ indonesia model.hovering, malaysia model.hovering, vietnam model.hovering ]
+    [ indonesia model.hovering
+    , malaysia model.hovering
+    , vietnam model.hovering
+    ]
     data
 
 
@@ -95,7 +108,7 @@ indonesia hovering =
         BarChart.alternate (BarChart.isBar hovering)
           (BarChart.bordered (Color.rgba 245 105 215 0.5) (Color.rgba 245 105 215 1))
           (BarChart.bordered (Color.rgba 245 105 215 0.7) (Color.rgba 245 105 215 1))
-    , variable = .magnesium
+    , variable = .indonesia
     , pattern = False
     }
 
@@ -108,7 +121,7 @@ malaysia hovering =
         BarChart.alternate (BarChart.isBar hovering)
           (BarChart.bordered (Color.rgba 0 229 255 0.5) (Color.rgba 0 229 255 1))
           (BarChart.bordered (Color.rgba 0 229 255 0.7) (Color.rgba 0 229 255 1))
-    , variable = .heartattacks
+    , variable = .malaysia
     , pattern = False
     }
 
@@ -121,7 +134,7 @@ vietnam hovering =
         BarChart.alternate (BarChart.isBar hovering)
           (BarChart.bordered (Color.rgba 3 169 244 0.5) (Color.rgba 3 169 244 1))
           (BarChart.bordered (Color.rgba 3 169 244 0.7) (Color.rgba 3 169 244 1))
-    , variable = .heartattacks
+    , variable = .vietnam
     , pattern = False
     }
 
@@ -132,16 +145,16 @@ vietnam hovering =
 
 
 type alias Data =
-  { magnesium : Float
-  , expected : Float
-  , heartattacks : Float
+  { indonesia : Float
+  , vietnam : Float
+  , malaysia : Float
   , label : String
   }
 
 
 data : List Data
 data =
-  [ Data 1 5 -2 "1st"
+  [ Data 1 5 2 "1st"
   , Data 2 6 3 "2nd"
   , Data 3 7 6 "3rd"
   , Data 4 8 3 "4th"

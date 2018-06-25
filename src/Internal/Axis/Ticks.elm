@@ -1,15 +1,13 @@
 module Internal.Axis.Ticks exposing
-  ( Config
-  , int, time, float
-  , intCustom, timeCustom, floatCustom, custom
+  ( Config, Set
+  , default, custom, set
   -- INTERNAL
-  , ticks
+  , Compiled, ticks
   )
 
 
 import Internal.Axis.Tick as Tick
-import Internal.Coordinate as Coordinate exposing (..)
-import Internal.Axis.Values as Values
+import Internal.Coordinate as Coordinate
 
 
 
@@ -18,70 +16,53 @@ import Internal.Axis.Values as Values
 
 {-| -}
 type Config msg
-  = Config (Coordinate.Range -> Coordinate.Range -> List (Tick.Config msg))
+  = Config (Coordinate.Range -> Coordinate.Range -> List (Set msg))
 
+
+{-| -}
+type Set msg =
+  Set (Tick.Config msg) (List ( Float, String ))
 
 
 -- API
 
 
 {-| -}
-int : Int -> Config msg
-int amount =
-  intCustom amount Tick.int
+default : Config msg
+default =
+  custom (\_ _ -> []) -- TODO
 
 
 {-| -}
-float : Int -> Config msg
-float amount =
-  floatCustom amount Tick.float
-
-
-{-| -}
-time : Int -> Config msg
-time amount =
-  timeCustom amount Tick.time
-
-
-
--- API / CUSTOM
-
-
-{-| -}
-intCustom : Int -> (Int -> Tick.Config msg) -> Config msg
-intCustom amount tick =
-  custom <| \data range ->
-    List.map tick <| Values.int (Values.around amount) (Coordinate.smallestRange data range)
-
-
-{-| -}
-floatCustom : Int -> (Float -> Tick.Config msg) -> Config msg
-floatCustom amount tick =
-  custom <| \data range ->
-    List.map tick <| Values.float (Values.around amount) (Coordinate.smallestRange data range)
-
-
-{-| -}
-timeCustom : Int -> (Tick.Time -> Tick.Config msg) -> Config msg
-timeCustom amount tick =
-  custom <| \data range ->
-    List.map tick <| Values.time amount (Coordinate.smallestRange data range)
-
-
-
--- API / VERY CUSTOM
-
-
-{-| -}
-custom : (Coordinate.Range -> Coordinate.Range -> List (Tick.Config msg)) -> Config msg
+custom : (Coordinate.Range -> Coordinate.Range -> List (Set msg)) -> Config msg
 custom =
   Config
+
+
+{-| -}
+set : Tick.Config msg -> (data -> String) -> (data -> Float) -> List data -> Set msg
+set config format position data =
+  let ticks d = ( position d, format d ) in
+  Set config (List.map ticks data)
 
 
 
 -- INTERNAL
 
 
-ticks : Coordinate.Range -> Coordinate.Range -> Config msg -> List (Tick.Properties msg)
-ticks dataRange range (Config values) =
-  List.map Tick.properties <| values dataRange range
+{-| -}
+type alias Compiled msg =
+  { position : Float
+  , label : String
+  , config : Tick.Properties msg
+  }
+
+
+{-| -}
+ticks : Coordinate.Range -> Coordinate.Range -> Config msg -> List (Compiled msg)
+ticks dataRange range (Config toSets) =
+  let eachTick config ( p, l ) = Compiled p l (Tick.properties config)
+      eachSet (Set config ticks) = List.map (eachTick config) ticks
+  in
+  List.map eachSet (toSets dataRange range)
+    |> List.concat

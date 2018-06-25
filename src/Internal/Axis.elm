@@ -54,8 +54,9 @@ default pixels title variable =
               rangeSmall = smallest.max - smallest.min
               diff = 1 - (rangeLong - rangeSmall) / rangeLong
               amount = round <| diff * toFloat pixels / 90
+              values = Values.float (Values.around amount) smallest
           in
-          List.map Tick.float <| Values.float (Values.around amount) smallest
+          [ Ticks.set Tick.float toString identity values ]
     }
 
 
@@ -73,8 +74,9 @@ full pixels title variable =
         Ticks.custom <| \data range ->
           let largest = Coordinate.largestRange data range
               amount = pixels // 90
+              values = Values.float (Values.around amount) largest
           in
-          List.map Tick.float <| Values.float (Values.around amount) largest
+          [ Ticks.set Tick.float toString identity values ]
     }
 
 
@@ -94,8 +96,9 @@ time pixels title variable =
               rangeSmall = smallest.max - smallest.min
               diff = 1 - (rangeLong - rangeSmall) / rangeLong
               amount = round <| diff * toFloat pixels / 90
+              values = Values.time amount smallest
           in
-          List.map Tick.time <| Values.time amount smallest
+          [ Ticks.set Tick.time Tick.format .timestamp values ]
     }
 
 
@@ -121,7 +124,7 @@ picky pixels title variable ticks =
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
-    , ticks = Ticks.custom <| \_ _ -> List.map Tick.float ticks
+    , ticks = Ticks.custom <| \_ _ -> [ Ticks.set Tick.float toString identity ticks ]
     }
 
 
@@ -161,7 +164,7 @@ ticks (Config config) =
 
 type alias ViewConfig msg =
   { line : AxisLine.Properties msg
-  , ticks : List (Tick.Properties msg)
+  , ticks : List (Ticks.Compiled msg)
   , intersection : Float
   , title : Title.Properties msg
   }
@@ -282,19 +285,19 @@ attributesLine system { events, width, color } =
 -- INTERNAL / VIEW / TICK
 
 
-viewHorizontalTick : Coordinate.System -> Data.Point -> Tick.Properties msg -> Svg msg
+viewHorizontalTick : Coordinate.System -> Data.Point -> Ticks.Compiled msg -> Svg msg
 viewHorizontalTick system ({ x, y } as point) tick =
   g [ class "chart__tick" ]
-    [ xTick system (lengthOfTick tick) (attributesTick tick) y x
-    , viewMaybe tick.label (viewHorizontalLabel system tick point)
+    [ xTick system (lengthOfTick tick.config) (attributesTick tick.config) y x
+    , viewHorizontalLabel system tick.config point (tick.config.label tick.label)
     ]
 
 
-viewVerticalTick : Coordinate.System -> Data.Point -> Tick.Properties msg -> Svg msg
+viewVerticalTick : Coordinate.System -> Data.Point -> Ticks.Compiled msg -> Svg msg
 viewVerticalTick system ({ x, y } as point) tick =
   g [ class "chart__tick" ]
-    [ yTick system (lengthOfTick tick) (attributesTick tick) x y
-    , viewMaybe tick.label (viewVerticalLabel system tick point)
+    [ yTick system (lengthOfTick tick.config) (attributesTick tick.config) x y
+    , viewVerticalLabel system tick.config point (tick.config.label tick.label)
     ]
 
 

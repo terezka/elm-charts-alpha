@@ -61,7 +61,7 @@ view system xTicks yTicks grid =
         |> List.filterMap hasGrid
 
     hasGrid tick =
-      if tick.grid then Just tick.position else Nothing
+      if tick.config.grid then Just tick.position else Nothing
   in
   case grid of
     Dots radius color -> viewDots  system verticals horizontals radius color

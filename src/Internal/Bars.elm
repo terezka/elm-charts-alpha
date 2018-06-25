@@ -227,15 +227,10 @@ viewSeries system orientation (Config config) width (Series series) datum =
         (Style style) =
           series.style
 
-        { fill, border } =
-          style.alternate datum.barIndex datum.user
-
         attributes =
           List.concat
             [ Utils.addIf series.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
-            , [ Svg.Attributes.fill (Colors.toString fill)
-              , Svg.Attributes.stroke (Colors.toString border)
-              ]
+            , Colors.attributes (style.alternate datum.barIndex datum.user)
             ]
       in
       Svg.g

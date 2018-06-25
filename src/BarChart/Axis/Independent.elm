@@ -33,5 +33,6 @@ type alias Properties data msg =
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
-  , tick : Int -> data -> Tick.Config msg
+  , label : data -> String
+  , tick : Tick.Config msg
   }
