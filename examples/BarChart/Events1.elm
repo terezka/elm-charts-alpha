@@ -75,7 +75,7 @@ chart model =
     { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
     , dependentAxis = DependentAxis.default 400 "$" -- TODO negative labels -- TODO horizontal border radius
     , container = Container.default "bar-chart"
-    , orientation = Orientation.default
+    , orientation = Orientation.horizontal
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , grid = Grid.none
@@ -145,7 +145,7 @@ type alias Data =
 
 data : List Data
 data =
-  [ Data 1 -5 -2 "1st"
+  [ Data 2 5 -2 "1st"
   , Data 2 6 3 "2nd"
   , Data 3 7 6 "3rd"
   , Data 4 8 3 "4th"

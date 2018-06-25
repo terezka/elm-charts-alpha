@@ -1,7 +1,15 @@
-module Internal.Orientation exposing (Config(..))
+module Internal.Orientation exposing (Config(..), chooses)
 
 
 {-| -}
 type Config
-  = Vertical
-  | Horizontal
+  = Horizontal
+  | Vertical
+
+
+{-| -}
+chooses : Config -> { horizontal : a, vertical : a } -> a
+chooses config choices =
+    case config of
+        Horizontal -> choices.horizontal
+        Vertical -> choices.vertical

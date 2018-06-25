@@ -4,8 +4,10 @@ module Internal.Bars
     , Series, SeriesProps, series
     -- INTERNAL
     , borderRadius
-    , seriesProps, viewGroup, variable
+    , seriesProps, variable
     , userWidth, toHorizontalBar, toVerticalBar
+    --
+    , individualBarWidth, viewSeries
     )
 
 {-| -}
@@ -17,7 +19,6 @@ import BarChart.Junk as Junk
 import Internal.Coordinate as Coordinate
 import Internal.Orientation as Orientation
 import Internal.Svg as Svg
-import Internal.Data as Data
 import Internal.Path as Path
 import Internal.Utils as Utils
 import Internal.Colors as Colors
@@ -124,23 +125,42 @@ variable (Series config) =
 
 
 
--- INTERNAL / GROUP
+-- OFFSET
 
 
-viewGroup : Orientation.Config -> Config -> Coordinate.System -> Int -> Int -> List (Series data, Data.Data Data.BarChart data) -> Svg.Svg msg
-viewGroup orientation (Config config) system totalOfGroups totalOfBars bars =
+{-| -}
+type alias Width =
+  Float
+
+
+{-| -}
+individualBarWidth : (Coordinate.System -> Float) -> (Coordinate.System -> Float -> Float) -> Coordinate.System -> Config -> Float -> Float -> Width
+individualBarWidth length scale system (Config config) countOfSeries countOfData =
+  let widthUser = config.width
+      widthMaxOrg = length system /  countOfData - 5
+      widthInSvg = Basics.min widthMaxOrg widthUser / countOfSeries
+      width = scale system widthInSvg
+  in
+  width
+
+
+{-| -}
+viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Float -> List data -> Int -> Series data -> Svg.Svg msg
+viewSeries system orientation (Config config) width countOfSeries data seriesIndex (Series series) =
   let
-    viewBarWith toProps toCommands toLabel (Series bar, data) =
-      let
-        ( width, point ) =
-          toProps system config.width totalOfGroups totalOfBars data.barIndex data.point
+    countOfData = toFloat (List.length data)
 
-        style =
-          bar.style.emphasized data.user
+    viewBarWith toCommands toPoint toLabel dataIndex datum =
+      let
+        style = series.style.emphasized datum
+        offset = toFloat seriesIndex - countOfSeries / 2
+        independent = toFloat dataIndex + 1 + offset * width
+        dependent = series.variable datum
+        point = toPoint independent dependent
 
         attributes =
           List.concat
-            [ Utils.addIf bar.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
+            [ Utils.addIf series.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
             , [ Svg.Attributes.fill (Colors.toString style.fill)
               , Svg.Attributes.stroke (Colors.toString style.border)
               ]
@@ -149,18 +169,16 @@ viewGroup orientation (Config config) system totalOfGroups totalOfBars bars =
       Svg.g
         [ Svg.Attributes.class "bar", Svg.Attributes.style "pointer-events: none;" ]
         [ Path.view system attributes (toCommands system config.borderRadius width point)
-        , Utils.viewMaybe config.label (Utils.apply (bar.variable data.user) >> toLabel system width point)
+        , Utils.viewMaybe config.label (Utils.apply dependent >> toLabel system width point)
         ]
 
     viewBar =
-      case orientation of
-        Orientation.Horizontal ->
-          viewBarWith toHorizontalBar Svg.horizontalBarCommands horizontalLabel
-
-        Orientation.Vertical ->
-          viewBarWith toVerticalBar Svg.verticalBarCommands verticalLabel
+      Orientation.chooses orientation
+        { horizontal = viewBarWith Svg.horizontalBarCommands Coordinate.horizontalPoint horizontalLabel
+        , vertical = viewBarWith Svg.verticalBarCommands Coordinate.verticalPoint verticalLabel
+        }
   in
-  Svg.g [ Svg.Attributes.class "group" ] (List.map viewBar bars)
+  Svg.g [ Svg.Attributes.class "series" ] (List.indexedMap viewBar data)
 
 
 
@@ -171,14 +189,14 @@ toHorizontalBar : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.
 toHorizontalBar system userWidth totalOfGroups totalOfBars barIndex point =
   let
     offset =
-      barOffset barIndex totalOfBars
+      toFloat barIndex - toFloat totalOfBars / 2
 
     width =
       horizontalMaxWidth system userWidth totalOfGroups totalOfBars
 
     adjusted =
-      { x = point.x + width * offset -- + width / 2 for data point
-      , y = point.y
+      { y = point.y + width * offset -- + width / 2 for data point
+      , x = point.x
       }
   in
   ( width, adjusted )
@@ -213,7 +231,7 @@ toVerticalBar : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Po
 toVerticalBar system userWidth totalOfGroups totalOfBars barIndex point =
   let
     offset =
-      barOffset barIndex totalOfBars
+      toFloat barIndex - toFloat totalOfBars / 2
 
     width =
       verticalMaxWidth system userWidth totalOfGroups totalOfBars

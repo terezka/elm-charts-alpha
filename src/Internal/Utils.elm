@@ -30,6 +30,18 @@ apply2 stuff1 stuff2 toNewStuff =
 
 
 {-| -}
+apply3 : a -> b -> c -> (a -> b -> c -> d) -> d
+apply3 stuff1 stuff2 stuff3 toNewStuff =
+    toNewStuff stuff1 stuff2 stuff3
+
+
+{-| -}
+apply4 : a -> b -> c -> d -> (a -> b -> c -> d -> e) -> e
+apply4 stuff1 stuff2 stuff3 stuff4 toNewStuff =
+    toNewStuff stuff1 stuff2 stuff3 stuff4
+
+
+{-| -}
 concat : List a -> List a -> List a -> List a
 concat first second third =
   first ++ second ++ third

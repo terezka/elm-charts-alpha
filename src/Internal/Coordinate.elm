@@ -1,6 +1,6 @@
 module Internal.Coordinate exposing
   ( System, Frame, Size, Margin, Range
-  , range, minimum, minimumOrZero, maximum
+  , range, minimum, minimumOrZero, maximum, maximumOrZero
   , ground, reachX, reachY, lengthX, lengthY
   , smallestRange, largestRange
   , Point, toSvg, toData
@@ -8,6 +8,7 @@ module Internal.Coordinate exposing
   , toDataX, toDataY
   , scaleSvgX, scaleSvgY
   , scaleDataX, scaleDataY
+  , horizontalPoint, verticalPoint
   )
 
 
@@ -95,6 +96,12 @@ maximum toValue =
   List.map toValue
     >> List.maximum
     >> Maybe.withDefault 1
+
+
+{-| -}
+maximumOrZero : (a -> Float) -> List a -> Float
+maximumOrZero toValue =
+  maximum toValue >> Basics.max 0
 
 
 {-| -}
@@ -242,4 +249,20 @@ toData system point =
   { x = toDataX system point.x
   , y = toDataY system point.y
   }
+
+
+
+-- ORIENTATION
+
+
+{-| -}
+horizontalPoint : Float -> Float -> Point
+horizontalPoint dependent independent =
+    Point independent dependent
+
+
+{-| -}
+verticalPoint : Float -> Float -> Point
+verticalPoint dependent independent =
+    Point dependent independent
 

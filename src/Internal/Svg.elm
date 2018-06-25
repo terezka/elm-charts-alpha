@@ -311,8 +311,8 @@ horizontalBarCommands system borderRadius width { x, y }  =
   if borderRadius == 0 then
     [ Move <| Point 0 y
     , Line <| Point x y
-    , Line <| Point x (y - width)
-    , Line <| Point 0 (y - width)
+    , Line <| Point x (y + width)
+    , Line <| Point 0 (y + width)
     ]
   else
     if x < 0 then
@@ -328,10 +328,10 @@ horizontalBarCommands system borderRadius width { x, y }  =
       in
       [ Move <| Point 0 y
       , Line <| Point (x + rx) y
-      , Arc b b -45 False False <| Point x (y - ry)
-      , Line <| Point x (y - width + ry)
-      , Arc b b 45 False False <| Point (x + rx) (y - width)
-      , Line <| Point 0 (y - width)
+      , Arc b b -45 False True <| Point x (y + ry)
+      , Line <| Point x (y + width - ry)
+      , Arc b b 45 False True <| Point (x + rx) (y + width)
+      , Line <| Point 0 (y + width)
       ]
     else
       let
@@ -346,10 +346,10 @@ horizontalBarCommands system borderRadius width { x, y }  =
       in
       [ Move <| Point 0 y
       , Line <| Point (x - rx) y
-      , Arc b b -45 False True <| Point x (y - ry)
-      , Line <| Point x (y - width + ry)
-      , Arc b b 45 False True <| Point (x - rx) (y - width)
-      , Line <| Point 0 (y - width)
+      , Arc b b -45 False False <| Point x (y + ry)
+      , Line <| Point x (y + width - ry)
+      , Arc b b 45 False False <| Point (x - rx) (y + width)
+      , Line <| Point 0 (y + width)
       ]
 
 

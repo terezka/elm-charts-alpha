@@ -88,51 +88,57 @@ view : Config data msg -> List (Series data) -> List data -> Svg.Svg msg
 view config bars data =
   let
     -- Data
-    barsConfigs = List.map Internal.Bars.seriesProps bars
+    countOfSeries = toFloat (List.length bars)
+    countOfData = toFloat (List.length data)
+    seriesProps = List.map Internal.Bars.seriesProps bars
     naiveDataPoints = toNaiveDataPoints config bars data
     naiveDataPointsAll = List.concat naiveDataPoints
 
     -- Axes
-    ( horizontalAxis, verticalAxis ) =
-      case config.orientation of
-        Internal.Orientation.Horizontal ->
-          ( Internal.Axis.Dependent.toNormal data config.dependentAxis
-          , Internal.Axis.Independent.toNormal data config.independentAxis
-          )
-
-        Internal.Orientation.Vertical ->
-          ( Internal.Axis.Independent.toNormal data config.independentAxis
-          , Internal.Axis.Dependent.toNormal data config.dependentAxis
-          )
+    ( horizontalAxis, verticalAxis ) = -- swap axes
+      Internal.Orientation.chooses config.orientation
+        { horizontal =
+            ( Internal.Axis.Dependent.toNormal data config.dependentAxis
+            , Internal.Axis.Independent.toNormal data config.independentAxis
+            )
+        , vertical =
+            ( Internal.Axis.Independent.toNormal data config.independentAxis
+            , Internal.Axis.Dependent.toNormal data config.dependentAxis
+            )
+        }
 
     -- System
     system =
-      toSystem config horizontalAxis verticalAxis data (List.map .point naiveDataPointsAll)
+      toSystem config horizontalAxis verticalAxis countOfData (List.map .point naiveDataPointsAll)
 
     dataPoints =
       toDataPoints config system bars data naiveDataPointsAll
 
     -- Junk
     addGrid =
-      Internal.Junk.addBelow
-        (Internal.Grid.view system
-          (Internal.Axis.ticks horizontalAxis)
-          (Internal.Axis.ticks verticalAxis)
-          config.grid
-        )
+      Internal.Junk.addBelow <|
+        Internal.Grid.view system (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid
 
     junk =
-       Internal.Junk.getLayers (junkDefaults config barsConfigs horizontalAxis verticalAxis) system config.junk
+       Internal.Junk.getLayers (junkDefaults config seriesProps horizontalAxis verticalAxis) system config.junk
         |> addGrid
 
     intersection =
-      Internal.Axis.Intersection.custom .min Internal.Axis.Intersection.towardsZero
+      Internal.Orientation.chooses config.orientation
+        { horizontal = Internal.Axis.Intersection.custom Internal.Axis.Intersection.towardsZero .min
+        , vertical = Internal.Axis.Intersection.custom .min Internal.Axis.Intersection.towardsZero
+        }
 
     -- View
-    viewGroups =
-      List.map
-        (Internal.Bars.viewGroup config.orientation config.bars system (List.length data) (List.length barsConfigs))
-        (List.map (List.map2 (,) bars) naiveDataPoints)
+    barWidth =
+      Utils.apply4 system config.bars countOfSeries countOfData <|
+        Internal.Orientation.chooses config.orientation
+          { horizontal = Internal.Bars.individualBarWidth Coordinate.lengthY Coordinate.scaleDataY
+          , vertical = Internal.Bars.individualBarWidth Coordinate.lengthX Coordinate.scaleDataX
+          }
+
+    viewSeries =
+        List.indexedMap (Internal.Bars.viewSeries system config.orientation config.bars barWidth countOfSeries data) bars
 
     attributes =
       List.concat
@@ -150,7 +156,7 @@ view config bars data =
       Internal.Legends.view
         { system = system
         , config = config.legends
-        , legends = \width -> List.map (toLegend width) barsConfigs
+        , legends = \width -> List.map (toLegend width) seriesProps
         }
   in
   container config system junk.html <|
@@ -158,7 +164,7 @@ view config bars data =
       [ Svg.defs [] (clipPath system :: Internal.Pattern.toDefs config.pattern)
       , Svg.g [ Svg.Attributes.class "chart__junk--below" ] junk.below
       , chartAreaPlatform config dataPoints system
-      , Svg.g [ Svg.Attributes.class "groups" ] viewGroups
+      , Svg.g [ Svg.Attributes.class "groups" ] viewSeries
       , Internal.Axis.viewHorizontal system intersection horizontalAxis
       , Internal.Axis.viewVertical system intersection verticalAxis
       , viewLegends
@@ -224,18 +230,16 @@ toNaiveDataPoints : Config data msg -> List (Series data) -> List data -> List (
 toNaiveDataPoints config bars data =
   let
     toBars groupIndex datum barIndex bar =
-        { point = point (Internal.Bars.variable bar datum) (toFloat groupIndex + 1)
+        { point = point (toFloat groupIndex + 1) (Internal.Bars.variable bar datum)
         , barIndex = barIndex
         , user = datum
         }
 
-    point value position =
-      case config.orientation of
-        Internal.Orientation.Horizontal ->
-          Coordinate.Point value position
-
-        Internal.Orientation.Vertical ->
-          Coordinate.Point position value
+    point =
+      Internal.Orientation.chooses config.orientation
+        { horizontal = Coordinate.horizontalPoint
+        , vertical = Coordinate.verticalPoint
+        }
 
     toGroups groupIndex datum =
       List.indexedMap (toBars groupIndex datum) bars
@@ -269,34 +273,28 @@ toDataPoints config system bars data naiveDataPoints =
   List.map toDataPoint naiveDataPoints
 
 
-toSystem : Config data msg -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> List data -> List Coordinate.Point -> Coordinate.System
-toSystem config x y data points =
+toSystem :  Config data msg -> Internal.Axis.Config Float data msg -> Internal.Axis.Config Float data msg -> Float -> List Coordinate.Point -> Coordinate.System
+toSystem config xAxis yAxis countOfData points =
   let
-    independentRange toHeight =
+    container = Internal.Container.properties identity config.container
+    size = Coordinate.Size (Internal.Axis.pixels xAxis) (Internal.Axis.pixels yAxis)
+    frame = Coordinate.Frame container.margin size
+
+    dependentRange toHeight =
       { min = Coordinate.minimumOrZero toHeight points
-      , max = Coordinate.maximum toHeight points
+      , max = Coordinate.maximumOrZero toHeight points
       }
 
-    dependentRange =
+    independentRange =
       { min = 0.5
-      , max = toFloat (List.length data) + 0.5
+      , max = countOfData + 0.5
       }
 
     ( xRange, yRange ) =
-      case config.orientation of
-        Internal.Orientation.Horizontal ->
-          ( independentRange .x
-          , dependentRange
-          )
-
-        Internal.Orientation.Vertical ->
-          ( dependentRange
-          , independentRange .y
-          )
-
-    container = Internal.Container.properties identity config.container
-    size = Coordinate.Size (Internal.Axis.pixels x) (Internal.Axis.pixels y)
-    frame  = Coordinate.Frame container.margin size
+      Internal.Orientation.chooses config.orientation
+        { horizontal = ( dependentRange .x, independentRange )
+        , vertical = ( independentRange, dependentRange .y )
+        }
 
     system =
       { frame = frame
@@ -308,8 +306,8 @@ toSystem config x y data points =
       }
   in
   { system
-  | x = Internal.Axis.Range.applyX (Internal.Axis.range x) system
-  , y = Internal.Axis.Range.applyY (Internal.Axis.range y) system
+  | x = Internal.Axis.Range.applyX (Internal.Axis.range xAxis) system
+  , y = Internal.Axis.Range.applyY (Internal.Axis.range yAxis) system
   }
 
 
