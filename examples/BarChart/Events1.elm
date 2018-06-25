@@ -75,7 +75,7 @@ chart model =
     { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
     , dependentAxis = DependentAxis.default 400 "$" -- TODO negative labels -- TODO horizontal border radius
     , container = Container.default "bar-chart"
-    , orientation = Orientation.horizontal
+    , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , grid = Grid.none
@@ -83,7 +83,7 @@ chart model =
     , junk = Junk.hoverOne model.hovering [ ( "ok", toString << .magnesium ) ]
     , pattern = Pattern.default
     }
-    [ indonesia model.hovering, malaysia, vietnam ]
+    [ indonesia model.hovering ]
     data
 
 

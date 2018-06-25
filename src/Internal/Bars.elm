@@ -7,7 +7,7 @@ module Internal.Bars
     , seriesProps, variable
     , userWidth, toHorizontalBar, toVerticalBar
     --
-    , individualBarWidth, viewSeries
+    , width, viewSeries
     )
 
 {-| -}
@@ -134,10 +134,10 @@ type alias Width =
 
 
 {-| -}
-individualBarWidth : (Coordinate.System -> Float) -> (Coordinate.System -> Float -> Float) -> Coordinate.System -> Config -> Float -> Float -> Width
-individualBarWidth length scale system (Config config) countOfSeries countOfData =
+width : (Coordinate.System -> Float) -> (Coordinate.System -> Float -> Float) -> Coordinate.System -> Config -> Float -> Float -> Width
+width length scale system (Config config) countOfSeries countOfData =
   let widthUser = config.width
-      widthMaxOrg = length system /  countOfData - 5
+      widthMaxOrg = length system / countOfData - 5
       widthInSvg = Basics.min widthMaxOrg widthUser / countOfSeries
       width = scale system widthInSvg
   in
