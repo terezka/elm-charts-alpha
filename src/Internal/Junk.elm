@@ -26,8 +26,8 @@ type XYChart data
 
 type BarChart data
   = BarChart
-      { hoverMany : (data -> String) -> (Float -> String) -> List data -> HoverMany
-      , hoverOne : List ( String, data -> String ) -> Events.Found Data.BarChart data -> HoverOne
+      { hoverMany : (data -> String) -> (Float -> String) -> Events.Found Data.BarChart data -> List (Events.Found Data.BarChart data) -> HoverMany
+      , hoverOne : Events.Found Data.BarChart data -> HoverOne
       }
 
 

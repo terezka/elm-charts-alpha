@@ -27,6 +27,8 @@ import Internal.Axis.Dependent
 import Internal.Axis.Independent
 import Internal.Axis.Intersection
 import Internal.Axis.Range
+import Internal.Axis.Ticks
+import Internal.Axis.Title
 import Internal.Junk
 import Internal.Grid
 import Internal.Container
@@ -161,8 +163,11 @@ view config bars data =
       Internal.Junk.addBelow <|
         Internal.Grid.view system (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid
 
+    junkDefaults_ =
+      junkDefaults config system seriesProps horizontalAxis verticalAxis config.independentAxis config.dependentAxis
+
     junk =
-      Internal.Junk.getLayers (junkDefaults config seriesProps horizontalAxis verticalAxis) system config.junk
+      Internal.Junk.getLayers junkDefaults_ system config.junk
         |> addGrid
 
     intersection =
@@ -339,21 +344,24 @@ toSystem config xAxis yAxis countOfData seriesAll data =
 -- INTERNAL / JUNK
 
 
-junkDefaults :
-  Config data msg
+junkDefaults
+  :  Config data msg
+  -> Coordinate.System
   -> List (Internal.Bars.SeriesProps data)
   -> Internal.Axis.Config Float data msg
   -> Internal.Axis.Config Float data msg
+  -> Internal.Axis.Independent.Config data msg
+  -> Internal.Axis.Dependent.Config msg
   -> Internal.Junk.BarChart data
-junkDefaults config bars xAxis yAxis =
+junkDefaults config system bars xAxis yAxis independent dependent =
   Internal.Junk.BarChart
     { hoverMany = hoverMany config bars xAxis yAxis
-    , hoverOne = hoverOne config bars
+    , hoverOne = hoverOne config system bars independent dependent
     }
 
 
-hoverMany :
-  Config data msg
+hoverMany
+  :  Config data msg
   -> List (Internal.Bars.SeriesProps data)
   -> Internal.Axis.Config Float data msg
   -> Internal.Axis.Config Float data msg
@@ -361,7 +369,7 @@ hoverMany :
   -> (Float -> String)
   -> List data
   -> Internal.Junk.HoverMany
-hoverMany config bars xAxis yAxis formatX formatY hovered =
+hoverMany config bars xAxis yAxis formatX formatY hovered = -- first :: rest <-> hovered
   let
     x = Internal.Axis.variable xAxis
     y = Internal.Axis.variable yAxis
@@ -385,28 +393,37 @@ hoverMany config bars xAxis yAxis formatX formatY hovered =
   }
 
 
-hoverOne :
-  Config data msg
+hoverOne
+  :  Config data msg
+  -> Coordinate.System
   -> List (Internal.Bars.SeriesProps data)
-  -> List ( String, data -> String )
+  -> Internal.Axis.Independent.Config data msg
+  -> Internal.Axis.Dependent.Config msg
   -> Internal.Events.Found Data.BarChart data
   -> Internal.Junk.HoverOne
-hoverOne config bars values (Internal.Events.Found hovered) =
+hoverOne config system bars independentSafe dependentSafe (Internal.Events.Found hovered) =
   let
-    ( title, color ) =
+    independent = Internal.Axis.Independent.config independentSafe -- x
+    dependent = Internal.Axis.Dependent.config dependentSafe -- y
+    title = Internal.Axis.Title.config >> .title
+    ticks = Internal.Axis.Ticks.ticks system.yData system.y dependent.ticks
+
+    ( header, color ) =
       Array.fromList bars
         |> Array.get hovered.barIndex
         |> Maybe.map (\bar -> ( bar.title, Internal.Bars.border bar.style ))
         |> Maybe.withDefault ( "", Colors.pink )
 
-    applyValue ( label, value ) =
-      ( label, value hovered.user )
+    values =
+      [ ( title independent.title, independent.label hovered.user )
+      , ( title dependent.title, toString hovered.point.y ++ dependent.unit )
+      ]
   in
   { x = hovered.point.x
   , y = Just hovered.point.y
   , color = color
-  , title = title
-  , values = List.map applyValue values
+  , title = header
+  , values = values
   }
 
 
@@ -417,7 +434,7 @@ hoverOne config bars values (Internal.Events.Found hovered) =
 defaultConfig : (data -> String) -> (data -> Float) -> Config data msg
 defaultConfig label toY =
   { independentAxis = AxisIndependent.default 700 "" label
-  , dependentAxis = AxisDependent.default 400 ""
+  , dependentAxis = AxisDependent.default 400 "" ""
   , container = Container.default "bar-chart"
   , orientation = Orientation.default
   , legends = Legends.default

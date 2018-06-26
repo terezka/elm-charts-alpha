@@ -308,11 +308,16 @@ addPosition (Transfrom x y) (Transfrom xf yf) =
 {-| -}
 horizontalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
 horizontalBarCommands system borderRadius width { x, y }  =
+  let
+    w =
+      Coordinate.scaleSvgY system width - 1 -- TODO 1 = stroke width
+        |> Coordinate.scaleDataY system
+  in
   if borderRadius == 0 then
-    [ Move <| Point 0 (y - width / 2)
-    , Line <| Point x (y - width / 2)
-    , Line <| Point x (y + width / 2)
-    , Line <| Point 0 (y + width / 2)
+    [ Move <| Point 0 (y - w / 2)
+    , Line <| Point x (y - w / 2)
+    , Line <| Point x (y + w / 2)
+    , Line <| Point 0 (y + w / 2)
     ]
   else
     if x < 0 then
@@ -326,12 +331,12 @@ horizontalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point 0 (y - width / 2)
-      , Line <| Point (x + rx) (y - width / 2)
-      , Arc b b -45 False True <| Point x (y - width / 2 + ry)
-      , Line <| Point x (y + width / 2 - ry)
-      , Arc b b 45 False True <| Point (x + rx) (y + width / 2)
-      , Line <| Point 0 (y + width / 2)
+      [ Move <| Point 0 (y - w / 2)
+      , Line <| Point (x + rx) (y - w / 2)
+      , Arc b b -45 False True <| Point x (y - w / 2 + ry)
+      , Line <| Point x (y + w / 2 - ry)
+      , Arc b b 45 False True <| Point (x + rx) (y + w / 2)
+      , Line <| Point 0 (y + w / 2)
       ]
     else
       let
@@ -344,23 +349,28 @@ horizontalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point 0 (y - width / 2)
-      , Line <| Point (x - rx) (y - width / 2)
-      , Arc b b -45 False False <| Point x (y  - width / 2 + ry)
-      , Line <| Point x (y + width / 2 - ry)
-      , Arc b b 45 False False <| Point (x - rx) (y + width / 2)
-      , Line <| Point 0 (y + width / 2)
+      [ Move <| Point 0 (y - w / 2)
+      , Line <| Point (x - rx) (y - w / 2)
+      , Arc b b -45 False False <| Point x (y  - w / 2 + ry)
+      , Line <| Point x (y + w / 2 - ry)
+      , Arc b b 45 False False <| Point (x - rx) (y + w / 2)
+      , Line <| Point 0 (y + w / 2)
       ]
 
 
 {-| -}
 verticalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
 verticalBarCommands system borderRadius width { x, y }  =
+  let
+    w =
+      Coordinate.scaleSvgX system width - 1 -- TODO 1 = stroke width
+        |> Coordinate.scaleDataX system
+  in
   if borderRadius == 0 then
-    [ Move <| Point (x - width / 2) 0
-    , Line <| Point (x - width / 2) y
-    , Line <| Point (x + width / 2) y
-    , Line <| Point (x + width / 2) 0
+    [ Move <| Point (x - w / 2) 0
+    , Line <| Point (x - w / 2) y
+    , Line <| Point (x + w / 2) y
+    , Line <| Point (x + w / 2) 0
     ]
   else
     if y < 0 then
@@ -374,12 +384,12 @@ verticalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point (x - width / 2) 0
-      , Line <| Point (x - width / 2) (y + ry)
-      , Arc b b -45 False False <| Point (x - width / 2 + rx) y
-      , Line <| Point (x + width / 2 - rx) y
-      , Arc b b -45 False False <| Point (x + width / 2) (y + ry)
-      , Line <| Point (x + width / 2) 0
+      [ Move <| Point (x - w / 2) 0
+      , Line <| Point (x - w / 2) (y + ry)
+      , Arc b b -45 False False <| Point (x - w / 2 + rx) y
+      , Line <| Point (x + w / 2 - rx) y
+      , Arc b b -45 False False <| Point (x + w / 2) (y + ry)
+      , Line <| Point (x + w / 2) 0
       ]
     else
       let
@@ -392,11 +402,11 @@ verticalBarCommands system borderRadius width { x, y }  =
         ry =
           scaleDataY system b
       in
-      [ Move <| Point (x - width / 2) 0
-      , Line <| Point (x - width / 2) (y - ry)
-      , Arc b b -45 False True <| Point (x - width / 2 + rx) y
-      , Line <| Point (x + width / 2 - rx) y
-      , Arc b b -45 False True <| Point (x + width / 2) (y - ry)
-      , Line <| Point (x + width / 2) 0
+      [ Move <| Point (x - w / 2) 0
+      , Line <| Point (x - w / 2) (y - ry)
+      , Arc b b -45 False True <| Point (x - w / 2 + rx) y
+      , Line <| Point (x + w / 2 - rx) y
+      , Arc b b -45 False True <| Point (x + w / 2) (y - ry)
+      , Line <| Point (x + w / 2) 0
       ]
 

@@ -18,7 +18,8 @@ type Config msg =
 
 {-| -}
 type alias Properties msg =
-  { view : Svg msg
+  { title : String
+  , view : String -> Svg msg
   , anchor : Maybe Svg.Anchor
   , position : Coordinate.Range -> Coordinate.Range -> Float
   , offset : ( Float, Float )
@@ -47,15 +48,16 @@ atDataMax =
 
 {-| -}
 atPosition : (Coordinate.Range -> Coordinate.Range -> Float) -> Float -> Float -> String -> Config msg
-atPosition position x y =
-  custom position x y Nothing << Svg.label "inherit"
+atPosition position x y title =
+  custom position x y Nothing title (Svg.label "inherit")
 
 
 {-| -}
-custom : (Coordinate.Range -> Coordinate.Range -> Float) -> Float -> Float -> Maybe Anchor -> Svg msg -> Config msg
-custom position x y anchor title =
+custom : (Coordinate.Range -> Coordinate.Range -> Float) -> Float -> Float -> Maybe Anchor -> String -> (String -> Svg msg) -> Config msg
+custom position x y anchor title view =
   Config
-    { view = title
+    { title = title
+    , view = view
     , anchor = anchor
     , position = position
     , offset = ( x, y )

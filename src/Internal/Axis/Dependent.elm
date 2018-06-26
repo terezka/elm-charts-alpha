@@ -1,7 +1,7 @@
 module Internal.Axis.Dependent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal
+  , toNormal, config
   )
 
 
@@ -24,6 +24,7 @@ type Config msg =
 {-| -}
 type alias Properties msg =
   { title : Title.Config msg
+  , unit : String
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
@@ -32,10 +33,11 @@ type alias Properties msg =
 
 
 {-| -}
-default : Int -> String -> Config msg
-default pixels title =
+default : Int -> String -> String -> Config msg
+default pixels title unit =
   custom
     { title = Title.default title
+    , unit = unit
     , range = Range.default
     , pixels = pixels
     , axisLine = AxisLine.default
@@ -58,6 +60,12 @@ custom =
   Config
 
 
+{-| -}
+config : Config msg -> Properties msg
+config (Config properties) =
+  properties
+
+
 toNormal : List data -> Config msg -> Axis.Config Float data msg
 toNormal data (Config config) =
   let
@@ -70,6 +78,7 @@ toNormal data (Config config) =
   in
   Axis.custom
     { title = config.title
+    , unit = config.unit
     , variable = \datum -> find datum (List.indexedMap (,) data)
     , pixels = config.pixels
     , range = config.range

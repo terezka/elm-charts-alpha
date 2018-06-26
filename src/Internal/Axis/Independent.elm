@@ -1,7 +1,7 @@
 module Internal.Axis.Independent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal, tick
+  , toNormal, tick, config
   )
 
 
@@ -52,6 +52,12 @@ custom =
 
 
 {-| -}
+config : Config data msg -> Properties data msg
+config (Config properties) =
+  properties
+
+
+{-| -}
 tick : Config data msg -> Tick.Config msg
 tick (Config config) =
   config.tick
@@ -69,6 +75,7 @@ toNormal data (Config config) =
   in
   Axis.custom
     { title = config.title
+    , unit = ""
     , variable = \datum -> find datum (List.indexedMap (,) data)
     , pixels = config.pixels
     , range = config.range

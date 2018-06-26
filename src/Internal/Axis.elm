@@ -18,7 +18,6 @@ import Internal.Axis.Line as AxisLine
 import Internal.Axis.Intersection as Intersection
 import Internal.Axis.Title as Title
 import Internal.Svg as Svg exposing (..)
-import Internal.Utils exposing (..)
 import Color.Convert
 
 
@@ -30,6 +29,7 @@ type Config value data msg =
 {-| -}
 type alias Properties value data msg =
   { title : Title.Config msg
+  , unit : String
   , variable : data -> value
   , pixels : Int
   , range : Range.Config
@@ -39,10 +39,11 @@ type alias Properties value data msg =
 
 
 {-| -}
-default : Int -> String -> (data -> value) -> Config value data msg
-default pixels title variable =
+default : Int -> String -> String -> (data -> value) -> Config value data msg
+default pixels title unit variable =
   custom
     { title = Title.atDataMax 0 0 title
+    , unit = unit
     , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
@@ -62,10 +63,11 @@ default pixels title variable =
 
 
 {-| -}
-full : Int -> String -> (data -> value) -> Config value data msg
-full pixels title variable =
+full : Int -> String -> String -> (data -> value) -> Config value data msg
+full pixels title unit variable =
   custom
     { title = Title.atAxisMax 0 0 title
+    , unit = unit
     , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
@@ -81,10 +83,11 @@ full pixels title variable =
 
 
 {-| -}
-time : Int -> String -> (data -> value) -> Config value data msg
-time pixels title variable =
+time : Int -> String -> String -> (data -> value) -> Config value data msg
+time pixels title unit variable =
   custom
     { title = Title.atDataMax 0 0 title
+    , unit = unit
     , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
@@ -102,11 +105,12 @@ time pixels title variable =
     }
 
 
-{-| -}
-none : Int -> (data -> value) ->  Config value data msg
-none pixels variable =
+{-| -} -- TODO should this exist??
+none : Int -> String -> (data -> value) ->  Config value data msg
+none pixels unit variable =
   custom
     { title = Title.default ""
+    , unit = unit
     , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
@@ -116,10 +120,11 @@ none pixels variable =
 
 
 {-| -}
-picky : Int -> String -> (data -> value) -> List Float -> Config value data msg
-picky pixels title variable ticks =
+picky : Int -> String -> String -> (data -> value) -> List Float -> Config value data msg
+picky pixels title unit variable ticks =
   custom
     { title = Title.atAxisMax 0 0 title
+    , unit = unit
     , variable = variable
     , pixels = pixels
     , range = Range.padded 20 20
@@ -240,7 +245,7 @@ viewHorizontalTitle system at { title } =
         ]
     , anchorStyle (Maybe.withDefault Start title.anchor)
     ]
-    [ title.view ]
+    [ title.view title.title ]
 
 
 viewVerticalTitle : Coordinate.System -> (Float -> Data.Point) -> ViewConfig msg -> Svg msg
@@ -255,7 +260,7 @@ viewVerticalTitle system at { title } =
         ]
     , anchorStyle (Maybe.withDefault End title.anchor)
     ]
-    [ title.view ]
+    [ title.view title.title ]
 
 
 

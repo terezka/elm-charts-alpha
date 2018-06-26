@@ -19,15 +19,13 @@ import Color
 
 
 -- TODO
--- - ticks api
--- - add units
--- - overlap fix
+-- - add border width config?
 -- - SVG clean up
--- - hover position and arrow
+-- - tooltip y position and arrow
 -- - fix pattern border issue
--- - add unit to axis
-
-
+-- - add unit config
+-- - found type
+-- - Swap axes?
 
 
 main : Program Never Model Msg
@@ -83,14 +81,14 @@ chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "income" -- TODO negative labels -- TODO horizontal border radius
+    , dependentAxis = DependentAxis.default 400 "income" "$" -- TODO negative labels
     , container = Container.default "bar-chart"
     , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , grid = Grid.none
     , bars = Bars.custom (Bars.Properties Nothing 50 2) -- TODO set y on hover
-    , junk = Junk.hoverOne model.hovering [  ( "quarter", .label ), ( "income", toString << .indonesia ) ]
+    , junk = Junk.hoverOne model.hovering
     , pattern = Pattern.default
     }
     [ indonesia model.hovering
@@ -137,7 +135,6 @@ vietnam hovering =
     , variable = .vietnam
     , pattern = False
     }
-
 
 
 

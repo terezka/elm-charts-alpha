@@ -16,7 +16,7 @@ type alias Config msg =
 
 
 {-| -}
-default : Int -> String -> Config msg
+default : Int -> String -> String -> Config msg
 default =
   Dependent.default
 
@@ -30,6 +30,7 @@ custom =
 {-| -}
 type alias Properties msg =
   { title : Title.Config msg
+  , unit : String
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
