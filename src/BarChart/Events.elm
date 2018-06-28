@@ -104,7 +104,7 @@ Pass a message taking the data of the data points hovered.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example2.elm)._
 
 -}
-hoverGroup : (Maybe data -> msg) -> Config data msg
+hoverGroup : (Maybe (Found data) -> msg) -> Config data msg
 hoverGroup msg =
   custom
       [ onMouseMove msg getGroup
@@ -276,9 +276,9 @@ getNearestX =
 
 {-| Get the data coordinates horizontally nearest to the event.
 -}
-getGroup : Decoder data (Maybe data)
+getGroup : Decoder data (Maybe (Found data))
 getGroup =
-  map (Maybe.map data) Events.getNearest
+  Events.getNearest
 
 
 {-| Finds the data coordinates horizontally nearest to the event, within the

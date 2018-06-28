@@ -1,5 +1,6 @@
 module BarChart.Junk exposing
-  ( Config, Layers, default, hoverOne, hoverMany, custom
+  ( Config, Layers, default, none, above, below, html
+  , hoverOne, hoverGroup
   , Transfrom, transform, move, offset, placed
   , vertical, horizontal, verticalCustom, horizontalCustom
   , rectangle, circle
@@ -17,7 +18,7 @@ this is where it's at.
 
 <img alt="Legends" width="610" src="https://github.com/terezka/line-charts/blob/master/images/junk.png?raw=true"></src>
 
-@docs Config, default, hoverOne, hoverMany
+@docs Config, default, hoverOne, hoverGroup
 
 # Customization
 @docs custom, Layers
@@ -78,6 +79,30 @@ default =
   Junk.none
 
 
+{-| -}
+none : Config data msg
+none =
+  Junk.none
+
+
+{-| -}
+below : List (Coordinate.System -> Svg.Svg msg) -> Config chart msg -> Config chart msg
+below =
+  Junk.below
+
+
+{-| -}
+above : List (Coordinate.System -> Svg.Svg msg) -> Config chart msg -> Config chart msg
+above =
+  Junk.above
+
+
+{-| -}
+html : List (Coordinate.System -> Html.Html msg) -> Config chart msg -> Config chart msg
+html =
+  Junk.html
+
+
 
 -- CUSTOMIZE
 
@@ -117,10 +142,10 @@ hoverOne hovered =
         Junk.none
 
       Just hovered_ ->
-        Junk.Config <| \(Junk.BarChart defaults) system ->
+        Junk.Config <| \(Junk.BarChart defaults) ->
           { below = []
           , above = []
-          , html  = [ Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
+          , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
           }
 
 
@@ -129,7 +154,7 @@ hoverOne hovered =
 
     customJunk : List Data -> Junk.Junk msg
     customJunk hovered =
-      Junk.hoverMany model.hovered formatX formatY
+      Junk.hoverGroup model.hovered formatX formatY
 
     formatX : Data -> String
     formatX =
@@ -146,21 +171,21 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip2.png?raw=true"></src>
 
 -}
-hoverMany : List data -> (data -> String) -> (Float -> String) -> Config data msg
-hoverMany hovered formatX formatY =
+hoverGroup : (data -> String) -> (Float -> String) -> Maybe (Events.Found data) -> Config data msg
+hoverGroup formatX formatY hovered =
   case hovered of
-      [] ->
+      Nothing ->
         Junk.none
 
-      first :: rest ->
-        Junk.Config <| \(Junk.BarChart defaults) system ->
+      Just hovered_ ->
+        Junk.Config <| \(Junk.BarChart defaults) ->
           let
             config =
-              defaults.hoverMany formatX formatY hovered
+              defaults.hoverMany formatX formatY hovered_
           in
-          { below = if config.withLine then [ Svg.verticalGrid system [] config.x ] else []
+          { below = if config.withLine then [ \system -> Svg.verticalGrid system [] config.x ] else []
           , above = []
-          , html  = [ Junk.viewHoverMany system config ]
+          , html  = [ \system -> Junk.viewHoverMany system config ]
           }
 
 
@@ -176,41 +201,6 @@ type alias Layers msg =
   , above : List (Svg.Svg msg)
   , html : List (Html.Html msg)
   }
-
-
-{-| Draw whatever junk you'd like. You're given the `Coordinate.System` to help
-you place your junk on the intended spot in the chart, because it allows you
-to translate from data-space into SVG-space and vice versa.
-
-To learn more about the `Coordinate.System` and how to use it, see the
-`Coordinate` module.
-
-
-    junk : Maybe Coordinate.Point -> Coordinate.System -> Junk.Layers msg
-    junk hovered system =
-      { below =
-          case hovered of
-            Just hovered -> [ sectionBand hovered system ]
-            Nothing      -> []
-      , above = []
-      , html = []
-      }
-
-    sectionBand : Coordinate.Point -> Coordinate.System -> Svg.Svg msg
-    sectionBand hovered system =
-      Junk.rectangle system
-        [ Svg.Attributes.fill "#b6b6b61a" ]
-        (hovered.x - 5) (hovered.x + 5)
-        system.y.min    system.y.max
-
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Junk/Example2.elm)._
-
-
--}
-custom : (Coordinate.System -> Layers msg) -> Config data msg
-custom =
-  Junk.custom
 
 
 
@@ -423,7 +413,7 @@ Pass the hint x-coordinate, your styles and your internal view.
         }
 
  -}
-hover : Coordinate.System  -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
+hover : Coordinate.System -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
 hover =
   Junk.hover
 

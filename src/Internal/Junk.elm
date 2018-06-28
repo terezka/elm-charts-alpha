@@ -14,7 +14,7 @@ import Color.Convert
 
 {-| -}
 type Config chart msg =
-  Config (chart -> Coordinate.System -> Layers msg)
+  Config (chart -> Layers msg)
 
 
 type XYChart data
@@ -26,7 +26,7 @@ type XYChart data
 
 type BarChart data
   = BarChart
-      { hoverMany : (data -> String) -> (Float -> String) -> Events.Found Data.BarChart data -> List (Events.Found Data.BarChart data) -> HoverMany
+      { hoverMany : (data -> String) -> (Float -> String) -> Events.Found Data.BarChart data -> HoverMany
       , hoverOne : Events.Found Data.BarChart data -> HoverOne
       }
 
@@ -38,33 +38,46 @@ type alias Series data =
 {-| -}
 none : Config chart msg
 none =
-  Config (\_ _ -> Layers [] [] [])
+  Config (\_ -> Layers [] [] [])
 
 
 {-| -}
-custom : (Coordinate.System -> Layers msg) -> Config chart msg
-custom func =
-  Config (\_ -> func)
+below : List (Coordinate.System -> Svg msg) -> Config chart msg -> Config chart msg
+below stuff (Config func) =
+  let add stuff_ layers = { layers | below = layers.below ++ stuff_ } in
+  Config (func >> add stuff)
+
+
+{-| -}
+above : List (Coordinate.System -> Svg msg) -> Config chart msg -> Config chart msg
+above stuff (Config func) =
+  let add stuff_ layers = { layers | above = layers.above ++ stuff_ } in
+  Config (func >> add stuff)
+
+
+{-| -}
+html : List (Coordinate.System -> Html msg) -> Config chart msg -> Config chart msg
+html stuff (Config func) =
+  let add stuff_ layers = { layers | html = layers.html ++ stuff_ } in
+  Config (func >> add stuff)
+
+
+
+-- INTERNAL
 
 
 {-| -}
 type alias Layers msg =
-  { below : List (Svg msg)
-  , above : List (Svg msg)
-  , html : List (Html msg)
+  { below : List (Coordinate.System -> Svg msg)
+  , above : List (Coordinate.System -> Svg msg)
+  , html : List (Coordinate.System -> Html msg)
   }
 
 
 {-| -}
-getLayers : chart -> Coordinate.System -> Config chart msg -> Layers msg
-getLayers defaults system (Config toLayers) =
-  toLayers defaults system
-
-
-{-| -}
-addBelow : List (Svg msg) -> Layers msg -> Layers msg
-addBelow below layers =
-  { layers | below = below ++ layers.below }
+getLayers : chart -> Config chart msg -> Layers msg
+getLayers defaults (Config toLayers) =
+  toLayers defaults
 
 
 

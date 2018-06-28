@@ -159,16 +159,19 @@ view config bars data =
     dataPointsAll = List.concat dataPoints
 
     -- Junk
-    addGrid =
-      Internal.Junk.addBelow <|
-        Internal.Grid.view system (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid
+    viewGrid =
+      [ \system ->
+         Svg.g [ Svg.Attributes.class "chart__grids" ] <|
+          Internal.Grid.view system (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid
+      ]
 
     junkDefaults_ =
-      junkDefaults config system seriesProps horizontalAxis verticalAxis config.independentAxis config.dependentAxis
+      junkDefaults config system seriesProps config.independentAxis config.dependentAxis
 
     junk =
-      Internal.Junk.getLayers junkDefaults_ system config.junk
-        |> addGrid
+      config.junk
+        |> Internal.Junk.below viewGrid
+        |> Internal.Junk.getLayers junkDefaults_
 
     intersection =
       Internal.Orientation.chooses config.orientation
@@ -206,13 +209,13 @@ view config bars data =
   container config system junk.html <|
     Svg.svg attributes
       [ Svg.defs [] (clipPath system :: Internal.Pattern.toDefs config.pattern)
-      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] junk.below
+      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
       , chartAreaPlatform config dataPointsAll system
       , Svg.g [ Svg.Attributes.class "chart__groups" ] viewAllSeries
       , Internal.Axis.viewHorizontal system intersection horizontalAxis
       , Internal.Axis.viewVertical system intersection verticalAxis
       , viewLegends
-      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] junk.above
+      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] (List.map (Utils.apply system) junk.above)
       ]
 
 
@@ -226,19 +229,19 @@ viewBoxAttribute { frame } =
     "0 0 " ++ toString frame.size.width ++ " " ++ toString frame.size.height
 
 
-container : Config data msg -> Coordinate.System -> List (Html.Html msg) -> Html.Html msg -> Html.Html msg
-container config { frame } junkHtml plot  =
+container : Config data msg -> Coordinate.System -> List (Coordinate.System -> Html.Html msg) -> Html.Html msg -> Html.Html msg
+container config system junkHtml plot  =
   let
     userAttributes =
       Internal.Container.properties .attributesHtml config.container
 
     sizeStyles =
-      Internal.Container.sizeStyles config.container frame.size.width frame.size.height
+      Internal.Container.sizeStyles config.container system.frame.size.width system.frame.size.height
 
     styles =
       Html.Attributes.style <| ( "position", "relative" ) :: sizeStyles
   in
-  Html.div (styles :: userAttributes) (plot :: junkHtml)
+  Html.div (styles :: userAttributes) (plot :: List.map (Utils.apply system) junkHtml)
 
 
 chartAreaAttributes : Coordinate.System -> List (Svg.Attribute msg)
@@ -348,14 +351,12 @@ junkDefaults
   :  Config data msg
   -> Coordinate.System
   -> List (Internal.Bars.SeriesProps data)
-  -> Internal.Axis.Config Float data msg
-  -> Internal.Axis.Config Float data msg
   -> Internal.Axis.Independent.Config data msg
   -> Internal.Axis.Dependent.Config msg
   -> Internal.Junk.BarChart data
-junkDefaults config system bars xAxis yAxis independent dependent =
+junkDefaults config system bars independent dependent =
   Internal.Junk.BarChart
-    { hoverMany = hoverMany config bars xAxis yAxis
+    { hoverMany = hoverMany config bars
     , hoverOne = hoverOne config system bars independent dependent
     }
 
@@ -363,33 +364,22 @@ junkDefaults config system bars xAxis yAxis independent dependent =
 hoverMany
   :  Config data msg
   -> List (Internal.Bars.SeriesProps data)
-  -> Internal.Axis.Config Float data msg
-  -> Internal.Axis.Config Float data msg
   -> (data -> String)
   -> (Float -> String)
-  -> List data
+  -> Internal.Events.Found Data.BarChart data
   -> Internal.Junk.HoverMany
-hoverMany config bars xAxis yAxis formatX formatY hovered = -- first :: rest <-> hovered
+hoverMany config bars formatX formatY (Internal.Events.Found hovered) =
   let
-    x = Internal.Axis.variable xAxis
-    y = Internal.Axis.variable yAxis
-
-    position =
-      Maybe.map x >> Maybe.withDefault 0
-
-    title =
-      Maybe.map formatX >> Maybe.withDefault ""
-
-    value bar datum =
+    value bar =
       ( Internal.Bars.border bar.style
       , bar.title
-      , formatY (bar.variable datum)
+      , formatY (bar.variable hovered.user)
       )
   in
   { withLine = False
-  , x = position (List.head hovered)
-  , title = title (List.head hovered)
-  , values = List.map2 value bars hovered
+  , x = hovered.point.x
+  , title = formatX hovered.user
+  , values = List.map value bars
   }
 
 
@@ -403,8 +393,8 @@ hoverOne
   -> Internal.Junk.HoverOne
 hoverOne config system bars independentSafe dependentSafe (Internal.Events.Found hovered) =
   let
-    independent = Internal.Axis.Independent.config independentSafe -- x
-    dependent = Internal.Axis.Dependent.config dependentSafe -- y
+    independent = Internal.Axis.Independent.config independentSafe -- v x
+    dependent = Internal.Axis.Dependent.config dependentSafe -- v y
     title = Internal.Axis.Title.config >> .title
     ticks = Internal.Axis.Ticks.ticks system.yData system.y dependent.ticks
 
