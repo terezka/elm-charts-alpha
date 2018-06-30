@@ -241,7 +241,7 @@ This example gets you the data of the nearest dot to where you are hovering.
 
 -}
 type alias Decoder data msg =
-  Events.Decoder Data.BarChart  data msg
+  Events.Decoder Data.BarChart data msg
 
 
 {-| Get the SVG-space coordinates of the event.

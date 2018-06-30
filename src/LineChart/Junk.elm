@@ -1,5 +1,5 @@
 module LineChart.Junk exposing
-  ( Config, Layers, default, hoverOne, hoverMany, custom
+  ( Config, default, hoverOne, hoverMany
   , Transfrom, transform, move, offset, placed
   , vertical, horizontal, verticalCustom, horizontalCustom
   , rectangle, circle
@@ -18,9 +18,6 @@ this is where it's at.
 <img alt="Legends" width="610" src="https://github.com/terezka/line-charts/blob/master/images/junk.png?raw=true"></src>
 
 @docs Config, default, hoverOne, hoverMany
-
-# Customization
-@docs custom, Layers
 
 # Helpers
 
@@ -61,6 +58,7 @@ import Svg
 import Svg.Attributes as Attributes
 import Html
 import LineChart.Coordinate as Coordinate
+import LineChart.Events as Events
 import Internal.Junk as Junk
 import Internal.Svg as Svg
 import Color
@@ -78,6 +76,30 @@ default =
   Junk.none
 
 
+{-| -}
+none : Config data msg
+none =
+  Junk.none
+
+
+{-| -}
+below : List (Coordinate.System -> Svg.Svg msg) -> Config chart msg -> Config chart msg
+below =
+  Junk.below
+
+
+{-| -}
+above : List (Coordinate.System -> Svg.Svg msg) -> Config chart msg -> Config chart msg
+above =
+  Junk.above
+
+
+{-| -}
+html : List (Coordinate.System -> Html.Html msg) -> Config chart msg -> Config chart msg
+html =
+  Junk.html
+
+
 
 -- CUSTOMIZE
 
@@ -93,7 +115,7 @@ default =
 
 -}
 type alias Config data msg =
-  Junk.Config data msg
+  Junk.Config (Junk.LineChart data) msg
 
 
 {-| Draws the default tooltip.
@@ -110,9 +132,18 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip1.png?raw=true"></src>
 
 -}
-hoverOne : Maybe data -> List ( String, data -> String ) -> Config data msg
-hoverOne =
-  Junk.hoverOne
+hoverOne : Maybe (Events.Found data) -> Config data msg
+hoverOne hovered =
+  case hovered of
+      Nothing ->
+        Junk.none
+
+      Just hovered_ ->
+        Junk.Config <| \(Junk.LineChart defaults) ->
+          { below = []
+          , above = []
+          , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
+          }
 
 
 {-| Draws the default tooltip for multiple hovered points.
@@ -136,58 +167,18 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip2.png?raw=true"></src>
 
 -}
-hoverMany : List data -> (data -> String) -> (data -> String) -> Config data msg
-hoverMany =
-  Junk.hoverMany
+hoverMany : List (Events.Found data) -> (data -> String) -> (data -> String) -> Config data msg
+hoverMany hovered formatX formatY =
+  case hovered of
+      [] ->
+        Junk.none
 
-
-{-| The layers where you can put your junk.
-
-  - **below** junk will be placed below your lines
-  - **above** junk will be placed above your lines
-  - **html** junk will be placed on top of the SVG chart.
-
--}
-type alias Layers msg =
-  { below : List (Svg.Svg msg)
-  , above : List (Svg.Svg msg)
-  , html : List (Html.Html msg)
-  }
-
-
-{-| Draw whatever junk you'd like. You're given the `Coordinate.System` to help
-you place your junk on the intended spot in the chart, because it allows you
-to translate from data-space into SVG-space and vice versa.
-
-To learn more about the `Coordinate.System` and how to use it, see the
-`Coordinate` module.
-
-
-    junk : Maybe Coordinate.Point -> Coordinate.System -> Junk.Layers msg
-    junk hovered system =
-      { below =
-          case hovered of
-            Just hovered -> [ sectionBand hovered system ]
-            Nothing      -> []
-      , above = []
-      , html = []
-      }
-
-    sectionBand : Coordinate.Point -> Coordinate.System -> Svg.Svg msg
-    sectionBand hovered system =
-      Junk.rectangle system
-        [ Svg.Attributes.fill "#b6b6b61a" ]
-        (hovered.x - 5) (hovered.x + 5)
-        system.y.min    system.y.max
-
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Junk/Example2.elm)._
-
-
--}
-custom : (Coordinate.System -> Layers msg) -> Config data msg
-custom =
-  Junk.custom
+      first :: _ ->
+        Junk.Config <| \(Junk.LineChart defaults) ->
+          { below = []
+          , above = []
+          , html  = [ \system -> Junk.viewHoverMany system (defaults.hoverMany formatX formatY first hovered) ]
+          }
 
 
 

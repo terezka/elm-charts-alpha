@@ -1,6 +1,6 @@
 module Internal.Axis exposing
   ( Config, default, custom, full, time, none, picky
-  , variable, pixels, range, ticks
+  , variable, pixels, range, ticks, title
   , viewHorizontal, viewVertical
   )
 
@@ -161,6 +161,13 @@ range (Config config) =
 ticks : Config value data msg -> Ticks.Config msg
 ticks (Config config) =
   config.ticks
+
+
+{-| -}
+title : Config value data msg -> String
+title (Config config) =
+  let { title } = Title.config config.title in
+  title
 
 
 

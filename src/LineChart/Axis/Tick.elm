@@ -63,37 +63,37 @@ type alias Config msg =
 
 
 {-| -}
-int : Int -> Config msg
+int : Config msg
 int =
   Tick.int
 
 
 {-| -}
-float : Float -> Config msg
+float : Config msg
 float =
   Tick.float
 
 
 {-| -}
-gridless : Float -> Config msg
+gridless : Config msg
 gridless =
   Tick.gridless
 
 
 {-| -}
-labelless : Float -> Config msg
+labelless : Config msg
 labelless =
   Tick.labelless
 
 
 {-| -}
-opposite : Float -> Config msg
+opposite : Config msg
 opposite =
   Tick.opposite
 
 
 {-| -}
-long : Float -> Config msg
+long : Config msg
 long =
   Tick.long
 
@@ -166,16 +166,15 @@ type alias Interval =
 
 
 {-| -}
-time : Time -> Config msg
-time time =
+time : Config msg
+time =
   custom
-    { position = time.timestamp
-    , color = Color.gray
+    { color = Color.gray
     , width = 1
     , length = 5
     , grid = True
     , direction = negative
-    , label = Just <| Svg.label "inherit" (format time)
+    , label = Svg.label "inherit"
     }
 
 
@@ -220,13 +219,12 @@ format config =
 
 -}
 type alias Properties msg =
-  { position : Float
-  , color : Color.Color
+  { color : Color.Color
   , width : Float
   , length : Float
   , grid : Bool
   , direction : Direction
-  , label : Maybe (Svg msg)
+  , label : String -> Svg msg
   }
 
 
@@ -251,7 +249,7 @@ positive =
 
 {-| Make your own tick!
 
-    customTick : Float -> Tick.Config msg
+    customTick : Tick.Config msg
     customTick number =
       let
         color =

@@ -3,7 +3,7 @@ module Internal.Data exposing (..)
 {-| -}
 
 import Internal.Coordinate exposing (..)
-
+import Color
 
 
 {-| -}
@@ -20,8 +20,12 @@ type alias BarChart =
 
 
 {-| -}
-type alias LineChart =
-  { isReal : Bool }
+type alias LineChart data =
+  { isReal : Bool
+  , label : String
+  , color : Color.Color
+  , source : List data
+  }
 
 
 {-| -}

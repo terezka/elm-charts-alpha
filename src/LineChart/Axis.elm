@@ -1,11 +1,11 @@
-module LineChart.Axis exposing (Config, default, full, time, custom, none, picky)
+module LineChart.Axis exposing (Config, default, full, time, custom, picky)
 
 {-|
 
 _If you're confused as to what "axis range" and "data range" means,
 check out `Axis.Range` for an explanation!_
 
-@docs Config, default, full, time, none, picky, custom
+@docs Config, default, full, time, picky, custom
 
 -}
 
@@ -46,7 +46,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example1.elm)._
 
 -}
-default : Int -> String -> (data -> value) -> Config value data msg
+default : Int -> String -> String -> (data -> value) -> Config value data msg
 default =
   Axis.default
 
@@ -64,7 +64,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example2.elm)._
 
 -}
-full : Int -> String -> (data -> value) -> Config value data msg
+full : Int -> String -> String -> (data -> value) -> Config value data msg
 full =
   Axis.full
 
@@ -82,7 +82,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example3.elm)._
 
 -}
-time : Int -> String -> (data -> value) -> Config value data msg
+time : Int -> String -> String -> (data -> value) -> Config value data msg
 time =
   Axis.time
 
@@ -106,27 +106,9 @@ ticks should go on the axis! If you need to customize ticks further, check out
 the `ticks` property in `Axis.custom`.
 
 -}
-picky : Int -> String -> (data -> value) -> List Float -> Config value data msg
+picky : Int -> String -> String -> (data -> value) -> List Float -> Config value data msg
 picky =
   Axis.picky
-
-
-{-| Doesn't draw the axis at all.
-
-Pass the length of your axis in pixels and it's variable.
-
-
-    xAxisConfig : Axis.Config Data msg
-    xAxisConfig =
-      Axis.none 650 .age
-
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example5.elm)._
-
--}
-none : Int -> (data -> value) -> Config value data msg
-none =
-  Axis.none
 
 
 {-|
@@ -168,6 +150,7 @@ custom =
 {-| -}
 type alias Properties value data msg =
   { title : Title.Config msg
+  , unit : String
   , variable : data -> value
   , pixels : Int
   , range : Range.Config

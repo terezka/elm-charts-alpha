@@ -49,8 +49,8 @@ lines =
 
 
 {-| -}
-view : Coordinate.System -> Ticks.Config msg -> Ticks.Config msg -> Config -> List (Svg.Svg msg)
-view system xTicks yTicks grid =
+view : Ticks.Config msg -> Ticks.Config msg -> Config -> Coordinate.System -> Svg.Svg msg
+view xTicks yTicks grid system =
   let
     verticals =
       Ticks.ticks system.xData system.x xTicks
@@ -63,9 +63,10 @@ view system xTicks yTicks grid =
     hasGrid tick =
       if tick.config.grid then Just tick.position else Nothing
   in
-  case grid of
-    Dots radius color -> viewDots  system verticals horizontals radius color
-    Lines width color -> viewLines system verticals horizontals width color
+  Svg.g [ Attributes.class "chart__grids" ] <|
+    case grid of
+      Dots radius color -> viewDots  system verticals horizontals radius color
+      Lines width color -> viewLines system verticals horizontals width color
 
 
 viewDots : Coordinate.System -> List Float -> List Float -> Float -> Color.Color -> List (Svg.Svg msg)

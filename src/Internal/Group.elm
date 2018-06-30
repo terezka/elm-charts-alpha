@@ -59,7 +59,7 @@ data (Group config) =
 
 
 {-| -}
-color : Config data -> Group data -> List (Data.Data Data.ScatterChart data data) -> Color.Color
+color : Config data -> Group data -> List (Data.Data Data.ScatterChart data) -> Color.Color
 color (Config config) (Group line) data =
   let
     (Style style) =
@@ -136,7 +136,7 @@ type alias Arguments data =
 
 
 {-| -}
-view : Arguments data -> List (Group data) -> List (List (Data.Data Data.ScatterChart data data)) -> Svg.Svg msg
+view : Arguments data -> List (Group data) -> List (List (Data.Data Data.ScatterChart data)) -> Svg.Svg msg
 view arguments lines datas =
   let
     container =
@@ -146,7 +146,7 @@ view arguments lines datas =
     |> container
 
 
-viewSingle : Arguments data -> Group data -> List (Data.Data Data.ScatterChart data data) -> Svg.Svg msg
+viewSingle : Arguments data -> Group data -> List (Data.Data Data.ScatterChart data) -> Svg.Svg msg
 viewSingle arguments line data =
   let
     -- Style
@@ -167,7 +167,7 @@ viewSingle arguments line data =
 -- VIEW / DOT
 
 
-viewDot : Arguments data -> Group data -> Style -> Data.Data Data.ScatterChart data data -> Svg.Svg msg
+viewDot : Arguments data -> Group data -> Style -> Data.Data Data.ScatterChart data -> Svg.Svg msg
 viewDot arguments (Group lineConfig) (Style style) =
   Dots.viewForScatter
     { system = arguments.system
@@ -183,7 +183,7 @@ viewDot arguments (Group lineConfig) (Style style) =
 
 
 {-| -}
-viewSample : Dots.Config data -> Config data -> Coordinate.System -> Group data -> List (Data.Data Data.ScatterChart data data) -> Float -> Svg.Svg msg
+viewSample : Dots.Config data -> Config data -> Coordinate.System -> Group data -> List (Data.Data Data.ScatterChart data) -> Float -> Svg.Svg msg
 viewSample dotsConfig lineConfig system line data sampleWidth =
   let
     dotPosition =

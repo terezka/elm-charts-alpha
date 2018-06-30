@@ -17,10 +17,17 @@ type Config chart msg =
   Config (chart -> Layers msg)
 
 
-type XYChart data
-  = XYChart
-      { hoverMany : (data -> String) -> (data -> String) -> List data -> HoverMany
-      , hoverOne : List ( String, data -> String ) -> data -> HoverOne
+type LineChart data
+  = LineChart
+      { hoverMany : (data -> String) -> (data -> String) -> Events.Found (Data.LineChart data) data -> List (Events.Found (Data.LineChart data) data) -> HoverMany
+      , hoverOne : Events.Found (Data.LineChart data) data -> HoverOne
+      }
+
+
+type ScatterChart data
+  = ScatterChart
+      { hoverMany : (data -> String) -> (data -> String) -> Events.Found Data.ScatterChart data -> List (Events.Found Data.ScatterChart data) -> HoverMany
+      , hoverOne : Events.Found Data.ScatterChart data -> HoverOne
       }
 
 
@@ -29,10 +36,6 @@ type BarChart data
       { hoverMany : (data -> String) -> (Float -> String) -> Events.Found Data.BarChart data -> HoverMany
       , hoverOne : Events.Found Data.BarChart data -> HoverOne
       }
-
-
-type alias Series data =
-  ( Color.Color, String, List data )
 
 
 {-| -}

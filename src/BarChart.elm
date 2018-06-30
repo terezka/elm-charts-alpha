@@ -159,20 +159,15 @@ view config bars data =
     dataPointsAll = List.concat dataPoints
 
     -- Junk
-    viewGrid =
-      [ \system ->
-         Svg.g [ Svg.Attributes.class "chart__grids" ] <|
-          Internal.Grid.view system (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid
-      ]
-
     junkDefaults_ =
       junkDefaults config system seriesProps config.independentAxis config.dependentAxis
 
     junk =
       config.junk
-        |> Internal.Junk.below viewGrid
+        |> Internal.Junk.below [ Internal.Grid.view (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid ]
         |> Internal.Junk.getLayers junkDefaults_
 
+    -- Intersection
     intersection =
       Internal.Orientation.chooses config.orientation
         { horizontal = Internal.Axis.Intersection.custom Internal.Axis.Intersection.towardsZero .min
