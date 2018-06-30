@@ -7,35 +7,12 @@ import Svg exposing (Svg)
 import Html exposing (Html)
 import Html.Attributes
 import Internal.Coordinate as Coordinate
-import Internal.Events as Events
-import Internal.Data as Data
 import Color.Convert
 
 
 {-| -}
 type Config chart msg =
   Config (chart -> Layers msg)
-
-
-type LineChart data
-  = LineChart
-      { hoverMany : (data -> String) -> (data -> String) -> Events.Found (Data.LineChart data) data -> List (Events.Found (Data.LineChart data) data) -> HoverMany
-      , hoverOne : Events.Found (Data.LineChart data) data -> HoverOne
-      }
-
-
-type ScatterChart data
-  = ScatterChart
-      { hoverMany : (data -> String) -> (data -> String) -> Events.Found Data.ScatterChart data -> List (Events.Found Data.ScatterChart data) -> HoverMany
-      , hoverOne : Events.Found Data.ScatterChart data -> HoverOne
-      }
-
-
-type BarChart data
-  = BarChart
-      { hoverMany : (data -> String) -> (Float -> String) -> Events.Found Data.BarChart data -> HoverMany
-      , hoverOne : Events.Found Data.BarChart data -> HoverOne
-      }
 
 
 {-| -}

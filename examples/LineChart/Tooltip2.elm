@@ -36,7 +36,7 @@ main =
 
 
 type alias Model =
-    { hovered : Maybe Info }
+    { hovered : Maybe (Events.Found Info) }
 
 
 init : Model
@@ -49,7 +49,7 @@ init =
 
 
 type Msg
-  = Hover (Maybe Info)
+  = Hover (Maybe (Events.Found Info))
 
 
 update : Msg -> Model -> Model
@@ -73,21 +73,24 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" (Just << .weight)
-    , x = Axis.default 700 "Age" .age
+    { y = Axis.default 450 "Weight" "" (Just << .weight)
+    , x = Axis.default 700 "Age" "" .age
     , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , junk =
-        case model.hovered of
-          Just info -> tooltip info
-          Nothing   -> Junk.default
+        Junk.none
+          |> Junk.html
+              (case model.hovered of
+                Just info -> [ tooltip (Events.data info) ]
+                Nothing   -> []
+              )
     , grid = Grid.default
     , area = Area.default
     , line = Line.default
-    , dots = Dots.hoverOne model.hovered
+    , dots = Dots.hoverOne (Maybe.map Events.data model.hovered)
     }
     [ LineChart.line Color.orange Dots.triangle "Chuck" chuck
     , LineChart.line Color.yellow Dots.circle "Bobby" bobby
@@ -95,17 +98,8 @@ chart model =
     ]
 
 
-tooltip : Info -> Junk.Config data msg
-tooltip info =
-  Junk.custom <| \system ->
-    { below = []
-    , above = []
-    , html = [ tooltipHtml system info ]
-    }
-
-
-tooltipHtml : Coordinate.System -> Info -> Html.Html msg
-tooltipHtml system info =
+tooltip : Info -> Coordinate.System -> Html.Html msg
+tooltip info system =
   let
     shouldFlip =
       -- is point closer to the left or right side?

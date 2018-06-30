@@ -467,26 +467,25 @@ viewCustom config lines = -- TODO rename to series
 
     -- Junk
     junkDefaults =
-      Internal.Junk.LineChart
-        { hoverMany = \formatX formatY (Internal.Events.Found first) all ->
-            { withLine = True
-            , x = first.point.x
-            , title = formatX first.user
-            , values =
-                let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
-                List.map value all
-            }
-        , hoverOne = \(Internal.Events.Found datum) ->
-            { x = datum.point.x
-            , y = Just datum.point.y
-            , color = datum.color
-            , title = datum.label
-            , values =
-                [ ( Internal.Axis.title config.x, toString datum.point.x )
-                , ( Internal.Axis.title config.y, toString datum.point.y )
-                ]
-            }
-        }
+      { hoverMany = \formatX formatY (Internal.Events.Found first) all ->
+          { withLine = True
+          , x = first.point.x
+          , title = formatX first.user
+          , values =
+              let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
+              List.map value all
+          }
+      , hoverOne = \(Internal.Events.Found datum) ->
+          { x = datum.point.x
+          , y = Just datum.point.y
+          , color = datum.color
+          , title = datum.label
+          , values =
+              [ ( Internal.Axis.title config.x, toString datum.point.x )
+              , ( Internal.Axis.title config.y, toString datum.point.y )
+              ]
+          }
+      }
 
     junk =
       config.junk

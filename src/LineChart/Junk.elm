@@ -1,5 +1,5 @@
 module LineChart.Junk exposing
-  ( Config, default, hoverOne, hoverMany
+  ( Config, default, hoverOne, hoverMany, none, above, below, html
   , Transfrom, transform, move, offset, placed
   , vertical, horizontal, verticalCustom, horizontalCustom
   , rectangle, circle
@@ -17,7 +17,7 @@ this is where it's at.
 
 <img alt="Legends" width="610" src="https://github.com/terezka/line-charts/blob/master/images/junk.png?raw=true"></src>
 
-@docs Config, default, hoverOne, hoverMany
+@docs Config, default, none, above, below, html, hoverOne, hoverMany
 
 # Helpers
 
@@ -115,7 +115,11 @@ html =
 
 -}
 type alias Config data msg =
-  Junk.Config (Junk.LineChart data) msg
+  Junk.Config
+    { hoverMany : (data -> String) -> (data -> String) -> Events.Found data -> List (Events.Found data) -> Junk.HoverMany
+    , hoverOne : Events.Found data -> Junk.HoverOne
+    }
+    msg
 
 
 {-| Draws the default tooltip.
@@ -139,7 +143,7 @@ hoverOne hovered =
         Junk.none
 
       Just hovered_ ->
-        Junk.Config <| \(Junk.LineChart defaults) ->
+        Junk.Config <| \defaults ->
           { below = []
           , above = []
           , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
@@ -174,7 +178,7 @@ hoverMany hovered formatX formatY =
         Junk.none
 
       first :: _ ->
-        Junk.Config <| \(Junk.LineChart defaults) ->
+        Junk.Config <| \defaults ->
           { below = []
           , above = []
           , html  = [ \system -> Junk.viewHoverMany system (defaults.hoverMany formatX formatY first hovered) ]

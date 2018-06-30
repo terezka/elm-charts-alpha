@@ -118,7 +118,11 @@ html =
 
 -}
 type alias Config data msg =
-  Junk.Config (Junk.BarChart data) msg
+  Junk.Config
+    { hoverMany : (data -> String) -> (Float -> String) -> Events.Found data -> Junk.HoverMany
+    , hoverOne : Events.Found data -> Junk.HoverOne
+    }
+    msg
 
 
 {-| Draws the default tooltip.
@@ -142,7 +146,7 @@ hoverOne hovered =
         Junk.none
 
       Just hovered_ ->
-        Junk.Config <| \(Junk.BarChart defaults) ->
+        Junk.Config <| \defaults ->
           { below = []
           , above = []
           , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
@@ -178,7 +182,7 @@ hoverGroup formatX formatY hovered =
         Junk.none
 
       Just hovered_ ->
-        Junk.Config <| \(Junk.BarChart defaults) ->
+        Junk.Config <| \defaults ->
           let
             config =
               defaults.hoverMany formatX formatY hovered_

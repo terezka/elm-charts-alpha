@@ -159,13 +159,15 @@ view config bars data =
     dataPointsAll = List.concat dataPoints
 
     -- Junk
-    junkDefaults_ =
-      junkDefaults config system seriesProps config.independentAxis config.dependentAxis
+    junkDefaults =
+      { hoverMany = hoverMany config seriesProps
+      , hoverOne = hoverOne config system seriesProps config.independentAxis config.dependentAxis
+      }
 
     junk =
       config.junk
         |> Internal.Junk.below [ Internal.Grid.view (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid ]
-        |> Internal.Junk.getLayers junkDefaults_
+        |> Internal.Junk.getLayers junkDefaults
 
     -- Intersection
     intersection =
@@ -340,20 +342,6 @@ toSystem config xAxis yAxis countOfData seriesAll data =
 
 
 -- INTERNAL / JUNK
-
-
-junkDefaults
-  :  Config data msg
-  -> Coordinate.System
-  -> List (Internal.Bars.SeriesProps data)
-  -> Internal.Axis.Independent.Config data msg
-  -> Internal.Axis.Dependent.Config msg
-  -> Internal.Junk.BarChart data
-junkDefaults config system bars independent dependent =
-  Internal.Junk.BarChart
-    { hoverMany = hoverMany config bars
-    , hoverOne = hoverOne config system bars independent dependent
-    }
 
 
 hoverMany
