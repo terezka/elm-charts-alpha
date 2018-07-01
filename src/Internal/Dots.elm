@@ -166,7 +166,7 @@ viewForLines arguments datum =
 
 
 {-| -}
-viewForScatter : Arguments data -> Data.Data Data.ScatterChart data -> Svg msg
+viewForScatter : Arguments data -> Data.Data (Data.ScatterChart data) data -> Svg msg
 viewForScatter arguments datum =
   let
     (Config config) =

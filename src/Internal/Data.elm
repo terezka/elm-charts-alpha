@@ -29,8 +29,12 @@ type alias LineChart data =
 
 
 {-| -}
-type alias ScatterChart =
-  { isOutlier : Bool }
+type alias ScatterChart data =
+  { isOutlier : Bool
+  , label : String
+  , color : Color.Color
+  , source : List data
+  }
 
 
 {-| -}

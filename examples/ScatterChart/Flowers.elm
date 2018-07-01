@@ -68,8 +68,8 @@ viewChart toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
     [ ScatterChart.viewCustom
-        { y = Axis.default 280 "y" toY
-        , x = Axis.default 280 "x" toX
+        { y = Axis.default 280 "y" "" toY
+        , x = Axis.default 280 "x" "" toX
         , container =
             Container.custom
               { attributesHtml = [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]

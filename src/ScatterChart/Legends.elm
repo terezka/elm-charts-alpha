@@ -1,6 +1,5 @@
 module ScatterChart.Legends exposing
   ( Config, none, default
-  , byEnding, byBeginning
   , grouped, groupedCustom, Legend
   )
 
@@ -8,14 +7,7 @@ module ScatterChart.Legends exposing
 
 @docs Config, default, none
 
-## Free legends
-Where the title is hanging by its respective line.
-
-<img alt="Legends" width="610" src="https://github.com/terezka/line-charts/blob/master/images/legends2.png?raw=true"></src>
-
-@docs byEnding, byBeginning
-
-## Grouped legends
+## Grouped legends -- TODO rename
 Where the titles are gathered in one spot.
 
 <img alt="Legends" width="610" src="https://github.com/terezka/line-charts/blob/master/images/legends5.png?raw=true"></src>
@@ -43,15 +35,15 @@ import Internal.Legends as Legends
       }
 
 -}
-type alias Config data msg
-  = Legends.Config data msg
+type alias Config msg
+  = Legends.Config msg
 
 
 {-| Produces legends in the top right corner.
 -}
-default : Config data msg
+default : Config msg
 default =
-  Legends.default 10 10
+  Legends.default 30 10
 
 
 
@@ -60,38 +52,9 @@ default =
 
 {-| Removes the legends.
 -}
-none : Config data msg
+none : Config msg
 none =
   Legends.none
-
-
-
--- FREE
-
-
-{-| Places the legend by the end of its line.
-
-    chartConfig : ScatterChart.Config Data msg
-    chartConfig =
-      { ...
-      , legends = Legends.byEnding (Junk.label Colors.black)
-      , ...
-      }
-
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example1.elm)._
-
--}
-byEnding : (String -> Svg.Svg msg) -> Config data msg
-byEnding =
-  Legends.byEnding
-
-
-{-| Same as `byEnding`, except by the beginning of the line!
--}
-byBeginning : (String -> Svg.Svg msg) -> Config data msg
-byBeginning =
-  Legends.byBeginning
 
 
 
@@ -121,9 +84,9 @@ Makes this:
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example2.elm)._
 
 -}
-grouped : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config data msg
+grouped : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config msg
 grouped =
-  Legends.grouped 10
+  Legends.grouped 30
 
 
 {-| Stuff that's helpful when you're drawing your legends.
@@ -180,6 +143,6 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 
 -}
-groupedCustom : Float -> (Coordinate.System -> List (Legend msg) -> Svg.Svg msg) -> Config data msg
+groupedCustom : Float -> (Coordinate.System -> List (Legend msg) -> Svg.Svg msg) -> Config msg
 groupedCustom =
   Legends.groupedCustom

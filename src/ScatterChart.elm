@@ -349,7 +349,7 @@ type alias Config data msg =
   , container : Container.Config msg
   , intersection : Intersection.Config
   , outliers : Outliers.Config data
-  , legends : Legends.Config data msg
+  , legends : Legends.Config msg
   , events : Events.Config data msg
   , trend : Trend.Config data
   , grid : Grid.Config
@@ -423,28 +423,31 @@ viewCustom config lines =
       toSystem config dataAll
 
     -- Junk
-    junkLineInfo line =
-       ( Internal.Group.color config.line line []
-       , Internal.Group.label line
-       , Internal.Group.data line
-       )
-
-    getJunk =
-      Internal.Junk.getLayers
-        (List.map junkLineInfo lines)
-        (Internal.Axis.variable config.x)
-        (Internal.Axis.variable config.y >> Just)
-
-    addGrid =
-      Internal.Junk.addBelow
-        (Internal.Grid.view system
-          (Internal.Axis.ticks config.x)
-          (Internal.Axis.ticks config.y)
-          config.grid
-        )
+    junkDefaults =
+      { hoverMany = \formatX formatY (Internal.Events.Found first) all ->
+          { withLine = True
+          , x = first.point.x
+          , title = formatX first.user
+          , values =
+              let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
+              List.map value all
+          }
+      , hoverOne = \(Internal.Events.Found datum) ->
+          { x = datum.point.x
+          , y = Just datum.point.y
+          , color = datum.color
+          , title = datum.label
+          , values =
+              [ ( Internal.Axis.title config.x, toString datum.point.x )
+              , ( Internal.Axis.title config.y, toString datum.point.y )
+              ]
+          }
+      }
 
     junk =
-       getJunk system config.junk |> addGrid
+      config.junk
+        |> Internal.Junk.below [ Internal.Grid.view (Internal.Axis.ticks config.x) (Internal.Axis.ticks config.y) config.grid ]
+        |> Internal.Junk.getLayers junkDefaults
 
     -- View
     viewLines =
@@ -455,18 +458,17 @@ viewCustom config lines =
         , outliersConfig = config.outliers
         }
 
+    toLegend sampleWidth serie data =
+      { sample = Internal.Group.viewSample config.dots config.line system serie data sampleWidth
+      , label = Internal.Group.label serie
+      }
+
     viewLegends =
       Internal.Legends.view
         { system = system
-        , legends = config.legends
-        , data = data
-        , series = lines
-        , label = Internal.Group.label
-        , sample = viewLegendSample
+        , config = config.legends
+        , legends = \width -> List.map2 (toLegend width) lines data
         }
-
-    viewLegendSample =
-      Internal.Group.viewSample config.dots config.line
 
     attributes =
       List.concat
@@ -478,14 +480,14 @@ viewCustom config lines =
   container config system junk.html <|
     Svg.svg attributes
       [ Svg.defs [] [ clipPath system ]
-      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] junk.below
+      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
       , viewLines lines data
       , chartAreaPlatform config dataAll system
       , Internal.Axis.viewHorizontal system config.intersection config.x
       , Internal.Axis.viewVertical   system config.intersection config.y
       , viewLegends
       , Internal.Trend.view system config.trend config.line lines data
-      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] junk.above
+      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] (List.map (Utils.apply system) junk.above)
       ]
 
 
@@ -499,19 +501,19 @@ viewBoxAttribute { frame } =
     "0 0 " ++ toString frame.size.width ++ " " ++ toString frame.size.height
 
 
-container : Config data msg -> Coordinate.System -> List (Html.Html msg) -> Html.Html msg -> Html.Html msg
-container config { frame } junkHtml plot  =
+container : Config data msg -> Coordinate.System -> List (Coordinate.System -> Html.Html msg) -> Html.Html msg -> Html.Html msg
+container config system junkHtml plot  =
   let
     userAttributes =
       Internal.Container.properties .attributesHtml config.container
 
     sizeStyles =
-      Internal.Container.sizeStyles config.container frame.size.width frame.size.height
+      Internal.Container.sizeStyles config.container system.frame.size.width system.frame.size.height
 
     styles =
       Html.Attributes.style <| ( "position", "relative" ) :: sizeStyles
   in
-  Html.div (styles :: userAttributes) (plot :: junkHtml)
+  Html.div (styles :: userAttributes) (plot :: List.map (Utils.apply system) junkHtml)
 
 
 chartAreaAttributes : Coordinate.System -> List (Svg.Attribute msg)
@@ -523,7 +525,7 @@ chartAreaAttributes system =
   ]
 
 
-chartAreaPlatform : Config data msg -> List (Data.Data data) -> Coordinate.System -> Svg.Svg msg
+chartAreaPlatform : Config data msg -> List (Data.Data (Data.ScatterChart data) data) -> Coordinate.System -> Svg.Svg msg
 chartAreaPlatform config data system =
   let
     attributes =
@@ -543,26 +545,34 @@ clipPath system =
     [ Svg.rect (chartAreaAttributes system) [] ]
 
 
-toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data data))
-toDataPoints config lines =
+toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data (Data.ScatterChart data) data))
+toDataPoints config groups =
   let
     x = Internal.Axis.variable config.x
     y = Internal.Axis.variable config.y
 
     data =
-      List.map (Internal.Group.data >> toInternalData) lines
+      List.map toInternalData groups
 
-    toInternalData data =
-      let isOutlier = Internal.Outliers.isOutlier config.outliers data in
-      List.map (addPoint isOutlier) data
+    toInternalData group =
+      let data = Internal.Group.data group
+          isOutlier = Internal.Outliers.isOutlier config.outliers data
+      in
+      List.map (addPoint group isOutlier) data
 
-    addPoint isOutlier datum =
-      Data.Data datum (Data.Point (x datum) (y datum)) True (isOutlier datum)
+    addPoint group isOutlier datum =
+      { user = datum
+      , point = Data.Point (x datum) (y datum)
+      , label = Internal.Group.label group
+      , color = Internal.Group.colorBase group
+      , source = Internal.Group.data group
+      , isOutlier = isOutlier datum
+      }
   in
   data
 
 
-toSystem : Config data msg -> List (Data.Data data) -> Coordinate.System
+toSystem : Config data msg -> List (Data.Data (Data.ScatterChart data) data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container
@@ -592,8 +602,8 @@ toSystem config data =
 
 defaultConfig : (data -> Float) -> (data -> Float) -> Config data msg
 defaultConfig toX toY =
-  { y = Axis.default 400 "" toY
-  , x = Axis.default 700 "" toX
+  { y = Axis.default 400 "" "" toY
+  , x = Axis.default 700 "" "" toX
   , container = Container.default "scatter-chart-1"
   , intersection = Intersection.default
   , outliers = Outliers.default

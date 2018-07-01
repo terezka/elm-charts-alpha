@@ -1,7 +1,7 @@
 module ScatterChart.Events exposing
   ( Config, default, hoverOne, hoverMany, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-  , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+  , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX, Found, data
   , map, map2, map3
   )
 
@@ -16,7 +16,7 @@ module ScatterChart.Events exposing
 @docs Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
 
 ## Decoders
-@docs Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+@docs Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX, Found, data
 
 ### Maps
 
@@ -36,6 +36,7 @@ module ScatterChart.Events exposing
 
 -}
 
+import Internal.Data as Data
 import Internal.Events as Events
 import ScatterChart.Coordinate as Coordinate
 
@@ -55,7 +56,7 @@ import ScatterChart.Coordinate as Coordinate
 
 -}
 type alias Config data msg =
-  Events.Config data msg
+  Events.Config (Data.ScatterChart data) data msg
 
 
 {-| Adds no events.
@@ -78,9 +79,14 @@ Pass a message taking the data of the data point hovered.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example1.elm)._
 
 -}
-hoverOne : (Maybe data -> msg) -> Config data msg
-hoverOne =
-  Events.hoverOne
+hoverOne : (Maybe (Found data) -> msg) -> Config data msg
+hoverOne msg =
+  custom
+    [ onMouseMove msg (getWithin 30)
+    , on "touchstart" msg (getWithin 100)
+    , on "touchmove" msg (getWithin 100)
+    , onMouseLeave (msg Nothing)
+    ]
 
 
 {-| Sends a message when the mouse is within a 30 pixel distance of a
@@ -97,9 +103,12 @@ Pass a message taking the data of the data points hovered.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example2.elm)._
 
 -}
-hoverMany : (List data -> msg) -> Config data msg
-hoverMany =
-  Events.hoverMany
+hoverMany : (List (Found data) -> msg) -> Config data msg
+hoverMany msg =
+  custom
+    [ onMouseMove msg getNearestX
+    , onMouseLeave (msg [])
+    ]
 
 
 {-| Sends a given message when clicking on a dot.
@@ -114,9 +123,10 @@ Pass a message taking the data of the data points clicked.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example3.elm)._
 
 -}
-click : (Maybe data -> msg) -> Config data msg
-click =
-  Events.click
+click : (Maybe (Found data) -> msg) -> Config data msg
+click msg =
+  custom
+    [ onClick msg (getWithin 30) ]
 
 
 {-| Add your own combination of events. The cool thing here is that you can pick
@@ -147,7 +157,7 @@ custom =
 
 {-| -}
 type alias Event data msg =
-  Events.Event data msg
+  Events.Event (Data.ScatterChart data) data msg
 
 
 {-| -}
@@ -228,7 +238,7 @@ This example gets you the data of the nearest dot to where you are hovering.
 
 -}
 type alias Decoder data msg =
-  Events.Decoder data msg
+  Events.Decoder (Data.ScatterChart data) data msg
 
 
 {-| Get the SVG-space coordinates of the event.
@@ -248,7 +258,7 @@ getData =
 {-| Get the data coordinates nearest to the event.
 Returns `Nothing` if you have no data showing.
 -}
-getNearest : Decoder data (Maybe data)
+getNearest : Decoder data (Maybe (Found data))
 getNearest =
   Events.getNearest
 
@@ -256,14 +266,14 @@ getNearest =
 {-| Get the data coordinates nearest of the event within the radius
 you provide in the first argument. Returns `Nothing` if you have no data showing.
 -}
-getWithin : Float -> Decoder data (Maybe data)
+getWithin : Float -> Decoder data (Maybe (Found data))
 getWithin =
   Events.getWithin
 
 
 {-| Get the data coordinates horizontally nearest to the event.
 -}
-getNearestX : Decoder data (List data)
+getNearestX : Decoder data (List (Found data))
 getNearestX =
   Events.getNearestX
 
@@ -271,9 +281,23 @@ getNearestX =
 {-| Finds the data coordinates horizontally nearest to the event, within the
 distance you provide in the first argument.
 -}
-getWithinX : Float -> Decoder data (List data)
+getWithinX : Float -> Decoder data (List (Found data))
 getWithinX =
   Events.getWithinX
+
+
+-- DATA
+
+
+{-| -}
+type alias Found data =
+  Events.Found (Data.ScatterChart data) data
+
+
+{-| -}
+data : Found data -> data
+data =
+  Events.data
 
 
 

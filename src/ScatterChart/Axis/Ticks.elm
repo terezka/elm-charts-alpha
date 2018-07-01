@@ -46,6 +46,7 @@ _See full example [here](https://github.com/terezka/line-charts/blob/master/exam
 
 import ScatterChart.Coordinate as Coordinate exposing (..)
 import Internal.Axis.Ticks as Ticks
+import Internal.Axis.Values as Values
 import Internal.Axis.Tick
 import ScatterChart.Axis.Tick as Tick
 
@@ -66,6 +67,11 @@ type alias Config msg =
   Ticks.Config msg
 
 
+{-| -}
+type alias Set msg =
+  Ticks.Set msg
+
+
 
 -- API / AXIS
 
@@ -81,43 +87,50 @@ months or hours, minutes, and seconds.
 -} -- TODO make better approximate
 default : Config msg
 default =
-   Ticks.float 5
+  custom <| \data axis ->
+    [ set Tick.float toString identity (Values.float (Values.around 5) axis) ]
 
 
 {-| -}
 int : Int -> Config msg
-int =
-   Ticks.int
+int n =
+  custom <| \data axis ->
+    [ set Tick.int toString toFloat (Values.int (Values.around n) axis) ]
 
 
 {-| -}
 time : Int -> Config msg
-time =
-   Ticks.time
+time n =
+   custom <| \data axis ->
+    [ set Tick.int Tick.format .timestamp (List.map toLocalTime (Values.time n axis)) ]
 
 
 {-| -}
 float : Int -> Config msg
-float =
-   Ticks.float
+float n =
+   custom <| \data axis ->
+    [ set Tick.float toString identity (Values.float (Values.around n) axis) ]
 
 
 {-| -}
-intCustom : Int -> (Int -> Tick.Config msg) -> Config msg
-intCustom =
-  Ticks.intCustom
+intCustom : Tick.Config msg -> Int -> Config msg
+intCustom tick n =
+  custom <| \data axis ->
+    [ set tick toString identity (Values.float (Values.around n) axis) ]
 
 
 {-| -}
-floatCustom : Int -> (Float -> Tick.Config msg) -> Config msg
-floatCustom =
-  Ticks.floatCustom
+floatCustom : Tick.Config msg -> Int -> Config msg
+floatCustom tick n =
+  custom <| \data axis ->
+    [ set tick toString identity (Values.float (Values.around n) axis) ]
 
 
 {-| -}
-timeCustom : Int -> (Tick.Time -> Tick.Config msg) -> Config msg
-timeCustom n f =
-  Ticks.timeCustom n (toLocalTime >> f)
+timeCustom : Tick.Config msg -> Int -> Config msg
+timeCustom tick n =
+  custom <| \data axis ->
+    [ set tick Tick.format .timestamp (List.map toLocalTime (Values.time n axis)) ]
 
 
 {-| Make your own combination of ticks.
@@ -144,10 +157,15 @@ _See full example [here](https://github.com/terezka/line-charts/blob/master/exam
 You can use `Axis.Values` to produce "nice" values within a given range.
 
 -}
-custom : (Coordinate.Range -> Coordinate.Range -> List (Tick.Config msg)) -> Config msg
+custom : (Coordinate.Range -> Coordinate.Range -> List (Set msg)) -> Config msg
 custom =
   Ticks.custom
 
+
+{-| -}
+set : Tick.Config msg -> (data -> String) -> (data -> Float) -> List data -> Set msg
+set =
+  Ticks.set
 
 
 -- UNIT CONVERSION
