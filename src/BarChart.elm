@@ -115,6 +115,7 @@ isGroup =
   Internal.Bars.isGroup
 
 
+
 -- VIEW
 
 
@@ -122,11 +123,23 @@ isGroup =
 view : Config data msg -> List (Series data) -> List data -> Svg.Svg msg
 view config bars data =
   let
+    -- Data / System
     seriesProps = List.map Internal.Bars.seriesProps bars
-
-    -- Data
     countOfSeries = toFloat (List.length bars)
     countOfData = toFloat (List.length data)
+
+    width =
+      Utils.apply4 system config.bars countOfSeries countOfData <|
+        Internal.Orientation.chooses config.orientation
+          { horizontal = Internal.Bars.width Coordinate.lengthY Coordinate.scaleDataY
+          , vertical = Internal.Bars.width Coordinate.lengthX Coordinate.scaleDataX
+          }
+
+    system =
+      toSystem config horizontalAxis verticalAxis countOfData bars data
+
+    dataPoints = toDataPoints config system countOfSeries countOfData width bars data
+    dataPointsAll = List.concat dataPoints
 
     -- Axes
     ( horizontalAxis, verticalAxis ) = -- TODO swap axes
@@ -140,21 +153,6 @@ view config bars data =
             , Internal.Axis.Dependent.toNormal data config.dependentAxis
             )
         }
-
-    -- System
-    system =
-      toSystem config horizontalAxis verticalAxis countOfData bars data
-
-    -- Data points
-    width =
-      Utils.apply4 system config.bars countOfSeries countOfData <|
-        Internal.Orientation.chooses config.orientation
-          { horizontal = Internal.Bars.width Coordinate.lengthY Coordinate.scaleDataY
-          , vertical = Internal.Bars.width Coordinate.lengthX Coordinate.scaleDataX
-          }
-
-    dataPoints = toDataPoints config system countOfSeries countOfData width bars data
-    dataPointsAll = List.concat dataPoints
 
     -- Junk
     hoverMany formatX formatY (Internal.Events.Found hovered) =
@@ -185,20 +183,10 @@ view config bars data =
           ]
       }
 
-    -- Intersection
-    intersection =
-      Internal.Orientation.chooses config.orientation
-        { horizontal = Internal.Axis.Intersection.custom Internal.Axis.Intersection.towardsZero .min
-        , vertical = Internal.Axis.Intersection.custom .min Internal.Axis.Intersection.towardsZero
-        }
-
     -- View
     viewSeries data =
       Svg.g [ Svg.Attributes.class "chart__group" ] <|
         List.map2 (Internal.Bars.viewSeries system config.orientation config.bars width) bars data
-
-    viewAllSeries =
-      List.map viewSeries dataPoints
 
     viewLegends =
       { system = system
@@ -216,8 +204,12 @@ view config bars data =
     , events = config.events
     , defs = Internal.Pattern.toDefs config.pattern
     , grid = config.grid
-    , series = Svg.g [ Svg.Attributes.class "chart__groups" ] viewAllSeries
-    , intersection = intersection
+    , series = Svg.g [ Svg.Attributes.class "chart__groups" ] (List.map viewSeries dataPoints)
+    , intersection =
+        Internal.Orientation.chooses config.orientation
+          { horizontal = Internal.Axis.Intersection.custom Internal.Axis.Intersection.towardsZero .min
+          , vertical = Internal.Axis.Intersection.custom .min Internal.Axis.Intersection.towardsZero
+          }
     , horizontalAxis = horizontalAxis
     , verticalAxis = verticalAxis
     , legends = viewLegends
