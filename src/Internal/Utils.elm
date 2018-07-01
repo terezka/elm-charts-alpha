@@ -7,10 +7,6 @@ import Svg
 import Internal.Coordinate as Coordinate
 
 
-
--- GENERAL
-
-
 {-| -}
 addIf : Bool -> List a -> List a
 addIf condition stuff =

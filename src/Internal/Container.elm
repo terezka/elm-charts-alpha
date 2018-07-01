@@ -2,7 +2,7 @@ module Internal.Container exposing
   ( Config, Properties, Size, Margin
   , default, spaced, styled, responsive, custom
   , relative, static
-  , properties, sizeStyles
+  , properties, styles
   )
 
 {-| -}
@@ -10,6 +10,7 @@ module Internal.Container exposing
 import Svg
 import Html
 import Html.Attributes
+import Internal.Coordinate as Coordinate
 
 
 
@@ -114,13 +115,15 @@ properties f (Config properties) =
 
 
 {-| -}
-sizeStyles : Config msg -> Float -> Float -> List ( String, String )
-sizeStyles (Config properties) width height =
-  case properties.size of
-    Static ->
-      [ ( "height", toString height ++ "px" )
-      , ( "width", toString width ++ "px" )
-      ]
+styles : Config msg -> Coordinate.System -> Html.Attribute msg
+styles (Config properties) system =
+  Html.Attributes.style <|
+    case properties.size of
+      Static ->
+        [ ( "position", "relative" )
+        , ( "width", toString system.frame.size.width ++ "px" )
+        , ( "height", toString system.frame.size.height ++ "px" )
+        ]
 
-    Relative ->
-      []
+      Relative ->
+        [ ( "position", "relative" ) ]

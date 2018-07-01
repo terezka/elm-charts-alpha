@@ -3,7 +3,7 @@ module Internal.Legends exposing
   , grouped, groupedCustom
   , hover, hoverOne
   -- INTERNAL
-  , view
+  , Arguments, view
   )
 
 {-| -}

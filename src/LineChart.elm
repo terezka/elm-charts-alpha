@@ -52,6 +52,7 @@ import LineChart.Container as Container
 import LineChart.Interpolation as Interpolation
 import LineChart.Axis.Intersection as Intersection
 
+import Internal.Chart
 import Internal.Area
 import Internal.Axis
 import Internal.Junk
@@ -452,11 +453,11 @@ If the that total amount is not important for the relationship you're
 trying to visualize, it's best to leave it out!
 
 -}
-viewCustom : Config data msg -> List (Series data) -> Svg.Svg msg
-viewCustom config lines = -- TODO rename to series
+viewCustom : Config data msg -> List (Series data) -> Html.Html msg
+viewCustom config series = -- TODO rename to series
   let
     -- Data
-    data = toDataPoints config lines
+    data = toDataPoints config series
     dataSafe = List.map (List.filter .isReal) data
     dataAll = List.concat data
     dataAllSafe = List.concat dataSafe
@@ -466,34 +467,27 @@ viewCustom config lines = -- TODO rename to series
       toSystem config dataAllSafe
 
     -- Junk
-    junkDefaults =
-      { hoverMany = \formatX formatY (Internal.Events.Found first) all ->
-          { withLine = True
-          , x = first.point.x
-          , title = formatX first.user
-          , values =
-              let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatY datum.user ) in
-              List.map value all
-          }
-      , hoverOne = \(Internal.Events.Found datum) ->
-          { x = datum.point.x
-          , y = Just datum.point.y
-          , color = datum.color
-          , title = datum.label
-          , values =
-              [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
-              , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
-              ]
-          }
+    hoverMany formatX formatY (Internal.Events.Found first) all =
+      { withLine = True
+      , x = first.point.x
+      , title = formatX first.user
+      , values =
+          let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatY datum.user )
+          in List.map value all
       }
 
-    junk =
-      Internal.Junk.getLayers junkDefaults config.junk
+    hoverOne (Internal.Events.Found datum) =
+      { x = datum.point.x
+      , y = Just datum.point.y
+      , color = datum.color
+      , title = datum.label
+      , values =
+          [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
+          , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
+          ]
+      }
 
     -- View
-    viewGrid =
-      [ Internal.Grid.view (Internal.Axis.ticks config.x) (Internal.Axis.ticks config.y) config.grid system ]
-
     viewLines =
       Internal.Line.view
         { system = system
@@ -503,130 +497,75 @@ viewCustom config lines = -- TODO rename to series
         , area = config.area
         }
 
-    toLegend sampleWidth serie data =
-      { sample = Internal.Line.viewSample config.dots config.line config.area system serie data sampleWidth
-      , label = Internal.Line.label serie
-      }
-
     viewLegends =
-      Internal.Legends.view
-        { system = system
-        , config = config.legends
-        , legends = \width -> List.map2 (toLegend width) lines dataSafe
-        }
-
-    viewLegendSample =
-      Internal.Line.viewSample config.dots config.line config.area
-
-    attributes =
-      List.concat
-        [ Internal.Container.properties .attributesSvg config.container
-        , Internal.Events.toContainerAttributes dataAllSafe system config.events -- All?
-        , [ viewBoxAttribute system ]
-        ]
+      { system = system
+      , config = config.legends
+      , legends = \width ->
+          let legend serie data =
+                { sample = Internal.Line.viewSample config.dots config.line config.area system serie data width
+                , label = Internal.Line.label serie
+                }
+          in List.map2 legend series dataSafe
+      }
   in
-  container config system junk.html <|
-    Svg.svg attributes
-      [ Svg.defs [] [ clipPath system ]
-      , Svg.g [ Svg.Attributes.class "chart__grid" ] viewGrid
-      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
-      , viewLines lines data
-      , chartAreaPlatform config dataAll system
-      , Internal.Axis.viewHorizontal system config.intersection config.x
-      , Internal.Axis.viewVertical   system config.intersection config.y
-      , viewLegends
-      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] (List.map (Utils.apply system) junk.above)
-      ]
+  Internal.Chart.view
+    { container = config.container
+    , events = config.events
+    , defs = []
+    , grid = config.grid
+    , series = viewLines series data
+    , intersection = config.intersection
+    , horizontalAxis = config.x
+    , verticalAxis = config.y
+    , legends = viewLegends
+    , trends = Svg.text ""
+    , junk = Internal.Junk.getLayers { hoverMany = hoverMany, hoverOne = hoverOne } config.junk
+    }
+    dataAll
+    system
 
 
 
 -- INTERNAL
 
 
-viewBoxAttribute : Coordinate.System -> Html.Attribute msg
-viewBoxAttribute { frame } =
-  Svg.Attributes.viewBox <|
-    "0 0 " ++ toString frame.size.width ++ " " ++ toString frame.size.height
-
-
-container : Config data msg -> Coordinate.System -> List (Coordinate.System -> Html.Html msg) -> Html.Html msg -> Html.Html msg
-container config system junkHtml plot  =
-  let
-    userAttributes =
-      Internal.Container.properties .attributesHtml config.container
-
-    sizeStyles =
-      Internal.Container.sizeStyles config.container system.frame.size.width system.frame.size.height
-
-    styles =
-      Html.Attributes.style <| ( "position", "relative" ) :: sizeStyles
-  in
-  Html.div (styles :: userAttributes) (plot :: List.map (Utils.apply system) junkHtml)
-
-
-chartAreaAttributes : Coordinate.System -> List (Svg.Attribute msg)
-chartAreaAttributes system =
-  [ Svg.Attributes.x <| toString system.frame.margin.left
-  , Svg.Attributes.y <| toString system.frame.margin.top
-  , Svg.Attributes.width <| toString (Coordinate.lengthX system)
-  , Svg.Attributes.height <| toString (Coordinate.lengthY system)
-  ]
-
-
-chartAreaPlatform : Config data msg -> List (Data.Data (Data.LineChart data) data) -> Coordinate.System -> Svg.Svg msg
-chartAreaPlatform config data system =
-  let
-    attributes =
-      List.concat
-        [ [ Svg.Attributes.fill "transparent" ]
-        , chartAreaAttributes system
-        , Internal.Events.toChartAttributes data system config.events
-        ]
-  in
-  Svg.rect attributes []
-
-
-clipPath : Coordinate.System ->  Svg.Svg msg
-clipPath system =
-  Svg.clipPath
-    [ Svg.Attributes.id (Utils.toChartAreaId system.id) ]
-    [ Svg.rect (chartAreaAttributes system) [] ]
-
-
 toDataPoints : Config data msg -> List (Series data) -> List (List (Data.Data (Data.LineChart data) data))
-toDataPoints config lines =
+toDataPoints config series =
   let
     x = Internal.Axis.variable config.x
     y = Internal.Axis.variable config.y
 
     data =
-      List.map (\line -> List.map (addPoint line) (Internal.Line.data line)) lines
+      List.map eachSerie series
 
-    addPoint line datum =
+    eachSerie serie =
+      List.map (eachDatum serie) (Internal.Line.data serie)
+
+    eachDatum serie datum =
       case ( x datum, y datum ) of
         ( x, Just y ) ->
           { user = datum
           , point = Data.Point x y
           , isReal = True
-          , label = Internal.Line.label line
-          , color = Internal.Line.colorBase line
-          , source = Internal.Line.data line
+          , label = Internal.Line.label serie
+          , color = Internal.Line.colorBase serie
+          , source = Internal.Line.data serie
           }
 
         ( x, Nothing ) ->
           { user = datum
           , point = Data.Point x 0
           , isReal = False
-          , label = Internal.Line.label line
-          , color = Internal.Line.colorBase line
-          , source = Internal.Line.data line
+          , label = Internal.Line.label serie
+          , color = Internal.Line.colorBase serie
+          , source = Internal.Line.data serie
           }
   in
   case config.area of
     Internal.Area.None         -> data
     Internal.Area.Normal _     -> data
     Internal.Area.Stacked _    -> stack data
-    Internal.Area.Percentage _ -> normalize (stack data)
+    Internal.Area.Percentage _ -> normalize (stack data) -- TODO Not used
 
 
 stack : List (List (Data.Data (Data.LineChart data) data)) -> List (List (Data.Data (Data.LineChart data) data))

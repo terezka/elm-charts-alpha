@@ -34,9 +34,7 @@ module ScatterChart exposing
 -}
 
 import Html
-import Html.Attributes
 import Svg
-import Svg.Attributes
 
 import ScatterChart.Junk as Junk
 import ScatterChart.Axis as Axis
@@ -53,20 +51,18 @@ import ScatterChart.Outliers as Outliers
 import ScatterChart.Container as Container
 import ScatterChart.Axis.Intersection as Intersection
 
+import Internal.Chart
 import Internal.Axis
 import Internal.Junk
 import Internal.Dots
-import Internal.Grid
 import Internal.Group
 import Internal.Events
-import Internal.Legends
 import Internal.Container
 import Internal.Axis.Range
 import Internal.Trend
 import Internal.Outliers
 
 import Internal.Data as Data
-import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
 import Color
 
@@ -411,7 +407,7 @@ If the that total amount is not important for the relationship you're
 trying to visualize, it's best to leave it out!
 
 -}
-viewCustom : Config data msg -> List (Group data) -> Svg.Svg msg
+viewCustom : Config data msg -> List (Group data) -> Html.Html msg
 viewCustom config lines =
   let
     -- Data
@@ -444,13 +440,7 @@ viewCustom config lines =
           }
       }
 
-    junk =
-      Internal.Junk.getLayers junkDefaults config.junk
-
     -- View
-    viewGrid =
-      [ Internal.Grid.view (Internal.Axis.ticks config.x) (Internal.Axis.ticks config.y) config.grid system ]
-
     viewLines =
       Internal.Group.view
         { system = system
@@ -459,92 +449,36 @@ viewCustom config lines =
         , outliersConfig = config.outliers
         }
 
-    toLegend sampleWidth serie data =
-      { sample = Internal.Group.viewSample config.dots config.line system serie data sampleWidth
-      , label = Internal.Group.label serie
-      }
-
     viewLegends =
-      Internal.Legends.view
-        { system = system
-        , config = config.legends
-        , legends = \width -> List.map2 (toLegend width) lines data
-        }
-
-    attributes =
-      List.concat
-        [ Internal.Container.properties .attributesSvg config.container
-        , Internal.Events.toContainerAttributes dataAll system config.events
-        , [ viewBoxAttribute system ]
-        ]
+      { system = system
+      , config = config.legends
+      , legends = \width ->
+          let legend serie data =
+              { sample = Internal.Group.viewSample config.dots config.line system serie data width
+              , label = Internal.Group.label serie
+              }
+          in List.map2 legend lines data
+      }
   in
-  container config system junk.html <|
-    Svg.svg attributes
-      [ Svg.defs [] [ clipPath system ]
-      , Svg.g [ Svg.Attributes.class "chart__grid" ] viewGrid
-      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
-      , viewLines lines data
-      , chartAreaPlatform config dataAll system
-      , Internal.Axis.viewHorizontal system config.intersection config.x
-      , Internal.Axis.viewVertical   system config.intersection config.y
-      , viewLegends
-      , Internal.Trend.view system config.trend config.line lines data
-      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] (List.map (Utils.apply system) junk.above)
-      ]
+  Internal.Chart.view
+    { container = config.container
+    , events = config.events
+    , defs = []
+    , grid = config.grid
+    , series = viewLines lines data
+    , intersection = config.intersection
+    , horizontalAxis = config.x
+    , verticalAxis = config.y
+    , legends = viewLegends
+    , trends = Internal.Trend.view system config.trend config.line lines data
+    , junk = Internal.Junk.getLayers junkDefaults config.junk
+    }
+    dataAll
+    system
 
 
 
 -- INTERNAL
-
-
-viewBoxAttribute : Coordinate.System -> Html.Attribute msg
-viewBoxAttribute { frame } =
-  Svg.Attributes.viewBox <|
-    "0 0 " ++ toString frame.size.width ++ " " ++ toString frame.size.height
-
-
-container : Config data msg -> Coordinate.System -> List (Coordinate.System -> Html.Html msg) -> Html.Html msg -> Html.Html msg
-container config system junkHtml plot  =
-  let
-    userAttributes =
-      Internal.Container.properties .attributesHtml config.container
-
-    sizeStyles =
-      Internal.Container.sizeStyles config.container system.frame.size.width system.frame.size.height
-
-    styles =
-      Html.Attributes.style <| ( "position", "relative" ) :: sizeStyles
-  in
-  Html.div (styles :: userAttributes) (plot :: List.map (Utils.apply system) junkHtml)
-
-
-chartAreaAttributes : Coordinate.System -> List (Svg.Attribute msg)
-chartAreaAttributes system =
-  [ Svg.Attributes.x <| toString system.frame.margin.left
-  , Svg.Attributes.y <| toString system.frame.margin.top
-  , Svg.Attributes.width <| toString (Coordinate.lengthX system)
-  , Svg.Attributes.height <| toString (Coordinate.lengthY system)
-  ]
-
-
-chartAreaPlatform : Config data msg -> List (Data.Data (Data.ScatterChart data) data) -> Coordinate.System -> Svg.Svg msg
-chartAreaPlatform config data system =
-  let
-    attributes =
-      List.concat
-        [ [ Svg.Attributes.fill "transparent" ]
-        , chartAreaAttributes system
-        , Internal.Events.toChartAttributes data system config.events
-        ]
-  in
-  Svg.rect attributes []
-
-
-clipPath : Coordinate.System ->  Svg.Svg msg
-clipPath system =
-  Svg.clipPath
-    [ Svg.Attributes.id (Utils.toChartAreaId system.id) ]
-    [ Svg.rect (chartAreaAttributes system) [] ]
 
 
 toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data (Data.ScatterChart data) data))
@@ -611,7 +545,7 @@ defaultConfig toX toY =
   , outliers = Outliers.default
   , legends = Legends.default
   , events = Events.default
-  , trend = Trend.individual
+  , trend = Trend.default
   , junk = Junk.default
   , grid = Grid.default
   , line = Group.default

@@ -6,7 +6,6 @@ import Html
 import Html.Attributes
 import Svg
 import Svg.Attributes
-import Array
 
 import BarChart.Junk as Junk
 import BarChart.Axis.Dependent as AxisDependent
@@ -19,6 +18,7 @@ import BarChart.Orientation as Orientation
 import BarChart.Pattern as Pattern
 import BarChart.Bars as Bars
 
+import Internal.Chart
 import Internal.Bars
 import Internal.Orientation
 import Internal.Events
@@ -27,7 +27,6 @@ import Internal.Axis.Dependent
 import Internal.Axis.Independent
 import Internal.Axis.Intersection
 import Internal.Axis.Range
-import Internal.Axis.Ticks
 import Internal.Axis.Title
 import Internal.Junk
 import Internal.Grid
@@ -35,7 +34,6 @@ import Internal.Container
 import Internal.Pattern
 import Internal.Legends
 
-import Internal.Colors as Colors
 import Internal.Data as Data
 import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
@@ -131,7 +129,7 @@ view config bars data =
     countOfData = toFloat (List.length data)
 
     -- Axes
-    ( horizontalAxis, verticalAxis ) = -- swap axes
+    ( horizontalAxis, verticalAxis ) = -- TODO swap axes
       Internal.Orientation.chooses config.orientation
         { horizontal =
             ( Internal.Axis.Dependent.toNormal data config.dependentAxis
@@ -159,38 +157,33 @@ view config bars data =
     dataPointsAll = List.concat dataPoints
 
     -- Junk
-    junkDefaults =
-      { hoverMany = \formatX formatY (Internal.Events.Found hovered) ->
-          let value bar =
-                ( Internal.Bars.color bar
-                , Internal.Bars.label bar
-                , formatY (Internal.Bars.variable bar hovered.user)
-                )
-          in
-          { withLine = False
-          , x = hovered.point.x
-          , title = formatX hovered.user
-          , values = List.map value bars
-          }
-      , hoverOne = \(Internal.Events.Found hovered) ->
-          let
-            independent = Internal.Axis.Independent.config config.independentAxis -- v x
-            dependent = Internal.Axis.Dependent.config config.dependentAxis -- v y
-            title = Internal.Axis.Title.config >> .title
-          in
-          { x = hovered.point.x
-          , y = Just hovered.point.y
-          , color = hovered.color
-          , title = hovered.label
-          , values =
-              [ ( title independent.title, independent.label hovered.user )
-              , ( title dependent.title, toString hovered.point.y ++ dependent.unit )
-              ]
-          }
+    hoverMany formatX formatY (Internal.Events.Found hovered) =
+      let value bar =
+            ( Internal.Bars.color bar
+            , Internal.Bars.label bar
+            , formatY (Internal.Bars.variable bar hovered.user)
+            )
+      in
+      { withLine = False
+      , x = hovered.point.x
+      , title = formatX hovered.user
+      , values = List.map value bars
       }
 
-    junk =
-      Internal.Junk.getLayers junkDefaults config.junk
+    hoverOne (Internal.Events.Found hovered) =
+      let independent = Internal.Axis.Independent.config config.independentAxis
+          dependent = Internal.Axis.Dependent.config config.dependentAxis
+          title = Internal.Axis.Title.config >> .title
+      in
+      { x = hovered.point.x
+      , y = Just hovered.point.y
+      , color = hovered.color
+      , title = hovered.label
+      , values =
+          [ ( title independent.title, independent.label hovered.user )
+          , ( title dependent.title, toString hovered.point.y ++ dependent.unit )
+          ]
+      }
 
     -- Intersection
     intersection =
@@ -200,9 +193,6 @@ view config bars data =
         }
 
     -- View
-    viewGrid =
-      [ Internal.Grid.view (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid system ]
-
     viewSeries data =
       Svg.g [ Svg.Attributes.class "chart__group" ] <|
         List.map2 (Internal.Bars.viewSeries system config.orientation config.bars width) bars data
@@ -210,95 +200,36 @@ view config bars data =
     viewAllSeries =
       List.map viewSeries dataPoints
 
-    attributes =
-      List.concat
-        [ Internal.Container.properties .attributesSvg config.container
-        , Internal.Events.toContainerAttributes dataPointsAll system config.events
-        , [ viewBoxAttribute system ]
-        ]
-
-    toLegend width bar =
-      { sample = Svg.square width (Internal.Bars.borderRadius config.bars) (Internal.Bars.fill bar.style) (Internal.Bars.border bar.style)
-      , label = bar.title
-      }
-
     viewLegends =
-      Internal.Legends.view
-        { system = system
-        , config = config.legends
-        , legends = \width -> List.map (toLegend width) seriesProps
-        }
+      { system = system
+      , config = config.legends
+      , legends = \width ->
+          let legend bar =
+                { sample = Svg.square width (Internal.Bars.borderRadius config.bars) (Internal.Bars.fill bar.style) (Internal.Bars.border bar.style)
+                , label = bar.title
+                }
+          in List.map legend seriesProps
+      }
   in
-  container config system junk.html <|
-    Svg.svg attributes
-      [ Svg.defs [] (clipPath system :: Internal.Pattern.toDefs config.pattern)
-      , Svg.g [ Svg.Attributes.class "chart__grid" ] viewGrid
-      , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
-      , chartAreaPlatform config dataPointsAll system
-      , Svg.g [ Svg.Attributes.class "chart__groups" ] viewAllSeries
-      , Internal.Axis.viewHorizontal system intersection horizontalAxis
-      , Internal.Axis.viewVertical system intersection verticalAxis
-      , viewLegends
-      , Svg.g [ Svg.Attributes.class "chart__junk--above" ] (List.map (Utils.apply system) junk.above)
-      ]
+  Internal.Chart.view
+    { container = config.container
+    , events = config.events
+    , defs = Internal.Pattern.toDefs config.pattern
+    , grid = config.grid
+    , series = Svg.g [ Svg.Attributes.class "chart__groups" ] viewAllSeries
+    , intersection = intersection
+    , horizontalAxis = horizontalAxis
+    , verticalAxis = verticalAxis
+    , legends = viewLegends
+    , trends = Svg.text ""
+    , junk = Internal.Junk.getLayers { hoverMany = hoverMany, hoverOne = hoverOne } config.junk
+    }
+    dataPointsAll
+    system
 
 
 
 -- INTERNAL
-
-
-viewBoxAttribute : Coordinate.System -> Html.Attribute msg
-viewBoxAttribute { frame } =
-  Svg.Attributes.viewBox <|
-    "0 0 " ++ toString frame.size.width ++ " " ++ toString frame.size.height
-
-
-container : Config data msg -> Coordinate.System -> List (Coordinate.System -> Html.Html msg) -> Html.Html msg -> Html.Html msg
-container config system junkHtml plot  =
-  let
-    userAttributes =
-      Internal.Container.properties .attributesHtml config.container
-
-    sizeStyles =
-      Internal.Container.sizeStyles config.container system.frame.size.width system.frame.size.height
-
-    styles =
-      Html.Attributes.style <| ( "position", "relative" ) :: sizeStyles
-  in
-  Html.div (styles :: userAttributes) (plot :: List.map (Utils.apply system) junkHtml)
-
-
-chartAreaAttributes : Coordinate.System -> List (Svg.Attribute msg)
-chartAreaAttributes system =
-  [ Svg.Attributes.x <| toString system.frame.margin.left
-  , Svg.Attributes.y <| toString system.frame.margin.top
-  , Svg.Attributes.width <| toString (Coordinate.lengthX system)
-  , Svg.Attributes.height <| toString (Coordinate.lengthY system)
-  ]
-
-
-chartAreaPlatform : Config data msg -> List (Data.Data Data.BarChart data) -> Coordinate.System -> Svg.Svg msg
-chartAreaPlatform config data system =
-  let
-    attributes =
-      List.concat
-        [ [ Svg.Attributes.fill "transparent" ]
-        , chartAreaAttributes system
-        , Internal.Events.toChartAttributes data system config.events
-        ]
-  in
-  Svg.rect attributes []
-
-
-clipPath : Coordinate.System -> Svg.Svg msg
-clipPath system =
-  Svg.clipPath
-    [ Svg.Attributes.id (Utils.toChartAreaId system.id) ]
-    [ Svg.rect (chartAreaAttributes system) [] ]
-
-
-
--- INTERNAL / DATA
 
 
 toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> List (Series data) -> List data -> List (List (Data.Data Data.BarChart data))
