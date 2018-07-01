@@ -419,25 +419,24 @@ viewCustom config lines =
       toSystem config dataAll
 
     -- Junk
-    junkDefaults =
-      { hoverMany = \formatX formatY (Internal.Events.Found first) all ->
-          { withLine = True
-          , x = first.point.x
-          , title = formatX first.user
-          , values =
-              let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
-              List.map value all
-          }
-      , hoverOne = \(Internal.Events.Found datum) ->
-          { x = datum.point.x
-          , y = Just datum.point.y
-          , color = datum.color
-          , title = datum.label
-          , values =
-              [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
-              , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
-              ]
-          }
+    hoverMany formatX formatY (Internal.Events.Found first) all =
+      { withLine = True
+      , x = first.point.x
+      , title = formatX first.user
+      , values =
+          let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
+          List.map value all
+      }
+
+    hoverOne (Internal.Events.Found datum) =
+      { x = datum.point.x
+      , y = Just datum.point.y
+      , color = datum.color
+      , title = datum.label
+      , values =
+          [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
+          , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
+          ]
       }
 
     -- View
@@ -471,7 +470,7 @@ viewCustom config lines =
     , verticalAxis = config.y
     , legends = viewLegends
     , trends = Internal.Trend.view system config.trend config.line lines data
-    , junk = Internal.Junk.getLayers junkDefaults config.junk
+    , junk = Internal.Junk.getLayers { hoverMany = hoverMany, hoverOne = hoverOne } config.junk
     }
     dataAll
     system
