@@ -59,6 +59,7 @@ import Svg.Attributes as Attributes
 import Html
 import LineChart.Coordinate as Coordinate
 import LineChart.Events as Events
+import Internal.Events
 import Internal.Junk as Junk
 import Internal.Svg as Svg
 import Color
@@ -144,6 +145,7 @@ hoverOne hovered =
 
       Just hovered_ ->
         Junk.Config <| \defaults ->
+          let (Internal.Events.Found { point }) = hovered_ in
           { below = []
           , above = []
           , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
@@ -179,7 +181,8 @@ hoverMany hovered formatX formatY =
 
       first :: _ ->
         Junk.Config <| \defaults ->
-          { below = []
+          let (Internal.Events.Found { point }) = first in
+          { below = [ Svg.verticalGrid [] point.x ]
           , above = []
           , html  = [ \system -> Junk.viewHoverMany system (defaults.hoverMany formatX formatY first hovered) ]
           }

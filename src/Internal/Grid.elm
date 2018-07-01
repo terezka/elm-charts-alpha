@@ -7,6 +7,7 @@ import Svg
 import Svg.Attributes as Attributes
 import Internal.Svg as Svg
 import Internal.Colors as Colors
+import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
 import Internal.Axis.Ticks as Ticks
 import Color
@@ -90,5 +91,5 @@ viewLines system verticals horizontals width color =
     attributes =
       [ Attributes.strokeWidth (toString width), Attributes.stroke (Color.Convert.colorToCssRgba color) ]
   in
-  List.map (Svg.horizontalGrid system attributes) horizontals ++
-  List.map (Svg.verticalGrid system attributes) verticals
+  List.map (Svg.horizontalGrid attributes >> Utils.apply system) horizontals ++
+  List.map (Svg.verticalGrid attributes >> Utils.apply system) verticals

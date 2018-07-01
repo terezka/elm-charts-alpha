@@ -166,7 +166,6 @@ view config bars data =
 
     junk =
       config.junk
-        |> Internal.Junk.below [ Internal.Grid.view (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid ]
         |> Internal.Junk.getLayers junkDefaults
 
     -- Intersection
@@ -177,6 +176,9 @@ view config bars data =
         }
 
     -- View
+    viewGrid =
+      [ Internal.Grid.view (Internal.Axis.ticks horizontalAxis) (Internal.Axis.ticks verticalAxis) config.grid system ]
+
     viewSeries data =
       Svg.g [ Svg.Attributes.class "chart__group" ] <|
         List.map2 (Internal.Bars.viewSeries system config.orientation config.bars width) bars data
@@ -206,6 +208,7 @@ view config bars data =
   container config system junk.html <|
     Svg.svg attributes
       [ Svg.defs [] (clipPath system :: Internal.Pattern.toDefs config.pattern)
+      , Svg.g [ Svg.Attributes.class "chart__grid" ] viewGrid
       , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
       , chartAreaPlatform config dataPointsAll system
       , Svg.g [ Svg.Attributes.class "chart__groups" ] viewAllSeries

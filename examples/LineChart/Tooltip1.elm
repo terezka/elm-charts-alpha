@@ -72,8 +72,8 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" "" (Just << .weight)
-    , x = Axis.default 700 "Age" "" .age
+    { y = Axis.default 450 "Weight" "kg" (Just << .weight)
+    , x = Axis.default 700 "Age" "years" .age
     , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default

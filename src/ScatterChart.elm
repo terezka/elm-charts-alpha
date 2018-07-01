@@ -438,18 +438,19 @@ viewCustom config lines =
           , color = datum.color
           , title = datum.label
           , values =
-              [ ( Internal.Axis.title config.x, toString datum.point.x )
-              , ( Internal.Axis.title config.y, toString datum.point.y )
+              [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
+              , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
               ]
           }
       }
 
     junk =
-      config.junk
-        |> Internal.Junk.below [ Internal.Grid.view (Internal.Axis.ticks config.x) (Internal.Axis.ticks config.y) config.grid ]
-        |> Internal.Junk.getLayers junkDefaults
+      Internal.Junk.getLayers junkDefaults config.junk
 
     -- View
+    viewGrid =
+      [ Internal.Grid.view (Internal.Axis.ticks config.x) (Internal.Axis.ticks config.y) config.grid system ]
+
     viewLines =
       Internal.Group.view
         { system = system
@@ -480,6 +481,7 @@ viewCustom config lines =
   container config system junk.html <|
     Svg.svg attributes
       [ Svg.defs [] [ clipPath system ]
+      , Svg.g [ Svg.Attributes.class "chart__grid" ] viewGrid
       , Svg.g [ Svg.Attributes.class "chart__junk--below" ] (List.map (Utils.apply system) junk.below)
       , viewLines lines data
       , chartAreaPlatform config dataAll system

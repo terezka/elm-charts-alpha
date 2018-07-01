@@ -187,7 +187,7 @@ hoverGroup formatX formatY hovered =
             config =
               defaults.hoverMany formatX formatY hovered_
           in
-          { below = if config.withLine then [ \system -> Svg.verticalGrid system [] config.x ] else []
+          { below = if config.withLine then [ Svg.verticalGrid [] config.x ] else []
           , above = []
           , html  = [ \system -> Junk.viewHoverMany system config ]
           }

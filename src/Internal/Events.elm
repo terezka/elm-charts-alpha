@@ -2,7 +2,7 @@ module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
     , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
-    , Found(..), data
+    , Found(..), data, point
     , map, map2, map3
     -- INTERNAL
     , toChartAttributes
@@ -215,6 +215,12 @@ type Found chart data =
 data : Found chart data -> data
 data (Found data) =
   data.user
+
+
+{-| -}
+point : Found chart data -> Coordinate.Point
+point (Found data) =
+  data.point
 
 
 

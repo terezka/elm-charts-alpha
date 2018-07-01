@@ -157,8 +157,8 @@ rectangle system userAttributes x1 x2 y1 y2 =
 
 
 {-| -}
-horizontalGrid : Coordinate.System -> List (Attribute msg) -> Float -> Svg msg
-horizontalGrid system userAttributes y =
+horizontalGrid : List (Attribute msg) -> Float -> Coordinate.System -> Svg msg
+horizontalGrid userAttributes y system =
   let
     attributes =
       concat
@@ -170,8 +170,8 @@ horizontalGrid system userAttributes y =
 
 
 {-| -}
-verticalGrid : Coordinate.System -> List (Attribute msg) -> Float -> Svg msg
-verticalGrid system userAttributes x =
+verticalGrid : List (Attribute msg) -> Float -> Coordinate.System -> Svg msg
+verticalGrid userAttributes x system =
   let
     attributes =
       concat

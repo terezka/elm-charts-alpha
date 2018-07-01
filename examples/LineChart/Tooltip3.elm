@@ -34,7 +34,7 @@ main =
 
 
 type alias Model =
-    { hovered : List Info }
+    { hovered : List (Events.Found Info) }
 
 
 init : Model
@@ -47,7 +47,7 @@ init =
 
 
 type Msg
-  = Hover (List Info)
+  = Hover (List (Events.Found Info))
 
 
 update : Msg -> Model -> Model
@@ -71,19 +71,18 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" (Just << .weight)
-    , x = Axis.default 700 "Age" .age
+    { y = Axis.default 450 "Weight" "kg" (Just << .weight)
+    , x = Axis.default 700 "Age" "years" .age
     , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default
     , events = Events.hoverMany Hover
-    , junk =
-        Junk.hoverMany model.hovered formatX formatY
+    , junk = Junk.hoverMany model.hovered formatX formatY
     , grid = Grid.default
     , area = Area.default
     , line = Line.default
-    , dots = Dots.hoverMany model.hovered
+    , dots = Dots.hoverMany (List.map Events.data model.hovered)
     }
     [ LineChart.line Colors.pink Dots.triangle "Chuck" chuck
     , LineChart.line Colors.cyan Dots.circle "Bobby" bobby

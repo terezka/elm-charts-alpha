@@ -1,6 +1,6 @@
 module Internal.Axis exposing
   ( Config, default, custom, full, time, none, picky
-  , variable, pixels, range, ticks, title
+  , variable, pixels, range, ticks, title, unit
   , viewHorizontal, viewVertical
   )
 
@@ -168,6 +168,12 @@ title : Config value data msg -> String
 title (Config config) =
   let { title } = Title.config config.title in
   title
+
+
+{-| -}
+unit : Config value data msg -> String
+unit (Config config) =
+  config.unit
 
 
 
