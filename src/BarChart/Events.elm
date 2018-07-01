@@ -57,7 +57,7 @@ import BarChart.Coordinate as Coordinate
 
 -}
 type alias Config data msg =
-  Events.Config Data.BarChart data msg
+  Events.Config (Data.BarChart data) data msg
 
 
 {-| Adds no events.
@@ -160,7 +160,7 @@ custom =
 
 {-| -}
 type alias Event data msg =
-  Events.Event Data.BarChart data msg
+  Events.Event (Data.BarChart data) data msg
 
 
 {-| -}
@@ -241,7 +241,7 @@ This example gets you the data of the nearest dot to where you are hovering.
 
 -}
 type alias Decoder data msg =
-  Events.Decoder Data.BarChart data msg
+  Events.Decoder (Data.BarChart data) data msg
 
 
 {-| Get the SVG-space coordinates of the event.
@@ -303,7 +303,7 @@ getWithinX d =
 
 {-| -}
 type alias Found data =
-  Events.Found Data.BarChart data
+  Events.Found (Data.BarChart data) data
 
 
 {-| -}

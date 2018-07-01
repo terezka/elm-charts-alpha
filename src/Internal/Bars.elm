@@ -1,3 +1,4 @@
+
 module Internal.Bars
   exposing
     ( Config, default, custom
@@ -235,7 +236,7 @@ width length scale system (Config config) countOfSeries countOfData =
 
 
 {-| -}
-viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Series data -> Data.Data Data.BarChart data -> Svg.Svg msg
+viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Series data -> Data.BarChart data -> Svg.Svg msg
 viewSeries system orientation (Config config) width (Series series) datum =
   let
     viewBarWith toCommands toPoint toLabel =

@@ -224,7 +224,7 @@ view config bars data =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> List (Series data) -> List data -> List (List (Data.Data Data.BarChart data))
+toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> List (Series data) -> List data -> List (List (Data.BarChart data))
 toDataPoints config system countOfSeries countOfData width seriesAll data =
   let
     point =

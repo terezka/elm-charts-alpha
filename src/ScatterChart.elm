@@ -480,7 +480,7 @@ viewCustom config lines =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data Data.ScatterChart data))
+toDataPoints : Config data msg -> List (Group data) -> List (List (Data.ScatterChart data))
 toDataPoints config groups =
   let
     x = Internal.Axis.variable config.x
@@ -507,7 +507,7 @@ toDataPoints config groups =
   data
 
 
-toSystem : Config data msg -> List (Data.Data Data.ScatterChart data) -> Coordinate.System
+toSystem : Config data msg -> List (Data.ScatterChart data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container

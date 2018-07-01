@@ -153,7 +153,7 @@ type alias Arguments data =
 
 
 {-| -}
-viewForLines : Arguments data -> Data.Data Data.LineChart data -> Svg msg
+viewForLines : Arguments data -> Data.LineChart data -> Svg msg
 viewForLines arguments datum =
   let
     (Config config) =
@@ -166,7 +166,7 @@ viewForLines arguments datum =
 
 
 {-| -}
-viewForScatter : Arguments data -> Data.Data Data.ScatterChart data -> Svg msg
+viewForScatter : Arguments data -> Data.ScatterChart data -> Svg msg
 viewForScatter arguments datum =
   let
     (Config config) =

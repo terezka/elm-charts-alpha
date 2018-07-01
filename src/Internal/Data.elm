@@ -18,19 +18,34 @@ type alias Data chart data =
 
 
 {-| -}
-type alias BarChart =
-  {}
-
-
-{-| -}
-type alias LineChart =
-  { isReal : Bool
+type alias BarChart data =
+  { user : data
+  , point : Point
+  , seriesIndex : Int
+  , label : String
+  , color : Color.Color
   }
 
 
 {-| -}
-type alias ScatterChart =
+type alias LineChart data =
+  { isReal : Bool
+  , user : data
+  , point : Point
+  , seriesIndex : Int
+  , label : String
+  , color : Color.Color
+  }
+
+
+{-| -}
+type alias ScatterChart data =
   { isOutlier : Bool
+  , user : data
+  , point : Point
+  , seriesIndex : Int
+  , label : String
+  , color : Color.Color
   }
 
 

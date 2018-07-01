@@ -526,7 +526,7 @@ viewCustom config series =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> List (Series data) -> List (List (Data.Data Data.LineChart data))
+toDataPoints : Config data msg -> List (Series data) -> List (List (Data.LineChart data))
 toDataPoints config series =
   let
     x = Internal.Axis.variable config.x
@@ -565,7 +565,7 @@ toDataPoints config series =
     Internal.Area.Percentage _ -> normalize (stack data) -- TODO Not used
 
 
-stack : List (List (Data.Data Data.LineChart data)) -> List (List (Data.Data Data.LineChart data))
+stack : List (List (Data.LineChart data)) -> List (List (Data.LineChart data))
 stack dataset =
   let
     stackBelows dataset result =
@@ -580,7 +580,7 @@ stack dataset =
   List.reverse (stackBelows dataset [])
 
 
-addBelows : List (Data.Data Data.LineChart data) -> List (Data.Data Data.LineChart data) -> List (Data.Data Data.LineChart data)
+addBelows : List (Data.LineChart data) -> List (Data.LineChart data) -> List (Data.LineChart data)
 addBelows data dataBelow =
   let
     iterate datum0 data dataBelow result =
@@ -617,7 +617,7 @@ addBelows data dataBelow =
     iterate first rest dataBelow []
 
 
-normalize : List (List (Data.Data Data.LineChart data)) -> List (List (Data.Data Data.LineChart data))
+normalize : List (List (Data.LineChart data)) -> List (List (Data.LineChart data))
 normalize datasets =
   case datasets of
     highest :: belows ->
@@ -631,12 +631,12 @@ normalize datasets =
       datasets
 
 
-setY : Data.Data Data.LineChart data -> Float -> Data.Data Data.LineChart data
+setY : Data.LineChart data -> Float -> Data.LineChart data
 setY datum y =
   { datum | point = Data.Point datum.point.x y, isReal = False }
 
 
-toSystem : Config data msg -> List (Data.Data Data.LineChart data) -> Coordinate.System
+toSystem : Config data msg -> List (Data.LineChart data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container
