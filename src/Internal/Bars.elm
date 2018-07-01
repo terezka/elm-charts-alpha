@@ -7,7 +7,7 @@ module Internal.Bars
     , fill, border
     , isBar, isGroup
     , borderRadius
-    , seriesProps, variable
+    , seriesProps, variable, color, label
     , userWidth, toHorizontalBar, toVerticalBar
     --
     , width, viewSeries
@@ -116,6 +116,19 @@ series =
 seriesProps : Series data -> SeriesProps data
 seriesProps (Series config) =
   config
+
+
+{-| -}
+color : Series data -> Color.Color
+color (Series config) =
+  let (Style style) = config.style in
+  style.base.border
+
+
+{-| -}
+label : Series data -> String
+label (Series config) =
+  config.title
 
 
 {-| -}

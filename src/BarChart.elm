@@ -160,13 +160,37 @@ view config bars data =
 
     -- Junk
     junkDefaults =
-      { hoverMany = hoverMany config seriesProps
-      , hoverOne = hoverOne config system seriesProps config.independentAxis config.dependentAxis
+      { hoverMany = \formatX formatY (Internal.Events.Found hovered) ->
+          let value bar =
+                ( Internal.Bars.color bar
+                , Internal.Bars.label bar
+                , formatY (Internal.Bars.variable bar hovered.user)
+                )
+          in
+          { withLine = False
+          , x = hovered.point.x
+          , title = formatX hovered.user
+          , values = List.map value bars
+          }
+      , hoverOne = \(Internal.Events.Found hovered) ->
+          let
+            independent = Internal.Axis.Independent.config config.independentAxis -- v x
+            dependent = Internal.Axis.Dependent.config config.dependentAxis -- v y
+            title = Internal.Axis.Title.config >> .title
+          in
+          { x = hovered.point.x
+          , y = Just hovered.point.y
+          , color = hovered.color
+          , title = hovered.label
+          , values =
+              [ ( title independent.title, independent.label hovered.user )
+              , ( title dependent.title, toString hovered.point.y ++ dependent.unit )
+              ]
+          }
       }
 
     junk =
-      config.junk
-        |> Internal.Junk.getLayers junkDefaults
+      Internal.Junk.getLayers junkDefaults config.junk
 
     -- Intersection
     intersection =
@@ -292,7 +316,9 @@ toDataPoints config system countOfSeries countOfData width seriesAll data =
           dependent = Internal.Bars.variable series datum
       in
       { point = point independent dependent
-      , barIndex = seriesIndex -- TODO rename bar index
+      , barIndex = seriesIndex -- TODO rename series index
+      , color = Internal.Bars.color series
+      , label = Internal.Bars.label series
       , user = datum
       }
 
@@ -340,66 +366,6 @@ toSystem config xAxis yAxis countOfData seriesAll data =
   { system
   | x = Internal.Axis.Range.applyX (Internal.Axis.range xAxis) system
   , y = Internal.Axis.Range.applyY (Internal.Axis.range yAxis) system
-  }
-
-
-
--- INTERNAL / JUNK
-
-
-hoverMany
-  :  Config data msg
-  -> List (Internal.Bars.SeriesProps data)
-  -> (data -> String)
-  -> (Float -> String)
-  -> Internal.Events.Found Data.BarChart data
-  -> Internal.Junk.HoverMany
-hoverMany config bars formatX formatY (Internal.Events.Found hovered) =
-  let
-    value bar =
-      ( Internal.Bars.border bar.style
-      , bar.title
-      , formatY (bar.variable hovered.user)
-      )
-  in
-  { withLine = False
-  , x = hovered.point.x
-  , title = formatX hovered.user
-  , values = List.map value bars
-  }
-
-
-hoverOne
-  :  Config data msg
-  -> Coordinate.System
-  -> List (Internal.Bars.SeriesProps data)
-  -> Internal.Axis.Independent.Config data msg
-  -> Internal.Axis.Dependent.Config msg
-  -> Internal.Events.Found Data.BarChart data
-  -> Internal.Junk.HoverOne
-hoverOne config system bars independentSafe dependentSafe (Internal.Events.Found hovered) =
-  let
-    independent = Internal.Axis.Independent.config independentSafe -- v x
-    dependent = Internal.Axis.Dependent.config dependentSafe -- v y
-    title = Internal.Axis.Title.config >> .title
-    ticks = Internal.Axis.Ticks.ticks system.yData system.y dependent.ticks
-
-    ( header, color ) =
-      Array.fromList bars
-        |> Array.get hovered.barIndex
-        |> Maybe.map (\bar -> ( bar.title, Internal.Bars.border bar.style ))
-        |> Maybe.withDefault ( "", Colors.pink )
-
-    values =
-      [ ( title independent.title, independent.label hovered.user )
-      , ( title dependent.title, toString hovered.point.y ++ dependent.unit )
-      ]
-  in
-  { x = hovered.point.x
-  , y = Just hovered.point.y
-  , color = color
-  , title = header
-  , values = values
   }
 
 

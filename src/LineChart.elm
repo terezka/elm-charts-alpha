@@ -472,7 +472,7 @@ viewCustom config lines = -- TODO rename to series
           , x = first.point.x
           , title = formatX first.user
           , values =
-              let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
+              let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatY datum.user ) in
               List.map value all
           }
       , hoverOne = \(Internal.Events.Found datum) ->
