@@ -454,17 +454,14 @@ trying to visualize, it's best to leave it out!
 
 -}
 viewCustom : Config data msg -> List (Series data) -> Html.Html msg
-viewCustom config series = -- TODO rename to series
+viewCustom config series =
   let
-    -- Data
+    -- Data / System
     data = toDataPoints config series
     dataSafe = List.map (List.filter .isReal) data
     dataAll = List.concat data
     dataAllSafe = List.concat dataSafe
-
-    -- System
-    system =
-      toSystem config dataAllSafe
+    system = toSystem config dataAllSafe
 
     -- Junk
     hoverMany formatX formatY (Internal.Events.Found first) all =

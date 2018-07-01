@@ -239,7 +239,7 @@ toDataPoints config system countOfSeries countOfData width seriesAll data =
           dependent = Internal.Bars.variable series datum
       in
       { point = point independent dependent
-      , barIndex = seriesIndex -- TODO rename series index
+      , seriesIndex = seriesIndex -- TODO rename series index
       , color = Internal.Bars.color series
       , label = Internal.Bars.label series
       , user = datum

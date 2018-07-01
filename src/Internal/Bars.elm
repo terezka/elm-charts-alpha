@@ -8,7 +8,7 @@ module Internal.Bars
     , isBar, isGroup
     , borderRadius
     , seriesProps, variable, color, label
-    , userWidth, toHorizontalBar, toVerticalBar
+    , userWidth
     --
     , width, viewSeries
     )
@@ -199,7 +199,7 @@ border (Style style) =
 isBar : Maybe (Events.Found data) -> Int -> data -> Bool
 isBar found index datum =
   case found of
-    Just (Internal.Events.Found data) -> data.barIndex == index && data.user == datum
+    Just (Internal.Events.Found data) -> data.seriesIndex == index && data.user == datum
     Nothing -> False
 
 
@@ -231,6 +231,10 @@ width length scale system (Config config) countOfSeries countOfData =
   width
 
 
+
+-- VIEW
+
+
 {-| -}
 viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Series data -> Data.Data Data.BarChart data -> Svg.Svg msg
 viewSeries system orientation (Config config) width (Series series) datum =
@@ -243,7 +247,7 @@ viewSeries system orientation (Config config) width (Series series) datum =
         attributes =
           List.concat
             [ Utils.addIf series.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
-            , Colors.attributes (style.alternate datum.barIndex datum.user)
+            , Colors.attributes (style.alternate datum.seriesIndex datum.user)
             ]
       in
       Svg.g
@@ -258,39 +262,6 @@ viewSeries system orientation (Config config) width (Series series) datum =
     }
 
 
-
--- HORIZONTAL / CALCULATIONS
-
-
-toHorizontalBar : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> ( Float, Coordinate.Point )
-toHorizontalBar system userWidth totalOfGroups totalOfBars barIndex point =
-  let
-    offset =
-      toFloat barIndex - toFloat totalOfBars / 2
-
-    width =
-      horizontalMaxWidth system userWidth totalOfGroups totalOfBars
-
-    adjusted =
-      { y = point.y + width * offset -- + width / 2 for data point
-      , x = point.x
-      }
-  in
-  ( width, adjusted )
-
-
-horizontalMaxWidth : Coordinate.System -> Float -> Int -> Int -> Float
-horizontalMaxWidth system userWidth totalOfGroups totalOfBars =
-  let
-    maxWidth =
-      Coordinate.lengthY system / toFloat totalOfGroups - 5
-
-    width =
-      Basics.min maxWidth userWidth / toFloat totalOfBars
-  in
-  Coordinate.scaleDataY system width
-
-
 horizontalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label -> Svg.Svg msg
 horizontalLabel system width point label =
   let y = point.y - width / 2 -- move to middle
@@ -300,39 +271,6 @@ horizontalLabel system width point label =
   Junk.labelAt system point.x y xOffset yOffset "middle" Color.black label.text
 
 
-
--- VERTICAL / CALCULATIONS
-
-
-toVerticalBar : Coordinate.System -> Float -> Int -> Int -> Int -> Coordinate.Point -> ( Float, Coordinate.Point )
-toVerticalBar system userWidth totalOfGroups totalOfBars barIndex point =
-  let
-    offset =
-      toFloat barIndex - toFloat totalOfBars / 2
-
-    width =
-      verticalMaxWidth system userWidth totalOfGroups totalOfBars
-
-    adjusted =
-      { x = point.x + width * offset
-      , y = point.y
-      }
-  in
-  ( width, adjusted )
-
-
-verticalMaxWidth : Coordinate.System -> Float -> Int -> Int -> Float
-verticalMaxWidth system userWidth totalOfGroups totalOfBars =
-  let
-    maxWidth =
-      Coordinate.lengthX system / toFloat totalOfGroups - 5
-
-    width =
-      Basics.min maxWidth userWidth / toFloat totalOfBars
-  in
-  Coordinate.scaleDataX system width
-
-
 verticalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label -> Svg.Svg msg
 verticalLabel system width point label =
   let x = point.x + width / 2 -- move to middle
@@ -340,7 +278,3 @@ verticalLabel system width point label =
   in
   Junk.labelAt system x point.y label.xOffset yOffset "middle" Color.black label.text
 
-
-barOffset : Int -> Int -> Float
-barOffset index totalOfBars =
-  toFloat index - toFloat totalOfBars / 2

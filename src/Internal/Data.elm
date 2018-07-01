@@ -16,7 +16,7 @@ type alias Data chart data =
 
 {-| -}
 type alias BarChart =
-  { barIndex : Int
+  { seriesIndex : Int
   , label : String
   , color : Color.Color
   }
