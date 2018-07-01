@@ -480,34 +480,34 @@ viewCustom config lines =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data (Data.ScatterChart data) data))
+toDataPoints : Config data msg -> List (Group data) -> List (List (Data.Data Data.ScatterChart data))
 toDataPoints config groups =
   let
     x = Internal.Axis.variable config.x
     y = Internal.Axis.variable config.y
 
     data =
-      List.map toInternalData groups
+      List.indexedMap eachSerie groups
 
-    toInternalData group =
+    eachSerie seriesIndex group =
       let data = Internal.Group.data group
           isOutlier = Internal.Outliers.isOutlier config.outliers data
       in
-      List.map (addPoint group isOutlier) data
+      List.map (addPoint seriesIndex group isOutlier) data
 
-    addPoint group isOutlier datum =
+    addPoint seriesIndex group isOutlier datum =
       { user = datum
       , point = Data.Point (x datum) (y datum)
       , label = Internal.Group.label group
       , color = Internal.Group.colorBase group
-      , source = Internal.Group.data group
       , isOutlier = isOutlier datum
+      , seriesIndex = seriesIndex
       }
   in
   data
 
 
-toSystem : Config data msg -> List (Data.Data (Data.ScatterChart data) data) -> Coordinate.System
+toSystem : Config data msg -> List (Data.Data Data.ScatterChart data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container

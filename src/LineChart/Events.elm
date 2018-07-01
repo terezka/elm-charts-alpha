@@ -56,7 +56,7 @@ import LineChart.Coordinate as Coordinate
 
 -}
 type alias Config data msg =
-  Events.Config (Data.LineChart data) data msg
+  Events.Config Data.LineChart data msg
 
 
 {-| Adds no events.
@@ -157,7 +157,7 @@ custom =
 
 {-| -}
 type alias Event data msg =
-  Events.Event (Data.LineChart data) data msg
+  Events.Event Data.LineChart data msg
 
 
 {-| -}
@@ -238,7 +238,7 @@ This example gets you the data of the nearest dot to where you are hovering.
 
 -}
 type alias Decoder data msg =
-  Events.Decoder (Data.LineChart data) data msg
+  Events.Decoder Data.LineChart data msg
 
 
 {-| Get the SVG-space coordinates of the event.
@@ -291,7 +291,7 @@ getWithinX =
 
 {-| -}
 type alias Found data =
-  Events.Found (Data.LineChart data) data
+  Events.Found Data.LineChart data
 
 
 {-| -}

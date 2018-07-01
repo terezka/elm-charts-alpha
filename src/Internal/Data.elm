@@ -11,32 +11,26 @@ type alias Data chart data =
   { chart
   | user : data
   , point : Point
+  , seriesIndex : Int
+  , label : String
+  , color : Color.Color
   }
 
 
 {-| -}
 type alias BarChart =
-  { seriesIndex : Int
-  , label : String
-  , color : Color.Color
-  }
+  {}
 
 
 {-| -}
-type alias LineChart data =
+type alias LineChart =
   { isReal : Bool
-  , label : String
-  , color : Color.Color
-  , source : List data
   }
 
 
 {-| -}
-type alias ScatterChart data =
+type alias ScatterChart =
   { isOutlier : Bool
-  , label : String
-  , color : Color.Color
-  , source : List data
   }
 
 

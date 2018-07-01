@@ -194,7 +194,6 @@ border (Style style) =
   style.base.border
 
 
-
 {-| -}
 isBar : Maybe (Events.Found data) -> Int -> data -> Bool
 isBar found index datum =
