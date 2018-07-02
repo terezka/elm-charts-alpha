@@ -1,7 +1,7 @@
 module Internal.Axis.Independent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal, tick, config
+  , toNormal, tick, config, label
   )
 
 
@@ -11,6 +11,7 @@ import Internal.Axis.Range as Range
 import Internal.Axis.Line as AxisLine
 import Internal.Axis.Title as Title
 import Internal.Axis as Axis
+import Internal.Unit as Unit
 import Internal.Colors as Colors
 import Internal.Svg as Svg
 
@@ -63,6 +64,12 @@ tick (Config config) =
   config.tick
 
 
+{-| -}
+label : Config data msg -> data -> String
+label (Config config) =
+  config.label
+
+
 toNormal : List data -> Config data msg -> Axis.Config Float data msg
 toNormal data (Config config) =
   let
@@ -75,7 +82,7 @@ toNormal data (Config config) =
   in
   Axis.custom
     { title = config.title
-    , unit = ""
+    , unit = Unit.none
     , variable = \datum -> find datum (List.indexedMap (,) data)
     , pixels = config.pixels
     , range = config.range

@@ -6,7 +6,7 @@ module BarChart.Junk exposing
   , rectangle, circle
   , label, labelAt
   , withinChartArea
-  , hover, hoverAt
+  , hoverCustom
   )
 
 {-|
@@ -119,7 +119,7 @@ html =
 -}
 type alias Config data msg =
   Junk.Config
-    { hoverMany : (data -> String) -> (Float -> String) -> Events.Found data -> Junk.HoverMany
+    { hoverMany : Events.Found data -> Junk.HoverMany
     , hoverOne : Events.Found data -> Junk.HoverOne
     }
     msg
@@ -147,10 +147,7 @@ hoverOne hovered =
 
       Just hovered_ ->
         Junk.Config <| \defaults ->
-          { below = []
-          , above = []
-          , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
-          }
+          Junk.hoverOne (defaults.hoverOne hovered_)
 
 
 
@@ -175,22 +172,15 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip2.png?raw=true"></src>
 
 -}
-hoverGroup : (data -> String) -> (Float -> String) -> Maybe (Events.Found data) -> Config data msg
-hoverGroup formatX formatY hovered =
+hoverGroup : Maybe (Events.Found data) -> Config data msg
+hoverGroup hovered =
   case hovered of
       Nothing ->
         Junk.none
 
       Just hovered_ ->
         Junk.Config <| \defaults ->
-          let
-            config =
-              defaults.hoverMany formatX formatY hovered_
-          in
-          { below = if config.withLine then [ Svg.verticalGrid [] config.x ] else []
-          , above = []
-          , html  = [ \system -> Junk.viewHoverMany system config ]
-          }
+          Junk.hoverMany (defaults.hoverMany hovered_)
 
 
 {-| The layers where you can put your junk.
@@ -400,45 +390,15 @@ withinChartArea =
 -- HOVER VIEWS
 
 
-{-| Make the markup for a hover placed in the middle of the y-axis and at a given x-coordinate.
-
-Pass the hint x-coordinate, your styles and your internal view.
-
-    customJunk : Maybe Data -> Junk.Config Data msg
-    customJunk hovered =
-      Junk.custom <| \system ->
-        { below = []
-        , above = []
-        , html =
-            [ Junk.hover system hovered.x
-                [ ( "border-color", "red" ) ]
-                [ Html.text (toString hovered.y) ]
-            ]
-        }
-
- -}
-hover : Coordinate.System -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hover =
-  Junk.hover
+{-| -}
+hoverCustom :
+  { position : { x : Maybe Float, y : Maybe Float, offset : Float }
+  , styles : List ( String, String )
+  , content : List (Html.Html msg)
+  }
+  -> Coordinate.System
+  -> Html.Html msg
+hoverCustom =
+  Junk.hoverCustom
 
 
-{-| Make the markup for a hover placed at a given x- and y-coordinate.
-
-Pass the hint x- and y-coordinate, your styles and your internal view.
-
-    customJunk : Maybe Data -> Junk.Config Data msg
-    customJunk hovered =
-      Junk.custom <| \system ->
-        { below = []
-        , above = []
-        , html =
-            [ Junk.hoverAt system hovered.x system.y.max
-                [ ( "border-color", "red" ) ]
-                [ Html.text (toString hovered.y) ]
-            ]
-        }
-
--}
-hoverAt : Coordinate.System  -> Float -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hoverAt =
-  Junk.hoverAt

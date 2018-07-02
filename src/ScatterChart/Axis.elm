@@ -10,6 +10,7 @@ check out `Axis.Range` for an explanation!_
 -}
 
 
+import Internal.Unit as Unit
 import Internal.Axis as Axis
 import Internal.Axis.Title as Title
 import ScatterChart.Axis.Range as Range
@@ -46,7 +47,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example1.elm)._
 
 -}
-default : Int -> String -> String -> (data -> Float) -> Config data msg
+default : Int -> String -> Unit.Config -> (data -> Float) -> Config data msg
 default =
   Axis.default
 
@@ -64,7 +65,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example2.elm)._
 
 -}
-full : Int -> String -> String -> (data -> Float) -> Config data msg
+full : Int -> String -> Unit.Config -> (data -> Float) -> Config data msg
 full =
   Axis.full
 
@@ -82,7 +83,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example3.elm)._
 
 -}
-time : Int -> String -> String -> (data -> Float) -> Config data msg
+time : Int -> String -> Unit.Config -> (data -> Float) -> Config data msg
 time =
   Axis.time
 
@@ -106,7 +107,7 @@ ticks should go on the axis! If you need to customize ticks further, check out
 the `ticks` property in `Axis.custom`.
 
 -}
-picky : Int -> String -> String -> (data -> Float) -> List Float -> Config data msg
+picky : Int -> String -> Unit.Config -> (data -> Float) -> List Float -> Config data msg
 picky =
   Axis.picky
 
@@ -159,7 +160,7 @@ custom props =
 {-| -}
 type alias Properties data msg =
   { title : Title.Config msg
-  , unit : String
+  , unit : Unit.Config
   , variable : data -> Float
   , pixels : Int
   , range : Range.Config

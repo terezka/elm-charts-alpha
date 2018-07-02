@@ -2,8 +2,6 @@ module BarChart exposing (view, Config, Series, series, Style, solid, bordered, 
 
 {-| -}
 
-import Html
-import Html.Attributes
 import Svg
 import Svg.Attributes
 
@@ -17,6 +15,7 @@ import BarChart.Container as Container
 import BarChart.Orientation as Orientation
 import BarChart.Pattern as Pattern
 import BarChart.Bars as Bars
+import BarChart.Unit as Unit
 
 import Internal.Chart
 import Internal.Bars
@@ -29,10 +28,8 @@ import Internal.Axis.Intersection
 import Internal.Axis.Range
 import Internal.Axis.Title
 import Internal.Junk
-import Internal.Grid
 import Internal.Container
 import Internal.Pattern
-import Internal.Legends
 
 import Internal.Data as Data
 import Internal.Utils as Utils
@@ -155,16 +152,20 @@ view config bars data =
         }
 
     -- Junk
-    hoverMany formatX formatY (Internal.Events.Found hovered) =
-      let value bar =
+    hoverMany (Internal.Events.Found hovered) =
+      let independent = Internal.Axis.Independent.config config.independentAxis
+          title = Internal.Axis.Title.config >> .title
+
+          value bar =
             ( Internal.Bars.color bar
             , Internal.Bars.label bar
-            , formatY (Internal.Bars.variable bar hovered.user)
+            , Internal.Axis.Dependent.unit config.dependentAxis (Internal.Bars.variable bar hovered.user)
             )
       in
       { withLine = False
-      , x = hovered.point.x
-      , title = formatX hovered.user
+      , x = toFloat (round hovered.point.x)
+      , offset = 15 + Coordinate.scaleSvgX system (width * countOfSeries / 2)
+      , title = title independent.title ++ ": " ++ Internal.Axis.Independent.label config.independentAxis hovered.user
       , values = List.map value bars
       }
 
@@ -179,7 +180,7 @@ view config bars data =
       , title = hovered.label
       , values =
           [ ( title independent.title, independent.label hovered.user )
-          , ( title dependent.title, toString hovered.point.y ++ dependent.unit )
+          , ( title dependent.title, Internal.Axis.Dependent.unit config.dependentAxis hovered.point.y )
           ]
       }
 
@@ -299,7 +300,7 @@ toSystem config xAxis yAxis countOfData seriesAll data =
 defaultConfig : (data -> String) -> (data -> Float) -> Config data msg
 defaultConfig label toY =
   { independentAxis = AxisIndependent.default 700 "" label
-  , dependentAxis = AxisDependent.default 400 "" ""
+  , dependentAxis = AxisDependent.default 400 "" Unit.none
   , container = Container.default "bar-chart"
   , orientation = Orientation.default
   , legends = Legends.default

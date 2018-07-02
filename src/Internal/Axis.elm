@@ -8,6 +8,7 @@ module Internal.Axis exposing
 import Svg exposing (Svg, Attribute, g, text_, tspan, text)
 import Svg.Attributes as Attributes exposing (class, strokeWidth, stroke)
 import Internal.Coordinate as Coordinate exposing (..)
+import Internal.Unit as Unit
 import Internal.Colors as Colors
 import Internal.Data as Data
 import Internal.Axis.Range as Range
@@ -29,7 +30,7 @@ type Config value data msg =
 {-| -}
 type alias Properties value data msg =
   { title : Title.Config msg
-  , unit : String
+  , unit : Unit.Config
   , variable : data -> value
   , pixels : Int
   , range : Range.Config
@@ -39,7 +40,7 @@ type alias Properties value data msg =
 
 
 {-| -}
-default : Int -> String -> String -> (data -> value) -> Config value data msg
+default : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
 default pixels title unit variable =
   custom
     { title = Title.atDataMax 0 0 title
@@ -63,7 +64,7 @@ default pixels title unit variable =
 
 
 {-| -}
-full : Int -> String -> String -> (data -> value) -> Config value data msg
+full : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
 full pixels title unit variable =
   custom
     { title = Title.atAxisMax 0 0 title
@@ -83,7 +84,7 @@ full pixels title unit variable =
 
 
 {-| -}
-time : Int -> String -> String -> (data -> value) -> Config value data msg
+time : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
 time pixels title unit variable =
   custom
     { title = Title.atDataMax 0 0 title
@@ -106,7 +107,7 @@ time pixels title unit variable =
 
 
 {-| -} -- TODO should this exist??
-none : Int -> String -> (data -> value) ->  Config value data msg
+none : Int -> Unit.Config -> (data -> value) ->  Config value data msg
 none pixels unit variable =
   custom
     { title = Title.default ""
@@ -120,7 +121,7 @@ none pixels unit variable =
 
 
 {-| -}
-picky : Int -> String -> String -> (data -> value) -> List Float -> Config value data msg
+picky : Int -> String -> Unit.Config -> (data -> value) -> List Float -> Config value data msg
 picky pixels title unit variable ticks =
   custom
     { title = Title.atAxisMax 0 0 title
@@ -171,9 +172,9 @@ title (Config config) =
 
 
 {-| -}
-unit : Config value data msg -> String
+unit : Config value data msg -> Float -> String
 unit (Config config) =
-  config.unit
+  Unit.view config.unit
 
 
 

@@ -36,6 +36,7 @@ module ScatterChart exposing
 import Html
 import Svg
 
+import ScatterChart.Unit as Unit
 import ScatterChart.Junk as Junk
 import ScatterChart.Axis as Axis
 import ScatterChart.Junk as Junk
@@ -51,10 +52,10 @@ import ScatterChart.Outliers as Outliers
 import ScatterChart.Container as Container
 import ScatterChart.Axis.Intersection as Intersection
 
-import Internal.Chart
 import Internal.Axis
 import Internal.Junk
 import Internal.Dots
+import Internal.Chart
 import Internal.Group
 import Internal.Events
 import Internal.Container
@@ -419,13 +420,18 @@ viewCustom config lines =
       toSystem config dataAll
 
     -- Junk
-    hoverMany formatX formatY (Internal.Events.Found first) all =
+    hoverMany (Internal.Events.Found first) all =
       { withLine = True
       , x = first.point.x
-      , title = formatX first.user
+      , offset = 15
+      , title = Internal.Axis.title config.x ++ ": " ++ Internal.Axis.unit config.x first.point.x
       , values =
-          let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatX datum.user ) in
-          List.map value all
+          let value (Internal.Events.Found datum) =
+                ( datum.color
+                , datum.label
+                , Internal.Axis.unit config.y datum.point.y
+                )
+          in List.map value all
       }
 
     hoverOne (Internal.Events.Found datum) =
@@ -434,8 +440,8 @@ viewCustom config lines =
       , color = datum.color
       , title = datum.label
       , values =
-          [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
-          , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
+          [ ( Internal.Axis.title config.x, Internal.Axis.unit config.x datum.point.x  )
+          , ( Internal.Axis.title config.y, Internal.Axis.unit config.y datum.point.y )
           ]
       }
 
@@ -537,8 +543,8 @@ toSystem config data =
 
 defaultConfig : (data -> Float) -> (data -> Float) -> Config data msg
 defaultConfig toX toY =
-  { y = Axis.default 400 "" "" toY
-  , x = Axis.default 700 "" "" toX
+  { y = Axis.default 400 "" Unit.none toY
+  , x = Axis.default 700 "" Unit.none toX
   , container = Container.default "scatter-chart-1"
   , intersection = Intersection.default
   , outliers = Outliers.default

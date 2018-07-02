@@ -5,7 +5,7 @@ module LineChart.Junk exposing
   , rectangle, circle
   , label, labelAt
   , withinChartArea
-  , hover, hoverAt
+  , hoverCustom
   )
 
 {-|
@@ -49,7 +49,7 @@ _What is an axis-range? See the `Axis.Range` module._
 This is just regular html views! Nothing fancy - you can also make your own!
 Notice that you can override all the styles.
 
-@docs hover, hoverAt
+@docs hoverCustom
 
 
 -}
@@ -117,7 +117,7 @@ html =
 -}
 type alias Config data msg =
   Junk.Config
-    { hoverMany : (data -> String) -> (data -> String) -> Events.Found data -> List (Events.Found data) -> Junk.HoverMany
+    { hoverMany : Events.Found data -> List (Events.Found data) -> Junk.HoverMany
     , hoverOne : Events.Found data -> Junk.HoverOne
     }
     msg
@@ -145,11 +145,7 @@ hoverOne hovered =
 
       Just hovered_ ->
         Junk.Config <| \defaults ->
-          let (Internal.Events.Found { point }) = hovered_ in
-          { below = []
-          , above = []
-          , html  = [ \system -> Junk.viewHoverOne system (defaults.hoverOne hovered_) ]
-          }
+          Junk.hoverOne (defaults.hoverOne hovered_)
 
 
 {-| Draws the default tooltip for multiple hovered points.
@@ -173,19 +169,15 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 <img alt="Tooltip" width="540" src="https://github.com/terezka/line-charts/blob/master/images/tooltip2.png?raw=true"></src>
 
 -}
-hoverMany : List (Events.Found data) -> (data -> String) -> (data -> String) -> Config data msg
-hoverMany hovered formatX formatY =
+hoverMany : List (Events.Found data) -> Config data msg
+hoverMany hovered =
   case hovered of
       [] ->
         Junk.none
 
       first :: _ ->
         Junk.Config <| \defaults ->
-          let (Internal.Events.Found { point }) = first in
-          { below = [ Svg.verticalGrid [] point.x ]
-          , above = []
-          , html  = [ \system -> Junk.viewHoverMany system (defaults.hoverMany formatX formatY first hovered) ]
-          }
+          Junk.hoverMany (defaults.hoverMany first hovered)
 
 
 
@@ -381,45 +373,14 @@ withinChartArea =
 -- HOVER VIEWS
 
 
-{-| Make the markup for a hover placed in the middle of the y-axis and at a given x-coordinate.
+{-| -}
+hoverCustom :
+  { position : { x : Maybe Float, y : Maybe Float, offset : Float }
+  , styles : List ( String, String )
+  , content : List (Html.Html msg)
+  }
+  -> Coordinate.System
+  -> Html.Html msg
+hoverCustom =
+  Junk.hoverCustom
 
-Pass the hint x-coordinate, your styles and your internal view.
-
-    customJunk : Maybe Data -> Junk.Config Data msg
-    customJunk hovered =
-      Junk.custom <| \system ->
-        { below = []
-        , above = []
-        , html =
-            [ Junk.hover system hovered.x
-                [ ( "border-color", "red" ) ]
-                [ Html.text (toString hovered.y) ]
-            ]
-        }
-
- -}
-hover : Coordinate.System  -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hover =
-  Junk.hover
-
-
-{-| Make the markup for a hover placed at a given x- and y-coordinate.
-
-Pass the hint x- and y-coordinate, your styles and your internal view.
-
-    customJunk : Maybe Data -> Junk.Config Data msg
-    customJunk hovered =
-      Junk.custom <| \system ->
-        { below = []
-        , above = []
-        , html =
-            [ Junk.hoverAt system hovered.x system.y.max
-                [ ( "border-color", "red" ) ]
-                [ Html.text (toString hovered.y) ]
-            ]
-        }
-
--}
-hoverAt : Coordinate.System  -> Float -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hoverAt =
-  Junk.hoverAt

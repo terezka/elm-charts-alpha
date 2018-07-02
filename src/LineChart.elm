@@ -35,11 +35,10 @@ module LineChart exposing
 -}
 
 import Html
-import Html.Attributes
 import Svg
-import Svg.Attributes
 
 import LineChart.Junk as Junk
+import LineChart.Unit as Unit
 import LineChart.Area as Area
 import LineChart.Axis as Axis
 import LineChart.Dots as Dots
@@ -56,13 +55,10 @@ import Internal.Chart
 import Internal.Area
 import Internal.Axis
 import Internal.Junk
-import Internal.Grid
 import Internal.Line
 import Internal.Events
-import Internal.Legends
 import Internal.Container
 import Internal.Axis.Range
-import Internal.Axis.Title
 
 import Internal.Data as Data
 import Internal.Utils as Utils
@@ -464,12 +460,17 @@ viewCustom config series =
     system = toSystem config dataAllSafe
 
     -- Junk
-    hoverMany formatX formatY (Internal.Events.Found first) all =
+    hoverMany (Internal.Events.Found first) all =
       { withLine = True
       , x = first.point.x
-      , title = formatX first.user
+      , offset = 15
+      , title = Internal.Axis.title config.x ++ ": " ++ Internal.Axis.unit config.x first.point.x
       , values =
-          let value (Internal.Events.Found datum) = ( datum.color, datum.label, formatY datum.user )
+          let value (Internal.Events.Found datum) =
+                ( datum.color
+                , datum.label
+                , Internal.Axis.unit config.y datum.point.y
+                )
           in List.map value all
       }
 
@@ -479,8 +480,8 @@ viewCustom config series =
       , color = datum.color
       , title = datum.label
       , values =
-          [ ( Internal.Axis.title config.x, toString datum.point.x ++ " " ++ Internal.Axis.unit config.x )
-          , ( Internal.Axis.title config.y, toString datum.point.y ++ " " ++ Internal.Axis.unit config.y )
+          [ ( Internal.Axis.title config.x, Internal.Axis.unit config.x datum.point.x  )
+          , ( Internal.Axis.title config.y, Internal.Axis.unit config.y datum.point.y )
           ]
       }
 
@@ -671,8 +672,8 @@ toSystem config data =
 
 defaultConfig : (data -> Float) -> (data -> Float) -> Config data msg
 defaultConfig toX toY =
-  { x = Axis.default 700 "" "" toX
-  , y = Axis.default 400 "" "" (Just << toY)
+  { x = Axis.default 700 "" Unit.none toX
+  , y = Axis.default 400 "" Unit.none (Just << toY)
   , container = Container.default "line-chart-1"
   , interpolation = Interpolation.default
   , intersection = Intersection.default

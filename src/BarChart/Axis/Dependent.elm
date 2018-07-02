@@ -3,6 +3,7 @@ module BarChart.Axis.Dependent exposing
   )
 
 
+import Internal.Unit as Unit
 import Internal.Axis.Dependent as Dependent
 import Internal.Axis.Ticks as Ticks
 import Internal.Axis.Line as AxisLine
@@ -16,7 +17,7 @@ type alias Config msg =
 
 
 {-| -}
-default : Int -> String -> String -> Config msg
+default : Int -> String -> Unit.Config -> Config msg
 default =
   Dependent.default
 
@@ -30,7 +31,7 @@ custom =
 {-| -}
 type alias Properties msg =
   { title : Title.Config msg
-  , unit : String
+  , unit : Unit.Config
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg

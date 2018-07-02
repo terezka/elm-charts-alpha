@@ -7,6 +7,7 @@ import Svg exposing (Svg)
 import Html exposing (Html)
 import Html.Attributes
 import Internal.Coordinate as Coordinate
+import Internal.Svg as Svg
 import Color.Convert
 
 
@@ -73,28 +74,26 @@ type alias HoverOne =
   }
 
 
-viewHoverOne : Coordinate.System -> HoverOne -> Html.Html msg
-viewHoverOne system config =
+hoverOne : HoverOne -> Layers msg
+hoverOne config =
   let
-    y = Maybe.withDefault (middle .y system) config.y
-
     viewHeaderOne =
-        viewHeader [ viewColorLabel (Color.Convert.colorToCssRgba config.color) config.title ]
-
-    viewColorLabel color label =
-      Html.p
-        [ Html.Attributes.style
-            [ ( "margin", "0" )
-            , ( "color", color )
-            ]
-        ]
-        [ Html.text label ]
+      viewHeader [ viewRow config.color config.title ]
 
     viewValue ( label, value ) =
-      viewRow "inherit" label value
+      viewRow Color.black (label ++ ": " ++ value)
   in
-  hoverAt system config.x y [] <|
-    viewHeaderOne :: List.map viewValue config.values
+  { below = []
+  , above = []
+  , html =
+      [ hoverCustom
+          { position = { x = Just config.x, y = config.y, offset = 15 }
+          , styles = []
+          , content = viewHeaderOne :: List.map viewValue config.values
+          }
+      ]
+  }
+
 
 
 
@@ -103,20 +102,35 @@ viewHoverOne system config =
 
 type alias HoverMany =
   { withLine : Bool
+  , offset : Float
   , x : Float
   , title : String
   , values : List ( Color.Color, String, String )
   }
 
 
-viewHoverMany : Coordinate.System -> HoverMany -> Html.Html msg
-viewHoverMany system config =
+hoverMany : HoverMany -> Layers msg
+hoverMany config =
   let
     viewValue ( color, label, value ) =
-      viewRow (Color.Convert.colorToCssRgba color) label value
+      viewRow color (label ++ ": " ++ value)
+
+    viewLine =
+      if config.withLine
+        then [ Svg.verticalGrid [] config.x ]
+        else []
   in
-  hover system config.x [] <|
-    viewHeader [ Html.text config.title ] :: List.map viewValue config.values
+  { below = viewLine
+  , above = []
+  , html =
+      [ hoverCustom
+          { position = { x = Just config.x, y = Nothing, offset = config.offset }
+          , styles = []
+          , content = viewHeader [ Html.text config.title ] :: List.map viewValue config.values
+          }
+      ]
+  }
+
 
 
 standardStyles : List ( String, String )
@@ -142,55 +156,75 @@ viewHeader =
     ]
 
 
-viewRow : String -> String -> String -> Html.Html msg
-viewRow color label value =
+viewRow : Color.Color -> String -> Html.Html msg
+viewRow color label =
   Html.p
-    [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", color ) ] ]
-    [ Html.text (label ++ ": " ++ value) ]
+    [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", Color.Convert.colorToCssRgba color ) ] ]
+    [ Html.text label ]
 
 
 
 -- HOVER GENERAL
 
 
-{-| -}
-hover : Coordinate.System  -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hover system x styles =
+hoverCustom :
+  { position : { x : Maybe Float, y : Maybe Float, offset : Float }
+  , styles : List ( String, String )
+  , content : List (Html msg)
+  }
+  -> Coordinate.System
+  -> Html.Html msg
+hoverCustom config system =
   let
-    y = middle .y system
+    y = Maybe.withDefault (middle .y system) config.position.y
+    x = Maybe.withDefault (middle .x system) config.position.x
 
-    containerStyles =
-      [ if shouldFlip system x
-          then ( "transform", "translate(-100%, -50%)" )
-          else ( "transform", "translate(0, -50%)" )
-      ]
-      ++ styles
-  in
-  hoverAt system x y containerStyles
-
-
-{-| -}
-hoverAt : Coordinate.System -> Float -> Float -> List ( String, String ) -> List (Html.Html msg) -> Html.Html msg
-hoverAt system x y styles view =
-  let
-    space = if shouldFlip system x then -15 else 15
+    direction = if shouldFlip .x system x then -1 else 1
+    space = direction * config.position.offset
     xPercentage = (Coordinate.toSvgX system x + space) * 100 / system.frame.size.width
     yPercentage = (Coordinate.toSvgY system y)  * 100 / system.frame.size.height
+
+    transform =
+      case ( config.position.x, config.position.y ) of
+        ( Just _, Just _ ) ->
+          case ( shouldFlip .x system x, shouldFlip .y system y ) of
+            ( True, True ) ->
+              ( "transform", "translate(-100%, 0)" )
+
+            ( True, False ) ->
+              ( "transform", "translate(-100%, -100%)" )
+
+            ( False, True ) ->
+              ( "transform", "translate(0, 0)" )
+
+            ( False, False ) ->
+              ( "transform", "translate(0, -100%)" )
+
+        ( Just _, Nothing ) ->
+          if shouldFlip .x system x
+              then ( "transform", "translate(-100%, -50%)" )
+              else ( "transform", "translate(0, -50%)" )
+
+        ( Nothing, Just _ ) ->
+          if shouldFlip .y system y
+              then ( "transform", "translate(-50%, -100%)" )
+              else ( "transform", "translate(-50%, 0)" )
+
+        ( Nothing, Nothing ) ->
+          ( "transform", "translate(0, 0)" )
 
     posititonStyles =
       [ ( "left", toString xPercentage ++ "%" )
       , ( "top", toString yPercentage ++ "%" )
       , ( "margin-right", "-400px" )
       , ( "position", "absolute" )
-      , if shouldFlip system x
-          then ( "transform", "translateX(-100%)" )
-          else ( "transform", "translateX(0)" )
+      , transform
       ]
 
     containerStyles =
-      standardStyles ++ posititonStyles ++ styles
+      standardStyles ++ posititonStyles ++ config.styles
   in
-  Html.div [ Html.Attributes.style containerStyles ] view
+  Html.div [ Html.Attributes.style containerStyles ] config.content
 
 
 
@@ -203,7 +237,8 @@ middle r system =
   range.min + (range.max - range.min) / 2
 
 
-shouldFlip : Coordinate.System -> Float -> Bool
-shouldFlip system x =
-  x - system.x.min > system.x.max - x
+shouldFlip : (Coordinate.System -> Coordinate.Range) ->Coordinate.System ->  Float -> Bool
+shouldFlip r system n =
+  let range = r system in
+  n - range.min > range.max - n
 

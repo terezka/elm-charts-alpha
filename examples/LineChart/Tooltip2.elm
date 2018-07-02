@@ -16,6 +16,7 @@ import LineChart.Legends as Legends
 import LineChart.Line as Line
 import LineChart.Events as Events
 import LineChart.Grid as Grid
+import LineChart.Unit as Unit
 import LineChart.Legends as Legends
 import LineChart.Area as Area
 import Color
@@ -73,20 +74,22 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" "" (Just << .weight)
-    , x = Axis.default 700 "Age" "" .age
+    { y = Axis.default 450 "Weight" Unit.kilogram (Just << .weight)
+    , x = Axis.default 700 "Age" Unit.year .age
     , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , junk =
-        Junk.none
-          |> Junk.html
-              (case model.hovered of
+        let
+          html =
+            case model.hovered of
                 Just info -> [ tooltip (Events.data info) ]
                 Nothing   -> []
-              )
+        in
+        Junk.none
+          |> Junk.html html
     , grid = Grid.default
     , area = Area.default
     , line = Line.default
@@ -99,45 +102,25 @@ chart model =
 
 
 tooltip : Info -> Coordinate.System -> Html.Html msg
-tooltip info system =
+tooltip info =
   let
-    shouldFlip =
-      -- is point closer to the left or right side?
-      -- if closer to the right, flip tooltip
-      info.age - system.x.min > system.x.max - info.age
-
-    space = if shouldFlip then -15 else 15
-    xPosition = Coordinate.toSvgX system info.age + space
-    yPosition = Coordinate.toSvgY system info.weight
-
-    containerStyles =
-      [ ( "left", toString xPosition ++ "px" )
-      , ( "top", toString yPosition ++ "px" )
-      , ( "position", "absolute" )
-      , ( "padding", "5px" )
-      , ( "background", "rgba(247, 193, 255, 0.8)" )
-      , ( "border", "1px solid #51ff5f" )
-      , ( "pointer-events", "none" )
-      , if shouldFlip
-          then ( "transform", "translateX(-100%)" )
-          else ( "transform", "translateX(0)" )
-      ]
-
     viewValue ( label, value ) =
       Html.p
-        [ Html.Attributes.style valueStyles ]
-        [ Html.text <| label ++ " - " ++ toString value ]
-
-    valueStyles =
-      [ ( "margin", "3px" ) ]
-
-    valuesHtml =
-      List.map viewValue
-        [ ( "age", info.age )
-        , ( "weight", info.weight )
-        ]
+        [ Html.Attributes.style [ ( "margin", "3px" ) ] ]
+        [ Html.text (label ++ " - " ++ toString value) ]
   in
-  Html.div [ Html.Attributes.style containerStyles ] valuesHtml
+  Junk.hoverCustom
+    { position = { x = Just info.age, y = Just info.weight, offset = 15 }
+    , styles =
+        [ ( "background", "rgba(247, 193, 255, 0.8)" )
+        , ( "border", "1px solid #51ff5f" )
+        ]
+    , content =
+        List.map viewValue
+          [ ( "age", info.age )
+          , ( "weight", info.weight )
+          ]
+    }
 
 
 
@@ -157,7 +140,7 @@ alice =
   [ Info 10 34 1.34 0
   , Info 16 42 1.62 3000
   , Info 25 75 1.73 25000
-  , Info 43 83 1.75 40000
+  , Info 43 33 1.75 40000
   ]
 
 

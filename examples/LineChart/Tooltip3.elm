@@ -14,6 +14,7 @@ import LineChart.Axis as Axis
 import LineChart.Legends as Legends
 import LineChart.Line as Line
 import LineChart.Events as Events
+import LineChart.Unit as Unit
 import LineChart.Grid as Grid
 import LineChart.Legends as Legends
 import LineChart.Area as Area
@@ -71,14 +72,14 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" "kg" (Just << .weight)
-    , x = Axis.default 700 "Age" "years" .age
+    { y = Axis.default 450 "Weight" Unit.kilogram (Just << .weight)
+    , x = Axis.default 700 "Age" Unit.year .age
     , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default
     , events = Events.hoverMany Hover
-    , junk = Junk.hoverMany model.hovered formatX formatY
+    , junk = Junk.hoverMany model.hovered
     , grid = Grid.default
     , area = Area.default
     , line = Line.default
@@ -88,16 +89,6 @@ chart model =
     , LineChart.line Colors.cyan Dots.circle "Bobby" bobby
     , LineChart.line Colors.purple Dots.diamond "Alice" alice
     ]
-
-
-formatX : Info -> String
-formatX info =
-  "Age: " ++ toString info.age
-
-
-formatY : Info -> String
-formatY info =
-  toString info.weight ++ " kg"
 
 
 

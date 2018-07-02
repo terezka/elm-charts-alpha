@@ -14,6 +14,7 @@ import ScatterChart.Axis.Intersection as Intersection
 import ScatterChart.Axis as Axis
 import ScatterChart.Legends as Legends
 import ScatterChart.Group as Group
+import ScatterChart.Unit as Unit
 import ScatterChart.Events as Events
 import ScatterChart.Grid as Grid
 import ScatterChart.Trend as Trend
@@ -68,8 +69,8 @@ viewChart toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
     [ ScatterChart.viewCustom
-        { y = Axis.default 280 "y" "" toY
-        , x = Axis.default 280 "x" "" toX
+        { y = Axis.default 280 "y" Unit.none toY
+        , x = Axis.default 280 "x" Unit.none toX
         , container =
             Container.custom
               { attributesHtml = [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]

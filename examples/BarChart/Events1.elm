@@ -13,21 +13,12 @@ import BarChart.Events as Events
 import BarChart.Grid as Grid
 import BarChart.Bars as Bars
 import BarChart.Junk as Junk
+import BarChart.Unit as Unit
 import BarChart.Pattern as Pattern
 import Color
 
 
 
--- TODO
--- - add border width config?
--- - SVG clean up
--- - tooltip y position and arrow
--- - fix pattern border issue
--- - add unit config
--- - found type
--- - Swap axes?
--- - clean up title
--- - junk api
 
 
 main : Program Never Model Msg
@@ -83,13 +74,13 @@ chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "income" "$" -- TODO negative labels
+    , dependentAxis = DependentAxis.default 400 "income" Unit.dollar -- TODO negative labels
     , container = Container.default "bar-chart"
-    , orientation = Orientation.horizontal
+    , orientation = Orientation.default -- horizontal
     , legends = Legends.default
     , events = Events.hoverOne Hover
     , grid = Grid.none
-    , bars = Bars.custom (Bars.Properties Nothing 50 2) -- TODO set y on hover
+    , bars = Bars.custom (Bars.Properties Nothing 50 2)
     , junk = Junk.hoverOne model.hovering
     , pattern = Pattern.default
     }

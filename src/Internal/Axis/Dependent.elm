@@ -1,7 +1,7 @@
 module Internal.Axis.Dependent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal, config
+  , toNormal, config, unit
   )
 
 
@@ -13,6 +13,7 @@ import Internal.Axis.Range as Range
 import Internal.Axis.Line as AxisLine
 import Internal.Axis.Title as Title
 import Internal.Axis as Axis
+import Internal.Unit as Unit
 
 
 
@@ -24,7 +25,7 @@ type Config msg =
 {-| -}
 type alias Properties msg =
   { title : Title.Config msg
-  , unit : String
+  , unit : Unit.Config
   , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
@@ -33,7 +34,7 @@ type alias Properties msg =
 
 
 {-| -}
-default : Int -> String -> String -> Config msg
+default : Int -> String -> Unit.Config -> Config msg
 default pixels title unit =
   custom
     { title = Title.default title
@@ -58,6 +59,12 @@ default pixels title unit =
 custom : Properties msg -> Config msg
 custom =
   Config
+
+
+{-| -}
+unit : Config msg -> Float -> String
+unit (Config properties) =
+  Unit.view properties.unit
 
 
 {-| -}
