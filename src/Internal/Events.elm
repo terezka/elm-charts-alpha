@@ -1,7 +1,7 @@
 module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-    , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+    , Decoder, getSvg, getData, getNearest, getNearestX, getNearestY, getWithin, getWithinX
     , Found(..), data, point
     , map, map2, map3
     -- INTERNAL
@@ -17,6 +17,7 @@ import Svg.Events
 import Html.Events
 import Internal.Coordinate as Coordinate exposing (..)
 import Internal.Data as Data
+import Internal.Orientation as Orientation
 import Internal.Utils exposing (withFirst)
 import Json.Decode as Json
 
@@ -191,6 +192,18 @@ getNearestX =
 
 
 {-| -}
+getNearestY : Decoder chart data (List (Found chart data))
+getNearestY =
+  Decoder <| \points system searchedSvg ->
+    let
+      searched =
+        Coordinate.toData system searchedSvg
+    in
+    getNearestYHelp points system searched
+      |> List.map Found
+
+
+{-| -}
 getWithinX : Float -> Decoder chart data (List (Found chart data))
 getWithinX radius =
   Decoder <| \points system searchedSvg ->
@@ -274,6 +287,25 @@ getNearestXHelp points system searched =
           Just closest ->
               if closest.point.x == point.point.x then point :: allClosest
               else if distanceX_ closest.point > distanceX_ point.point then [ point ]
+              else allClosest
+
+          Nothing ->
+            [ point ]
+  in
+  List.foldl getClosest [] points
+
+
+getNearestYHelp : List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
+getNearestYHelp points system searched =
+  let
+      distanceY_ =
+          distanceY system searched
+
+      getClosest point allClosest =
+        case List.head allClosest of
+          Just closest ->
+              if closest.point.y == point.point.y then point :: allClosest
+              else if distanceY_ closest.point > distanceY_ point.point then [ point ]
               else allClosest
 
           Nothing ->

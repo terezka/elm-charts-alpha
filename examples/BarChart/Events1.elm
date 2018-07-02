@@ -82,12 +82,12 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
-    { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "income" "$" -- TODO negative labels
+    { independentAxis = IndependentAxis.default 400 "quarter" .label -- TODO customize label?
+    , dependentAxis = DependentAxis.default 700 "income" "$" -- TODO negative labels
     , container = Container.default "bar-chart"
     , orientation = Orientation.horizontal
     , legends = Legends.default
-    , events = Events.hoverOne Hover
+    , events = Events.hoverOneY Hover
     , grid = Grid.none
     , bars = Bars.custom (Bars.Properties Nothing 50 2) -- TODO set y on hover
     , junk = Junk.hoverOne model.hovering
