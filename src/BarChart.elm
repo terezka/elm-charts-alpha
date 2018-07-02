@@ -155,11 +155,18 @@ view config bars data =
     hoverMany (Internal.Events.Found hovered) =
       let independent = Internal.Axis.Independent.config config.independentAxis
           title = Internal.Axis.Title.config >> .title
+          offsetValue = width * countOfSeries / 2
 
-          position =
+          ( position, offset ) =
             Internal.Orientation.chooses config.orientation
-              { horizontal = { x = Nothing, y = Just (toFloat (round hovered.point.y)) }
-              , vertical = { x = Just (toFloat (round hovered.point.x)), y = Nothing }
+              { horizontal = 
+                  ( { x = Nothing, y = Just (toFloat (round hovered.point.y)) }
+                  , { x = 0, y = -15 - Coordinate.scaleSvgY system offsetValue } 
+                  )
+              , vertical = 
+                  ( { x = Just (toFloat (round hovered.point.x)), y = Nothing }
+                  , { x = 15 + Coordinate.scaleSvgX system offsetValue, y = 0 }
+                  )
               }
 
           value bar =
@@ -170,11 +177,7 @@ view config bars data =
       in
       { line = \_ -> Svg.text ""
       , position = position
-      , offset = 
-          Internal.Orientation.chooses config.orientation
-            { horizontal = { x = 0, y = -15 - Coordinate.scaleSvgY system (width * countOfSeries / 2) }
-            , vertical = { x = 15 + Coordinate.scaleSvgX system (width * countOfSeries / 2), y = 0 }
-            }
+      , offset = offset
       , title = title independent.title ++ ": " ++ Internal.Axis.Independent.label config.independentAxis hovered.user
       , values = List.map value bars
       }
@@ -184,18 +187,14 @@ view config bars data =
           dependent = Internal.Axis.Dependent.config config.dependentAxis
           title = Internal.Axis.Title.config >> .title
 
-          dependentValue =
+          ( dependentValue, offset ) =
             Internal.Orientation.chooses config.orientation
-              { horizontal = hovered.point.x
-              , vertical = hovered.point.y
+              { horizontal = (  hovered.point.x, { x = 0, y = -15 - Coordinate.scaleSvgY system (width / 2) } )
+              , vertical = ( hovered.point.y, { x = 15 + Coordinate.scaleSvgX system (width / 2), y = 0 } )
               }
       in
       { position = { x = Just hovered.point.x, y = Just hovered.point.y }
-      , offset = 
-          Internal.Orientation.chooses config.orientation
-            { horizontal = { x = 0, y = -15 - Coordinate.scaleSvgY system (width / 2) }
-            , vertical = { x = 15 + Coordinate.scaleSvgX system (width / 2), y = 0 }
-            }
+      , offset = offset
       , color = hovered.color
       , title = hovered.label
       , values =
