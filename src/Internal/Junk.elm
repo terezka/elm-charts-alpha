@@ -66,8 +66,8 @@ getLayers defaults (Config toLayers) =
 
 
 type alias HoverOne =
-  { x : Float
-  , y : Maybe Float
+  { position : { x : Maybe Float, y : Maybe Float }
+  , offset : { x : Float, y : Float }
   , color : Color.Color
   , title : String
   , values : List ( String, String )
@@ -87,7 +87,8 @@ hoverOne config =
   , above = []
   , html =
       [ hoverCustom
-          { position = { x = Just config.x, y = config.y, offset = 15 }
+          { position = config.position
+          , offset = config.offset
           , styles = []
           , content = viewHeaderOne :: List.map viewValue config.values
           }
@@ -96,35 +97,30 @@ hoverOne config =
 
 
 
-
 -- HOVER MANY
 
 
-type alias HoverMany =
-  { withLine : Bool
-  , offset : Float
-  , x : Float
+type alias HoverMany msg =
+  { line : Coordinate.System -> Svg.Svg msg 
+  , position : { x : Maybe Float, y : Maybe Float }
+  , offset : { x : Float, y : Float }
   , title : String
   , values : List ( Color.Color, String, String )
   }
 
 
-hoverMany : HoverMany -> Layers msg
+hoverMany : HoverMany msg -> Layers msg
 hoverMany config =
   let
     viewValue ( color, label, value ) =
       viewRow color (label ++ ": " ++ value)
-
-    viewLine =
-      if config.withLine
-        then [ Svg.verticalGrid [] config.x ]
-        else []
   in
-  { below = viewLine
+  { below = [ config.line ]
   , above = []
   , html =
       [ hoverCustom
-          { position = { x = Just config.x, y = Nothing, offset = config.offset }
+          { position = config.position
+          , offset = config.offset
           , styles = []
           , content = viewHeader [ Html.text config.title ] :: List.map viewValue config.values
           }
@@ -168,7 +164,8 @@ viewRow color label =
 
 
 hoverCustom :
-  { position : { x : Maybe Float, y : Maybe Float, offset : Float }
+  { position : { x : Maybe Float, y : Maybe Float }
+  , offset : { x : Float, y : Float }
   , styles : List ( String, String )
   , content : List (Html msg)
   }
@@ -179,10 +176,13 @@ hoverCustom config system =
     y = Maybe.withDefault (middle .y system) config.position.y
     x = Maybe.withDefault (middle .x system) config.position.x
 
-    direction = if shouldFlip .x system x then -1 else 1
-    space = direction * config.position.offset
-    xPercentage = (Coordinate.toSvgX system x + space) * 100 / system.frame.size.width
-    yPercentage = (Coordinate.toSvgY system y)  * 100 / system.frame.size.height
+    directionX = if shouldFlip .x system x then -1 else 1
+    directionY = if shouldFlip .y system y then -1 else 1
+    spaceX = directionX * config.offset.x
+    spaceY = directionY * config.offset.y
+
+    xPercentage = (Coordinate.toSvgX system x + spaceX) * 100 / system.frame.size.width
+    yPercentage = (Coordinate.toSvgY system y + spaceY)  * 100 / system.frame.size.height
 
     transform =
       case ( config.position.x, config.position.y ) of
@@ -207,8 +207,8 @@ hoverCustom config system =
 
         ( Nothing, Just _ ) ->
           if shouldFlip .y system y
-              then ( "transform", "translate(-50%, -100%)" )
-              else ( "transform", "translate(-50%, 0)" )
+              then ( "transform", "translate(-50%, 0)" )
+              else ( "transform", "translate(-50%, -100%)" )
 
         ( Nothing, Nothing ) ->
           ( "transform", "translate(0, 0)" )

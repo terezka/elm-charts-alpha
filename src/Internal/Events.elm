@@ -1,7 +1,7 @@
 module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-    , Decoder, getSvg, getData, getNearest, getNearestX, getNearestY, getWithin, getWithinX
+    , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
     , Found(..), data, point
     , map, map2, map3
     -- INTERNAL
@@ -46,7 +46,7 @@ custom =
 
 {-| -}
 type Event chart data msg
-  = Event Bool (List (Data.Data chart data) -> System -> Svg.Attribute msg)
+  = Event Bool (Orientation.Config -> List (Data.Data chart data) -> System -> Svg.Attribute msg)
 
 
 onClick : (a -> msg) -> Decoder chart data a -> Event chart data msg
@@ -75,24 +75,24 @@ onMouseUp =
 {-| -}
 onMouseLeave : msg -> Event chart data msg
 onMouseLeave msg =
-  Event False <| \_ _ ->
+  Event False <| \_ _ _ ->
     Svg.Events.on "mouseleave" (Json.succeed msg)
 
 
 {-| -}
 on : String -> (a -> msg) -> Decoder chart data a -> Event chart data msg
 on event toMsg decoder =
-  Event False <| \data system ->
-    Svg.Events.on event (toJsonDecoder data system (map toMsg decoder))
+  Event False <| \orientation data system ->
+    Svg.Events.on event (toJsonDecoder orientation data system (map toMsg decoder))
 
 
 {-| -}
 onWithOptions : String -> Options -> (a -> msg) -> Decoder chart data a -> Event chart data msg
 onWithOptions event options toMsg decoder =
-  Event options.catchOutsideChart <| \data system ->
+  Event options.catchOutsideChart <| \orientation data system ->
     Html.Events.onWithOptions event
       (Html.Events.Options options.stopPropagation options.preventDefault)
-      (toJsonDecoder data system (map toMsg decoder))
+      (toJsonDecoder orientation data system (map toMsg decoder))
 
 
 {-| -}
@@ -107,21 +107,21 @@ type alias Options =
 
 
 {-| -}
-toChartAttributes : List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
-toChartAttributes data system (Config events) =
+toChartAttributes : Orientation.Config -> List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
+toChartAttributes orientation data system (Config events) =
   let
     order (Event outside event) =
-      if outside then Nothing else Just (event data system)
+      if outside then Nothing else Just (event orientation data system)
   in
   List.filterMap order events
 
 
 {-| -}
-toContainerAttributes : List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
-toContainerAttributes data system (Config events) =
+toContainerAttributes : Orientation.Config -> List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
+toContainerAttributes orientation data system (Config events) =
   let
     order (Event outside event) =
-      if outside then Just (event data system) else Nothing
+      if outside then Just (event orientation data system) else Nothing
   in
   List.filterMap order events
 
@@ -132,27 +132,27 @@ toContainerAttributes data system (Config events) =
 
 {-| -}
 type Decoder chart data msg =
-  Decoder (List (Data.Data chart data) -> System -> Point -> msg)
+  Decoder (Orientation.Config -> List (Data.Data chart data) -> System -> Point -> msg)
 
 
 {-| -}
 getSvg : Decoder chart data Point
 getSvg =
-  Decoder <| \points system searched ->
+  Decoder <| \_ points system searched ->
     searched
 
 
 {-| -}
 getData : Decoder chart data Point
 getData =
-  Decoder <| \points system searchedSvg ->
+  Decoder <| \_ points system searchedSvg ->
     Coordinate.toData system searchedSvg
 
 
 {-| -}
 getNearest : Decoder chart data (Maybe (Found chart data))
 getNearest =
-  Decoder <| \points system searchedSvg ->
+  Decoder <| \_ points system searchedSvg ->
     let
       searched =
         Coordinate.toData system searchedSvg
@@ -164,7 +164,7 @@ getNearest =
 {-| -}
 getWithin : Float -> Decoder chart data (Maybe (Found chart data))
 getWithin radius =
-  Decoder <| \points system searchedSvg ->
+  Decoder <| \_ points system searchedSvg ->
     let
       searched =
         Coordinate.toData system searchedSvg
@@ -180,41 +180,32 @@ getWithin radius =
 
 
 {-| -}
-getNearestX : Decoder chart data (List (Found chart data))
-getNearestX =
-  Decoder <| \points system searchedSvg ->
+getNearestIndependent : Decoder chart data (List (Found chart data))
+getNearestIndependent =
+  Decoder <| \orientation points system searchedSvg ->
     let
       searched =
         Coordinate.toData system searchedSvg
     in
-    getNearestXHelp points system searched
+    getNearestIndependentHelp orientation points system searched
       |> List.map Found
 
 
 {-| -}
-getNearestY : Decoder chart data (List (Found chart data))
-getNearestY =
-  Decoder <| \points system searchedSvg ->
-    let
-      searched =
-        Coordinate.toData system searchedSvg
-    in
-    getNearestYHelp points system searched
-      |> List.map Found
-
-
-{-| -}
-getWithinX : Float -> Decoder chart data (List (Found chart data))
-getWithinX radius =
-  Decoder <| \points system searchedSvg ->
+getWithinIndependent : Float -> Decoder chart data (List (Found chart data))
+getWithinIndependent radius =
+  Decoder <| \orientation points system searchedSvg ->
     let
       searched =
         Coordinate.toData system searchedSvg
 
       keepIfEligible =
-          withinRadiusX system radius searched << .point
+        Orientation.chooses orientation
+          { horizontal = withinRadiusY system radius searched << .point
+          , vertical = withinRadiusX system radius searched << .point
+          }
     in
-    getNearestXHelp points system searched
+    getNearestIndependentHelp orientation points system searched
       |> List.filter keepIfEligible
       |> List.map Found
 
@@ -243,19 +234,19 @@ point (Found data) =
 {-| -}
 map : (a -> msg) -> Decoder chart data a -> Decoder chart data msg
 map f (Decoder a) =
-  Decoder <| \ps s p -> f (a ps s p)
+  Decoder <| \o ps s p -> f (a o ps s p)
 
 
 {-| -}
 map2 : (a -> b -> msg) -> Decoder chart data a -> Decoder chart data b -> Decoder chart data msg
 map2 f (Decoder a) (Decoder b) =
-  Decoder <| \ps s p -> f (a ps s p) (b ps s p)
+  Decoder <| \o ps s p -> f (a o ps s p) (b o ps s p)
 
 
 {-| -}
 map3 : (a -> b -> c -> msg) -> Decoder chart data a -> Decoder chart data b -> Decoder chart data c -> Decoder chart data msg
 map3 f (Decoder a) (Decoder b) (Decoder c) =
-  Decoder <| \ps s p -> f (a ps s p) (b ps s p) (c ps s p)
+  Decoder <| \o ps s p -> f (a o ps s p) (b o ps s p) (c o ps s p)
 
 
 
@@ -274,6 +265,14 @@ getNearestHelp points system searched =
             else point
   in
   withFirst points (List.foldl getClosest)
+
+
+getNearestIndependentHelp : Orientation.Config -> List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
+getNearestIndependentHelp orientation =
+  Orientation.chooses orientation
+    { horizontal = getNearestYHelp
+    , vertical = getNearestXHelp
+    }
 
 
 getNearestXHelp : List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
@@ -343,13 +342,18 @@ withinRadiusX system radius searched dot =
     distanceX system searched dot <= radius
 
 
+withinRadiusY : System -> Float -> Point -> Point -> Bool
+withinRadiusY system radius searched dot =
+    distanceY system searched dot <= radius
+
+
 
 -- DECODER
 
 
 {-| -}
-toJsonDecoder : List (Data.Data chart data) -> System -> Decoder chart data msg -> Json.Decoder msg
-toJsonDecoder data system (Decoder decoder) =
+toJsonDecoder : Orientation.Config -> List (Data.Data chart data) -> System -> Decoder chart data msg -> Json.Decoder msg
+toJsonDecoder orientation data system (Decoder decoder) =
   let
     handle mouseX mouseY { left, top, height, width } =
       let
@@ -374,7 +378,7 @@ toJsonDecoder data system (Decoder decoder) =
         x = (mouseX - left)
         y = (mouseY - top)
       in
-      decoder data newSystem <| Point x y
+      decoder orientation data newSystem <| Point x y
   in
   Json.map3 handle
     (Json.field "pageX" Json.float) -- TODO

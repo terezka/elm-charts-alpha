@@ -74,14 +74,14 @@ chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "income" Unit.dollar -- TODO negative labels
+    , dependentAxis = DependentAxis.default 700 "income" Unit.dollar -- TODO negative labels
     , container = Container.default "bar-chart"
     , orientation = Orientation.default -- horizontal
     , legends = Legends.default
-    , events = Events.hoverOneY Hover
+    , events = Events.hoverBar Hover
     , grid = Grid.none
-    , bars = Bars.custom (Bars.Properties Nothing 50 2)
-    , junk = Junk.hoverOne model.hovering
+    , bars = Bars.custom (Bars.Properties Nothing 100 2)
+    , junk = Junk.hoverGroup model.hovering
     , pattern = Pattern.default
     }
     [ indonesia model.hovering
@@ -98,7 +98,7 @@ indonesia hovering =
   BarChart.series
     { title = "Indonesia"
     , style =
-        BarChart.alternate (BarChart.isGroup hovering)
+        BarChart.alternate (BarChart.isBar hovering)
           (BarChart.bordered (Color.rgba 245 105 215 0.5) (Color.rgba 245 105 215 1))
           (BarChart.bordered (Color.rgba 245 105 215 0.7) (Color.rgba 245 105 215 1))
     , variable = .indonesia
@@ -111,7 +111,7 @@ malaysia hovering =
   BarChart.series
     { title = "Malaysia"
     , style =
-        BarChart.alternate (BarChart.isGroup hovering)
+        BarChart.alternate (BarChart.isBar hovering)
           (BarChart.bordered (Color.rgba 0 229 255 0.5) (Color.rgba 0 229 255 1))
           (BarChart.bordered (Color.rgba 0 229 255 0.7) (Color.rgba 0 229 255 1))
     , variable = .malaysia
@@ -124,7 +124,7 @@ vietnam hovering =
   BarChart.series
     { title = "Vietnam"
     , style =
-        BarChart.alternate (BarChart.isGroup hovering)
+        BarChart.alternate (BarChart.isBar hovering)
           (BarChart.bordered (Color.rgba 3 169 244 0.5) (Color.rgba 3 169 244 1))
           (BarChart.bordered (Color.rgba 3 169 244 0.7) (Color.rgba 3 169 244 1))
     , variable = .vietnam

@@ -1,7 +1,7 @@
 module BarChart.Events exposing
-  ( Config, default, hoverOne, hoverOneY, hoverGroup, click, custom
+  ( Config, default, hoverBar, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-  , Decoder, getSvg, getData, getNearest, getNearestX, getGroup, getWithin, getWithinX
+  , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
   , Found, data
   , map, map2, map3
   )
@@ -17,7 +17,7 @@ module BarChart.Events exposing
 @docs Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
 
 ## Decoders
-@docs Decoder, getSvg, getData, getNearest, getGroup, getWithin, getWithinX
+@docs Decoder, getSvg, getData, getNearest, getWithin, getWithinIndependent
 
 ### Maps
 
@@ -74,54 +74,21 @@ Pass a message taking the data of the data point hovered.
 
     eventsConfig : Events.Config Data Msg
     eventsConfig =
-      Events.hoverOne Hover
+      Events.hover Hover
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example1.elm)._
 
 -}  -- TODO add orientation information to fix horizontal hover
-hoverOne : (Maybe (Found data) -> msg) -> Config data msg
-hoverOne msg =
+hoverBar : (Maybe (Found data) -> msg) -> Config data msg
+hoverBar msg =
   custom
-    [ onMouseMove msg getNearestX
-    , on "touchstart" msg getNearestX
-    , on "touchmove" msg getNearestX
+    [ onMouseMove msg getNearestIndependent
+    , on "touchstart" msg getNearestIndependent
+    , on "touchmove" msg getNearestIndependent
     , onMouseLeave (msg Nothing)
     ]
 
-
-hoverOneY : (Maybe (Found data) -> msg) -> Config data msg
-hoverOneY msg =
-  custom
-    [ onMouseMove msg getNearestY
-    , on "touchstart" msg getNearestY
-    , on "touchmove" msg getNearestY
-    , onMouseLeave (msg Nothing)
-    ]
-
-
-{-| Sends a message when the mouse is within a 30 pixel distance of a
-x-coordinate with one or several dots on. Sends a `[]` when the mouse
-is not hovering an dots.
-
-Pass a message taking the data of the data points hovered.
-
-    eventsConfig : Events.Config Data Msg
-    eventsConfig =
-      Events.hoverGroup OnHoverMany
-
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Events/Example2.elm)._
-
--}
-hoverGroup : (Maybe (Found data) -> msg) -> Config data msg
-hoverGroup msg =
-  custom
-      [ onMouseMove msg getGroup
-      , on "touchstart" msg getGroup
-      , on "touchmove" msg getGroup
-      , onMouseLeave (msg Nothing)
-      ]
 
 
 {-| Sends a given message when clicking on a dot.
@@ -279,24 +246,9 @@ getNearest =
 {-| Get the data coordinates nearest to the event.
 Returns `Nothing` if you have no data showing.
 -}
-getNearestX : Decoder data (Maybe (Found data))
-getNearestX =
-  map List.head Events.getNearestX
-
-
-{-| Get the data coordinates nearest to the event.
-Returns `Nothing` if you have no data showing.
--}
-getNearestY : Decoder data (Maybe (Found data))
-getNearestY =
-  map List.head Events.getNearestY
-
-
-{-| Get the data coordinates horizontally nearest to the event.
--}
-getGroup : Decoder data (Maybe (Found data))
-getGroup =
-  Events.getNearest
+getNearestIndependent : Decoder data (Maybe (Found data))
+getNearestIndependent =
+  map List.head Events.getNearestIndependent
 
 
 {-| Finds the data coordinates horizontally nearest to the event, within the
@@ -309,10 +261,10 @@ getWithin d =
 
 {-| Finds the data coordinates horizontally nearest to the event, within the
 distance you provide in the first argument.
--}
-getWithinX : Float -> Decoder data (List data)
-getWithinX d =
-  map (List.map data) (Events.getWithinX d)
+-} -- TODO naming
+getWithinIndependent : Float -> Decoder data (List data)
+getWithinIndependent d =
+  map (List.map data) (Events.getWithinIndependent d)
 
 
 

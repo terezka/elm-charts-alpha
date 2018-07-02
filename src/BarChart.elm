@@ -156,15 +156,25 @@ view config bars data =
       let independent = Internal.Axis.Independent.config config.independentAxis
           title = Internal.Axis.Title.config >> .title
 
+          position =
+            Internal.Orientation.chooses config.orientation
+              { horizontal = { x = Nothing, y = Just (toFloat (round hovered.point.y)) }
+              , vertical = { x = Just (toFloat (round hovered.point.x)), y = Nothing }
+              }
+
           value bar =
             ( Internal.Bars.color bar
             , Internal.Bars.label bar
             , Internal.Axis.Dependent.unit config.dependentAxis (Internal.Bars.variable bar hovered.user)
             )
       in
-      { withLine = False
-      , x = toFloat (round hovered.point.x)
-      , offset = 15 + Coordinate.scaleSvgX system (width * countOfSeries / 2)
+      { line = \_ -> Svg.text ""
+      , position = position
+      , offset = 
+          Internal.Orientation.chooses config.orientation
+            { horizontal = { x = 0, y = -15 - Coordinate.scaleSvgY system (width * countOfSeries / 2) }
+            , vertical = { x = 15 + Coordinate.scaleSvgX system (width * countOfSeries / 2), y = 0 }
+            }
       , title = title independent.title ++ ": " ++ Internal.Axis.Independent.label config.independentAxis hovered.user
       , values = List.map value bars
       }
@@ -173,14 +183,24 @@ view config bars data =
       let independent = Internal.Axis.Independent.config config.independentAxis
           dependent = Internal.Axis.Dependent.config config.dependentAxis
           title = Internal.Axis.Title.config >> .title
+
+          dependentValue =
+            Internal.Orientation.chooses config.orientation
+              { horizontal = hovered.point.x
+              , vertical = hovered.point.y
+              }
       in
-      { x = hovered.point.x
-      , y = Just hovered.point.y
+      { position = { x = Just hovered.point.x, y = Just hovered.point.y }
+      , offset = 
+          Internal.Orientation.chooses config.orientation
+            { horizontal = { x = 0, y = -15 - Coordinate.scaleSvgY system (width / 2) }
+            , vertical = { x = 15 + Coordinate.scaleSvgX system (width / 2), y = 0 }
+            }
       , color = hovered.color
       , title = hovered.label
       , values =
           [ ( title independent.title, independent.label hovered.user )
-          , ( title dependent.title, Internal.Axis.Dependent.unit config.dependentAxis hovered.point.y )
+          , ( title dependent.title, Internal.Axis.Dependent.unit config.dependentAxis dependentValue )
           ]
       }
 
@@ -216,6 +236,7 @@ view config bars data =
     , legends = viewLegends
     , trends = Svg.text ""
     , junk = Internal.Junk.getLayers { hoverMany = hoverMany, hoverOne = hoverOne } config.junk
+    , orientation = config.orientation
     }
     dataPointsAll
     system

@@ -110,7 +110,8 @@ tooltip info =
         [ Html.text (label ++ " - " ++ toString value) ]
   in
   Junk.hoverCustom
-    { position = { x = Just info.age, y = Just info.weight, offset = 15 }
+    { position = { x = Just info.age, y = Just info.weight }
+    , offset = { x = 15, y = 0 }
     , styles =
         [ ( "background", "rgba(247, 193, 255, 0.8)" )
         , ( "border", "1px solid #51ff5f" )

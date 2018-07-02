@@ -4,6 +4,7 @@ module Internal.Chart exposing (Arguments, view)
 import Html
 import Svg
 import Svg.Attributes
+import Internal.Orientation
 import Internal.Coordinate
 import Internal.Container
 import Internal.Legends
@@ -31,6 +32,7 @@ type alias Arguments chart value data msg =
   , legends : Internal.Legends.Arguments msg
   , trends : Svg.Svg msg
   , junk : Internal.Junk.Layers msg
+  , orientation : Internal.Orientation.Config
   }
 
 
@@ -70,7 +72,7 @@ view args data system =
         let attributes =
               [ [ Svg.Attributes.fill "transparent" ]
               , chartSizeAndPosition
-              , Internal.Events.toChartAttributes data system args.events
+              , Internal.Events.toChartAttributes args.orientation data system args.events
               ]
         in Svg.rect (List.concat attributes) []
 
@@ -78,7 +80,7 @@ view args data system =
       innerContainer =
         let attributes =
               [ Internal.Container.properties .attributesSvg args.container
-              , Internal.Events.toContainerAttributes data system args.events
+              , Internal.Events.toContainerAttributes args.orientation data system args.events
               , [ Svg.Attributes.viewBox ("0 0 " ++ toString system.frame.size.width ++ " " ++ toString system.frame.size.height) ]
               ]
         in Svg.svg (List.concat attributes)

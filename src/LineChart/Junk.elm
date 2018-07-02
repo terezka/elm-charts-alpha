@@ -117,7 +117,7 @@ html =
 -}
 type alias Config data msg =
   Junk.Config
-    { hoverMany : Events.Found data -> List (Events.Found data) -> Junk.HoverMany
+    { hoverMany : Events.Found data -> List (Events.Found data) -> Junk.HoverMany msg
     , hoverOne : Events.Found data -> Junk.HoverOne
     }
     msg
@@ -375,7 +375,8 @@ withinChartArea =
 
 {-| -}
 hoverCustom :
-  { position : { x : Maybe Float, y : Maybe Float, offset : Float }
+  { position : { x : Maybe Float, y : Maybe Float }
+  , offset : { x : Float, y : Float }
   , styles : List ( String, String )
   , content : List (Html.Html msg)
   }

@@ -59,7 +59,9 @@ import Internal.Line
 import Internal.Events
 import Internal.Container
 import Internal.Axis.Range
+import Internal.Orientation
 
+import Internal.Svg as Svg
 import Internal.Data as Data
 import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
@@ -461,9 +463,9 @@ viewCustom config series =
 
     -- Junk
     hoverMany (Internal.Events.Found first) all =
-      { withLine = True
-      , x = first.point.x
-      , offset = 15
+      { line = Svg.verticalGrid [] first.point.x
+      , position = { x = Just first.point.x, y = Nothing }
+      , offset = { x = 15, y = 0 }
       , title = Internal.Axis.title config.x ++ ": " ++ Internal.Axis.unit config.x first.point.x
       , values =
           let value (Internal.Events.Found datum) =
@@ -475,8 +477,8 @@ viewCustom config series =
       }
 
     hoverOne (Internal.Events.Found datum) =
-      { x = datum.point.x
-      , y = Just datum.point.y
+      { position = { x = Just datum.point.x, y = Just datum.point.y }
+      , offset = { x = 15, y = 0 }
       , color = datum.color
       , title = datum.label
       , values =
@@ -518,6 +520,7 @@ viewCustom config series =
     , legends = viewLegends
     , trends = Svg.text ""
     , junk = Internal.Junk.getLayers { hoverMany = hoverMany, hoverOne = hoverOne } config.junk
+    , orientation = Internal.Orientation.Vertical
     }
     dataAll
     system

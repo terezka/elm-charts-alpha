@@ -275,7 +275,7 @@ getWithin =
 -}
 getNearestX : Decoder data (List (Found data))
 getNearestX =
-  Events.getNearestX
+  Events.getNearestIndependent
 
 
 {-| Finds the data coordinates horizontally nearest to the event, within the
@@ -283,7 +283,7 @@ distance you provide in the first argument.
 -}
 getWithinX : Float -> Decoder data (List (Found data))
 getWithinX =
-  Events.getWithinX
+  Events.getWithinIndependent
 
 
 -- DATA
