@@ -277,10 +277,7 @@ addPosition (Transfrom x y) (Transfrom xf yf) =
 {-| -}
 horizontalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
 horizontalBarCommands system borderRadius width { x, y }  =
-  let
-    w =
-      Coordinate.scaleSvgY system width - 1 -- TODO 1 = stroke width
-        |> Coordinate.scaleDataY system
+  let w = Coordinate.scaleDataY system (Coordinate.scaleSvgY system width - 1)
   in
   if borderRadius == 0 then
     [ Move <| Point 0 (y - w / 2)
@@ -289,17 +286,12 @@ horizontalBarCommands system borderRadius width { x, y }  =
     , Line <| Point 0 (y + w / 2)
     ]
   else
+    let b = toFloat borderRadius
+        rx = scaleDataX system b
+        ry = scaleDataY system b
+    in
     if x < 0 then
-      let
-        b =
-          toFloat borderRadius
-
-        rx =
-          scaleDataX system b
-
-        ry =
-          scaleDataY system b
-      in
+      
       [ Move <| Point 0 (y - w / 2)
       , Line <| Point (x + rx) (y - w / 2)
       , Arc b b -45 False True <| Point x (y - w / 2 + ry)
@@ -308,16 +300,6 @@ horizontalBarCommands system borderRadius width { x, y }  =
       , Line <| Point 0 (y + w / 2)
       ]
     else
-      let
-        b =
-          toFloat borderRadius
-
-        rx =
-          scaleDataX system b
-
-        ry =
-          scaleDataY system b
-      in
       [ Move <| Point 0 (y - w / 2)
       , Line <| Point (x - rx) (y - w / 2)
       , Arc b b -45 False False <| Point x (y  - w / 2 + ry)
@@ -330,10 +312,7 @@ horizontalBarCommands system borderRadius width { x, y }  =
 {-| -}
 verticalBarCommands : Coordinate.System -> Int -> Float -> Point -> List Command
 verticalBarCommands system borderRadius width { x, y }  =
-  let
-    w =
-      Coordinate.scaleSvgX system width - 1 -- TODO 1 = stroke width
-        |> Coordinate.scaleDataX system
+  let w = Coordinate.scaleDataX system (Coordinate.scaleSvgX system width - 1)
   in
   if borderRadius == 0 then
     [ Move <| Point (x - w / 2) 0
@@ -342,17 +321,12 @@ verticalBarCommands system borderRadius width { x, y }  =
     , Line <| Point (x + w / 2) 0
     ]
   else
+    let b = toFloat borderRadius
+        rx = scaleDataX system b
+        ry = scaleDataY system b
+    in
     if y < 0 then
-      let
-        b =
-          toFloat borderRadius
-
-        rx =
-          scaleDataX system b
-
-        ry =
-          scaleDataY system b
-      in
+      
       [ Move <| Point (x - w / 2) 0
       , Line <| Point (x - w / 2) (y + ry)
       , Arc b b -45 False False <| Point (x - w / 2 + rx) y
@@ -361,16 +335,6 @@ verticalBarCommands system borderRadius width { x, y }  =
       , Line <| Point (x + w / 2) 0
       ]
     else
-      let
-        b =
-          toFloat borderRadius
-
-        rx =
-          scaleDataX system b
-
-        ry =
-          scaleDataY system b
-      in
       [ Move <| Point (x - w / 2) 0
       , Line <| Point (x - w / 2) (y - ry)
       , Arc b b -45 False True <| Point (x - w / 2 + rx) y

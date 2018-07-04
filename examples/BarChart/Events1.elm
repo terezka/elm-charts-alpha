@@ -19,13 +19,12 @@ import Color
 
 
 -- TODO
--- - add border width config?
 -- - SVG clean up
 -- - tooltip arrow
 -- - fix pattern border issue
 -- - Swap axes?
--- - clean up dep and indep
 -- - Unit to plural
+-- - anchor api
 
 
 main : Program Never Model Msg
