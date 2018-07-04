@@ -355,7 +355,7 @@ labelAt : Float -> Float -> Float -> Float -> String -> Color.Color -> String ->
 labelAt x y xo yo anchor color text system =
   Svg.g
     [ transform [ move x y system, offset xo yo ]
-    , Attributes.style <| "text-anchor: " ++ anchor ++ ";"
+    , Attributes.style ("text-anchor: " ++ anchor ++ ";")
     ]
     [ label color text ]
 

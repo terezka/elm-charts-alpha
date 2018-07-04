@@ -210,7 +210,7 @@ viewHorizontalTitle at { title } system =
   in
   Svg.c "title" 
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset (xOffset + 15) (yOffset + 5) ]
-    , Svg.anchorStyle (Maybe.withDefault Svg.Start title.anchor)
+    , Svg.anchor (Maybe.withDefault Svg.Start title.anchor)
     ]
     [ title.view title.text ]
 
@@ -222,7 +222,7 @@ viewVerticalTitle at { title } system =
   in
   Svg.c "title"
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset (xOffset + 2) (yOffset - 10) ]
-    , Svg.anchorStyle (Maybe.withDefault Svg.End title.anchor)
+    , Svg.anchor (Maybe.withDefault Svg.End title.anchor)
     ]
     [ title.view title.text ]
 
@@ -288,7 +288,7 @@ viewHorizontalLabel { direction, length } position view system =
   in
   Svg.c "tick__label"
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset 0 yOffset ]
-    , Svg.anchorStyle Svg.Middle
+    , Svg.anchor Svg.Middle
     ]
     [ view ]
 
@@ -300,6 +300,6 @@ viewVerticalLabel { direction, length } position view system =
   in
   Svg.c "tick__label" 
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset xOffset 5 ]
-    , Svg.anchorStyle anchor
+    , Svg.anchor anchor
     ]
     [ view ]

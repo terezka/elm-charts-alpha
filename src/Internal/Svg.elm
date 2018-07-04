@@ -205,6 +205,7 @@ label color string =
     [ Svg.tspan [] [ Svg.text string ] ]
 
 
+
 -- ANCHOR
 
 
@@ -216,16 +217,15 @@ type Anchor
 
 
 {-| -}
-anchorStyle : Anchor -> Svg.Attribute msg
-anchorStyle anchor =
-  let
-    anchorString =
-      case anchor of
-        Start -> "start"
-        Middle -> "middle"
-        End -> "end"
+anchor : Anchor -> Svg.Attribute msg
+anchor anchor =
+  let anchorString =
+        case anchor of
+          Start -> "start"
+          Middle -> "middle"
+          End -> "end"
   in
-  Attributes.style <| "text-anchor: " ++ anchorString ++ ";"
+  Attributes.style ("text-anchor: " ++ anchorString ++ ";")
 
 
 
