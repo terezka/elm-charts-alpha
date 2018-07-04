@@ -1,6 +1,5 @@
 module Internal.Coordinate exposing
-  ( System, Frame, Size, Margin, Range
-  , size
+  ( System, Frame, Size, Margin, Range, frame
   , range, minimum, minimumOrZero, maximum, maximumOrZero
   , ground, reachX, reachY, lengthX, lengthY
   , smallestRange, largestRange
@@ -58,9 +57,12 @@ type alias Range =
   }
 
 
-size : Int -> Int -> Size 
-size w h =
-  Size (toFloat w) (toFloat h)
+frame : Margin -> Int -> Int -> Frame 
+frame margin w h =
+  { margin = margin
+  , size = Size (toFloat w) (toFloat h)
+  }
+
 
 
 -- HELPERS

@@ -645,8 +645,7 @@ toSystem config data =
   let
     container = Internal.Container.properties identity config.container
     hasArea = Internal.Area.hasArea config.area
-    size   = Coordinate.size (Internal.Axis.pixels config.x) (Internal.Axis.pixels config.y)
-    frame  = Coordinate.Frame container.margin size
+    frame  = Coordinate.frame container.margin container.size.width container.size.height
     xRange = Coordinate.range (.point >> .x) data
     yRange = Coordinate.range (.point >> .y) data
 
@@ -675,9 +674,9 @@ toSystem config data =
 
 defaultConfig : (data -> Float) -> (data -> Float) -> Config data msg
 defaultConfig toX toY =
-  { x = Axis.default 700 "" Unit.none toX
-  , y = Axis.default 400 "" Unit.none (Just << toY)
-  , container = Container.default "line-chart-1"
+  { x = Axis.default "" Unit.none toX
+  , y = Axis.default "" Unit.none (Just << toY)
+  , container = Container.default "line-chart-1" 700 400
   , interpolation = Interpolation.default
   , intersection = Intersection.default
   , legends = Legends.default

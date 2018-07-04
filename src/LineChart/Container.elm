@@ -1,7 +1,6 @@
 module LineChart.Container exposing
   ( Config, Properties, Size, Margin
   , default, spaced, styled, responsive, custom
-  , relative, static
   )
 
 {-|
@@ -12,7 +11,7 @@ module LineChart.Container exposing
 @docs custom, Properties, Margin
 
 ## Sizing
-@docs Size, relative, static
+@docs Size
 
 -}
 
@@ -22,9 +21,9 @@ import Internal.Container as Container
 
 
 
-{-| Use in the `LineChart.Config` passed to `LineChart.viewCustom`.
+{-| Use in the `BarChart.Config` passed to `BarChart.viewCustom`.
 
-    chartConfig : LineChart.Config Data Msg
+    chartConfig : BarChart.Config Data Msg
     chartConfig =
       { ...
       , conatiner = Container.default
@@ -43,7 +42,7 @@ Pass the id.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Container/Example1.elm)._
 
 -}
-default : String -> Config msg
+default : String -> Int -> Int -> Config msg
 default =
   Container.default
 
@@ -60,7 +59,7 @@ Pass the id and the top, right, bottom, and left margin respectivily.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Container/Example4.elm)._
 
 -}
-spaced : String -> Float -> Float -> Float -> Float -> Config msg
+spaced : String -> Int -> Int -> Float -> Float -> Float -> Float -> Config msg
 spaced =
   Container.spaced
 
@@ -78,7 +77,7 @@ we want to set the styles; but what if I want to set the margins AND the
 styles? If so, use `custom`!
 
 -}
-styled : String -> List ( String, String ) -> Config msg
+styled : String -> Int -> Int -> List ( String, String ) -> Config msg
 styled =
   Container.styled
 
@@ -90,7 +89,7 @@ Pass the id.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Container/Example2.elm)._
 
 -}
-responsive : String -> Config msg
+responsive : String -> Int -> Int -> Config msg
 responsive =
   Container.responsive
 
@@ -99,10 +98,16 @@ responsive =
 type alias Properties msg =
   { attributesHtml : List (Html.Attribute msg)
   , attributesSvg : List (Svg.Attribute msg)
+  , responsive : Bool
   , size : Container.Size
   , margin : Margin
   , id : String
   }
+
+
+{-| -}
+type alias Size =
+  Container.Size
 
 
 {-| -}
@@ -143,25 +148,3 @@ custom =
   Container.custom
 
 
-
--- SIZE
-
-
-{-| -}
-type alias Size =
-  Container.Size
-
-
-{-| Makes the chart size relative to it's container
--}
-relative : Size
-relative =
-  Container.relative
-
-
-{-| Makes the chart the exact number of pixels defined in your x and y axis
- configuration.
--}
-static : Size
-static =
-  Container.static

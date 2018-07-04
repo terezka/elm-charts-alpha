@@ -260,8 +260,7 @@ toSystem :  Config data msg -> Internal.Axis.Config Float data msg -> Internal.A
 toSystem config xAxis yAxis countOfData seriesAll data =
   let
     container = Internal.Container.properties identity config.container
-    size = Coordinate.size (Internal.Axis.pixels xAxis) (Internal.Axis.pixels yAxis)
-    frame = Coordinate.Frame container.margin size
+    frame = Coordinate.frame container.margin container.size.width container.size.height 
 
     value data = List.map (flip Internal.Bars.variable data) seriesAll
     values = List.concatMap value data
@@ -303,9 +302,9 @@ toSystem config xAxis yAxis countOfData seriesAll data =
 
 defaultConfig : (data -> String) -> (data -> Float) -> Config data msg
 defaultConfig label toY =
-  { independentAxis = AxisIndependent.default 700 "" label
-  , dependentAxis = AxisDependent.default 400 "" Unit.none
-  , container = Container.default "bar-chart"
+  { independentAxis = AxisIndependent.default "" label
+  , dependentAxis = AxisDependent.default "" Unit.none
+  , container = Container.default "bar-chart" 700 400
   , orientation = Orientation.default
   , legends = Legends.default
   , events = Events.default

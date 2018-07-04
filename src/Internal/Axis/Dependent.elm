@@ -28,7 +28,6 @@ type Config msg =
 type alias Properties msg =
   { title : Title.Config msg
   , unit : Unit.Config
-  , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
   , ticks : Ticks.Config msg
@@ -36,13 +35,12 @@ type alias Properties msg =
 
 
 {-| -}
-default : Int -> String -> Unit.Config -> Config msg
-default pixels title unit =
+default : String -> Unit.Config -> Config msg
+default title unit =
   custom
     { title = Title.default title
     , unit = unit
     , range = Range.default
-    , pixels = pixels
     , axisLine = AxisLine.default
     , ticks = Ticks.defaultFloat
     }
@@ -85,7 +83,6 @@ toNormal (Config config) data =
     { title = config.title
     , unit = config.unit
     , variable = variable >> toFloat
-    , pixels = config.pixels
     , range = config.range
     , axisLine = config.axisLine
     , ticks = config.ticks

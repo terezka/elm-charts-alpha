@@ -1,4 +1,4 @@
-module LineChart.Axis.Unit exposing (Config, Properties, none, year, dollar, millimeter, meter, kilometer, gram, kilogram, custom)
+module LineChart.Axis.Unit exposing (Config, Properties, none, years, dollars, millimeters, meters, kilometers, grams, kilograms, custom)
 
 
 {-| -}
@@ -17,45 +17,45 @@ none =
 
 
 {-| -}
-year : Config
-year =
-  Internal.Unit.year
+years : Config
+years =
+  Internal.Unit.years
 
 
 {-| -}
-dollar : Config
-dollar =
-  Internal.Unit.dollar
+dollars : Config
+dollars =
+  Internal.Unit.dollars
 
 
 {-| -}
-meter : Config
-meter =
-  Internal.Unit.meter
+meters : Config
+meters =
+  Internal.Unit.meters
 
 
 {-| -}
-millimeter : Config
-millimeter =
-  Internal.Unit.millimeter
+millimeters : Config
+millimeters =
+  Internal.Unit.millimeters
 
 
 {-| -}
-kilometer : Config
-kilometer =
-  Internal.Unit.kilometer
+kilometers : Config
+kilometers =
+  Internal.Unit.kilometers
 
 
 {-| -}
-gram : Config
-gram =
-  Internal.Unit.gram
+grams : Config
+grams =
+  Internal.Unit.grams
 
 
 {-| -}
-kilogram : Config
-kilogram =
-  Internal.Unit.kilogram
+kilograms : Config
+kilograms =
+  Internal.Unit.kilograms
 
 
 

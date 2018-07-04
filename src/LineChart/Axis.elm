@@ -47,7 +47,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example1.elm)._
 
 -}
-default : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
+default : String -> Unit.Config -> (data -> value) -> Config value data msg
 default =
   Axis.default
 
@@ -65,7 +65,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example2.elm)._
 
 -}
-full : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
+full : String -> Unit.Config -> (data -> value) -> Config value data msg
 full =
   Axis.full
 
@@ -83,7 +83,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example3.elm)._
 
 -}
-time : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
+time : String -> Unit.Config -> (data -> value) -> Config value data msg
 time =
   Axis.time
 
@@ -107,7 +107,7 @@ ticks should go on the axis! If you need to customize ticks further, check out
 the `ticks` property in `Axis.custom`.
 
 -}
-picky : Int -> String -> Unit.Config -> (data -> value) -> List Float -> Config value data msg
+picky : String -> Unit.Config -> (data -> value) -> List Float -> Config value data msg
 picky =
   Axis.picky
 
@@ -153,7 +153,6 @@ type alias Properties value data msg =
   { title : Title.Config msg
   , unit : Unit.Config
   , variable : data -> value
-  , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
   , ticks : Ticks.Config msg

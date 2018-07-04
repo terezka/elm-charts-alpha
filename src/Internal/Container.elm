@@ -1,7 +1,6 @@
 module Internal.Container exposing
   ( Config, Properties, Size, Margin
   , default, spaced, styled, responsive, custom
-  , relative, static
   , properties, styles
   )
 
@@ -23,6 +22,7 @@ type Config msg =
 type alias Properties msg =
   { attributesHtml : List (Html.Attribute msg)
   , attributesSvg : List (Svg.Attribute msg)
+  , responsive : Bool
   , size : Size
   , margin : Margin
   , id : String
@@ -30,9 +30,10 @@ type alias Properties msg =
 
 
 {-| -}
-type Size
-  = Static
-  | Relative
+type alias Size =
+  { width : Int
+  , height : Int
+  }
 
 
 {-| -}
@@ -45,42 +46,45 @@ type alias Margin =
 
 
 {-| -}
-default : String -> Config msg
-default id =
-  styled id []
+default : String -> Int -> Int -> Config msg
+default id width height =
+  styled id width height []
 
 
 {-| -}
-spaced : String -> Float -> Float -> Float -> Float -> Config msg
-spaced id top right bottom left =
+spaced : String -> Int -> Int -> Float -> Float -> Float -> Float -> Config msg
+spaced id width height top right bottom left =
   custom
     { attributesHtml = []
     , attributesSvg = []
-    , size = static
+    , responsive = False
+    , size = Size width height
     , margin = Margin top right bottom left
     , id = id
     }
 
 
 {-| -}
-styled : String -> List ( String, String ) -> Config msg
-styled id styles =
+styled : String -> Int -> Int -> List ( String, String ) -> Config msg
+styled id width height styles =
   custom
     { attributesHtml = [ Html.Attributes.style styles ]
     , attributesSvg = []
-    , size = static
+    , responsive = False
+    , size = Size width height
     , margin = Margin 60 140 60 80
     , id = id
     }
 
 
 {-| -}
-responsive : String -> Config msg
-responsive id =
+responsive : String -> Int -> Int -> Config msg
+responsive id width height =
   custom
     { attributesHtml = []
     , attributesSvg = []
-    , size = relative
+    , size = Size width height
+    , responsive = True
     , margin = Margin 60 140 60 80
     , id = id
     }
@@ -90,18 +94,6 @@ responsive id =
 custom : Properties msg -> Config msg
 custom =
   Config
-
-
-{-| -}
-relative : Size
-relative =
-  Relative
-
-
-{-| -}
-static : Size
-static =
-  Static
 
 
 
@@ -118,12 +110,11 @@ properties f (Config properties) =
 styles : Config msg -> Coordinate.System -> Html.Attribute msg
 styles (Config properties) system =
   Html.Attributes.style <|
-    case properties.size of
-      Static ->
-        [ ( "position", "relative" )
-        , ( "width", toString system.frame.size.width ++ "px" )
-        , ( "height", toString system.frame.size.height ++ "px" )
-        ]
+    if properties.responsive then
+      [ ( "position", "relative" ) ]
+    else
+      [ ( "position", "relative" )
+      , ( "width", toString system.frame.size.width ++ "px" )
+      , ( "height", toString system.frame.size.height ++ "px" )
+      ]
 
-      Relative ->
-        [ ( "position", "relative" ) ]

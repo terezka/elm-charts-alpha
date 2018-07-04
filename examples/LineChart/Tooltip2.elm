@@ -16,7 +16,7 @@ import LineChart.Legends as Legends
 import LineChart.Line as Line
 import LineChart.Events as Events
 import LineChart.Grid as Grid
-import LineChart.Unit as Unit
+import LineChart.Axis.Unit as Unit
 import LineChart.Legends as Legends
 import LineChart.Area as Area
 import Color
@@ -74,9 +74,9 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" Unit.kilogram (Just << .weight)
-    , x = Axis.default 700 "Age" Unit.year .age
-    , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
+    { y = Axis.default "Weight" Unit.kilograms (Just << .weight)
+    , x = Axis.default "Age" Unit.years .age
+    , container = Container.styled "line-chart-1" 700 450 [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default

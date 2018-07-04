@@ -1,6 +1,6 @@
 module Internal.Axis exposing
   ( Config, default, custom, full, time, picky
-  , variable, pixels, range, ticks, title, unit
+  , variable, range, ticks, title, unit
   , viewHorizontal, viewVertical
   )
 
@@ -32,7 +32,6 @@ type alias Properties value data msg =
   { title : Title.Config msg
   , unit : Unit.Config
   , variable : data -> value
-  , pixels : Int
   , range : Range.Config
   , axisLine : AxisLine.Config msg
   , ticks : Ticks.Config msg
@@ -40,13 +39,12 @@ type alias Properties value data msg =
 
 
 {-| -}
-default : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
-default pixels title unit variable =
+default : String -> Unit.Config -> (data -> value) -> Config value data msg
+default title unit variable =
   custom
     { title = Title.atDataMax 0 0 title
     , unit = unit
     , variable = variable
-    , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.rangeFrame Colors.gray
     , ticks = Ticks.defaultFloat
@@ -55,13 +53,12 @@ default pixels title unit variable =
 
 
 {-| -}
-full : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
-full pixels title unit variable =
+full : String -> Unit.Config -> (data -> value) -> Config value data msg
+full title unit variable =
   custom
     { title = Title.atAxisMax 0 0 title
     , unit = unit
     , variable = variable
-    , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
     , ticks = Ticks.full
@@ -69,13 +66,12 @@ full pixels title unit variable =
 
 
 {-| -}
-time : Int -> String -> Unit.Config -> (data -> value) -> Config value data msg
-time pixels title unit variable =
+time : String -> Unit.Config -> (data -> value) -> Config value data msg
+time title unit variable =
   custom
     { title = Title.atDataMax 0 0 title
     , unit = unit
     , variable = variable
-    , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.rangeFrame Colors.gray
     , ticks = Ticks.defaultTime
@@ -83,13 +79,12 @@ time pixels title unit variable =
 
 
 {-| -}
-picky : Int -> String -> Unit.Config -> (data -> value) -> List Float -> Config value data msg
-picky pixels title unit variable ticks =
+picky :  String -> Unit.Config -> (data -> value) -> List Float -> Config value data msg
+picky title unit variable ticks =
   custom
     { title = Title.atAxisMax 0 0 title
     , unit = unit
     , variable = variable
-    , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
     , ticks = 
@@ -108,12 +103,6 @@ custom =
 variable : Config value data msg -> (data -> value)
 variable (Config config) =
   config.variable
-
-
-{-| -}
-pixels : Config value data msg -> Int
-pixels (Config config) =
-  config.pixels
 
 
 {-| -}
@@ -154,11 +143,11 @@ type alias ViewConfig msg =
 
 
 {-| -}
-viewHorizontal : Coordinate.System -> Intersection.Config -> Config Float data msg -> Svg.Svg msg
-viewHorizontal system intersection (Config config) =
+viewHorizontal : Coordinate.System -> Int -> Intersection.Config -> Config Float data msg -> Svg.Svg msg
+viewHorizontal system pixels intersection (Config config) =
     let viewConfig =
           { line = AxisLine.config config.axisLine system.xData system.x
-          , ticks = Ticks.ticks config.pixels system.xData system.x config.ticks
+          , ticks = Ticks.ticks pixels system.xData system.x config.ticks
           , intersection = Intersection.getY intersection system
           , title = Title.config config.title
           }
@@ -177,11 +166,11 @@ viewHorizontal system intersection (Config config) =
 
 
 {-| -}
-viewVertical : Coordinate.System -> Intersection.Config -> Config value data msg -> Svg.Svg msg
-viewVertical system intersection (Config config) =
+viewVertical : Coordinate.System -> Int -> Intersection.Config -> Config value data msg -> Svg.Svg msg
+viewVertical system pixels intersection (Config config) =
     let viewConfig =
           { line = AxisLine.config config.axisLine system.yData system.y
-          , ticks = Ticks.ticks config.pixels system.yData system.y config.ticks
+          , ticks = Ticks.ticks pixels system.yData system.y config.ticks
           , intersection = Intersection.getX intersection system
           , title = Title.config config.title
           }

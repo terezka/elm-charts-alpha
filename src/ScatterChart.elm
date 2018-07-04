@@ -520,8 +520,7 @@ toSystem : Config data msg -> List (Data.ScatterChart data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container
-    size   = Coordinate.size (Internal.Axis.pixels config.x) (Internal.Axis.pixels config.y)
-    frame  = Coordinate.Frame container.margin size
+    frame  = Coordinate.frame container.margin container.size.width container.size.height
     xRange = Coordinate.range (.point >> .x) data
     yRange = Coordinate.range (.point >> .y) data
 
@@ -546,9 +545,9 @@ toSystem config data =
 
 defaultConfig : (data -> Float) -> (data -> Float) -> Config data msg
 defaultConfig toX toY =
-  { y = Axis.default 400 "" Unit.none toY
-  , x = Axis.default 700 "" Unit.none toX
-  , container = Container.default "scatter-chart-1"
+  { y = Axis.default "" Unit.none toY
+  , x = Axis.default "" Unit.none toX
+  , container = Container.default "scatter-chart-1" 700 400
   , intersection = Intersection.default
   , outliers = Outliers.default
   , legends = Legends.default

@@ -40,6 +40,7 @@ type alias Arguments chart value data msg =
 view : Arguments chart value data msg -> List (Internal.Data.Data chart data) -> Internal.Coordinate.System -> Html.Html msg
 view args data system =
   let withSystem = List.map (Internal.Utils.apply system)
+      size = Internal.Container.properties .size args.container
 
       -- Chart sizing and positioning
       chartSizeAndPosition =
@@ -62,14 +63,14 @@ view args data system =
         in Svg.defs [] (chartAreaCut :: args.defs)
 
       -- Chart components
-      horizontalAxis = Internal.Axis.viewHorizontal system args.intersection args.horizontalAxis
-      verticalAxis = Internal.Axis.viewVertical system args.intersection args.verticalAxis
+      horizontalAxis = Internal.Axis.viewHorizontal system size.width args.intersection args.horizontalAxis
+      verticalAxis = Internal.Axis.viewVertical system size.height args.intersection args.verticalAxis
       legends = Internal.Legends.view args.legends
       
       grid =
         Internal.Grid.view
-          { width = Internal.Axis.pixels args.horizontalAxis
-          , height = Internal.Axis.pixels args.verticalAxis
+          { width = size.width
+          , height = size.height
           , xTicks = Internal.Axis.ticks args.horizontalAxis
           , yTicks = Internal.Axis.ticks args.verticalAxis
           }

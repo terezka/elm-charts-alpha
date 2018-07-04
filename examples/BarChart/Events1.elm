@@ -20,10 +20,11 @@ import Color
 
 -- TODO
 -- tooltip arrow
+-- should pixels be defined elsewhere due to orientation switching?
 -- style api
 
 -- TODO / INTERNAL
--- collapse everything
+-- collapse everything <---
 -- SVG api
 -- review outliers
 
@@ -79,10 +80,10 @@ view model =
 
 chart : Model -> Html.Html Msg
 chart model =
-  BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
-    { independentAxis = IndependentAxis.default 700 "quarter" .label
-    , dependentAxis = DependentAxis.default 700 "income" Unit.dollars
-    , container = Container.default "bar-chart"
+  BarChart.view
+    { independentAxis = IndependentAxis.default "quarter" .label
+    , dependentAxis = DependentAxis.default "income" Unit.dollars
+    , container = Container.default "bar-chart" 700 400
     , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.hoverBar Hover
