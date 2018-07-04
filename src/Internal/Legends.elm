@@ -106,7 +106,7 @@ defaultLegends toX toY offsetX offsetY sampleWidth hovered system legends =
   Svg.g
     [ Attributes.class "chart__legends"
     , Svg.transform
-        [ Svg.move system (toX system.x) (toY system.y)
+        [ Svg.move (toX system.x) (toY system.y) system
         , Svg.offset offsetX offsetY
         ]
     ]

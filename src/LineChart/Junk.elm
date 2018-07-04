@@ -213,7 +213,7 @@ transform =
 
 {-| Moves in data-space.
 -}
-move : Coordinate.System -> Float -> Float -> Transfrom
+move : Float -> Float -> Coordinate.System -> Transfrom
 move =
   Svg.move
 
@@ -235,9 +235,9 @@ Pass the x-coordinate.
 
 **Note:** The line is truncated off if outside the chart area.
 -}
-vertical : Coordinate.System -> List (Svg.Attribute msg) -> Float -> Svg.Svg msg
-vertical system attributes at =
-  Svg.vertical system (withinChartArea system :: attributes) at system.y.min system.y.max
+vertical : List (Svg.Attribute msg) -> Float -> Coordinate.System -> Svg.Svg msg
+vertical attributes at system =
+  Svg.vertical (withinChartArea system :: attributes) at system.y.min system.y.max system
 
 
 {-| Draws a horizontal line which is the full length of the x-range.
@@ -246,9 +246,9 @@ Pass the y-coordinate.
 
 **Note:** The line is truncated off if outside the chart area.
 -}
-horizontal : Coordinate.System -> List (Svg.Attribute msg) -> Float -> Svg.Svg msg
-horizontal system attributes at =
-  Svg.horizontal system (withinChartArea system :: attributes) at system.x.min system.x.max
+horizontal : List (Svg.Attribute msg) -> Float -> Coordinate.System -> Svg.Svg msg
+horizontal attributes at system =
+  Svg.horizontal (withinChartArea system :: attributes) at system.x.min system.x.max system
 
 
 {-| Draws a vertical line.
@@ -257,9 +257,9 @@ Pass the x-, y1- and y2-coordinates, respectively.
 
 **Note:** The line is truncated off if outside the chart area.
 -}
-verticalCustom : Coordinate.System -> List (Svg.Attribute msg) -> Float -> Float -> Float -> Svg.Svg msg
-verticalCustom system attributes =
-  Svg.vertical system (withinChartArea system :: attributes)
+verticalCustom :  List (Svg.Attribute msg) -> Float -> Float -> Float -> Coordinate.System ->Svg.Svg msg
+verticalCustom attributes x y1 y2 system =
+  Svg.vertical (withinChartArea system :: attributes) x y1 y2 system
 
 
 {-| Draws a horizontal line.
@@ -268,9 +268,9 @@ Pass the  y-, x1- and x2-coordinates, respectively.
 
 **Note:** The line is truncated off if outside the chart area.
 -}
-horizontalCustom : Coordinate.System -> List (Svg.Attribute msg) -> Float -> Float ->  Float -> Svg.Svg msg
-horizontalCustom system attributes =
-  Svg.horizontal system (withinChartArea system :: attributes)
+horizontalCustom : List (Svg.Attribute msg) -> Float -> Float ->  Float -> Coordinate.System -> Svg.Svg msg
+horizontalCustom attributes y x1 x2 system =
+  Svg.horizontal (withinChartArea system :: attributes) y x1 x2 system
 
 
 {-| Draws a rectangle. This can be used for grid bands and highlighting a
@@ -285,17 +285,17 @@ range e.g. for selection.
 **Note:** The rectangle is truncated off if outside the chart area.
 
 -}
-rectangle : Coordinate.System -> List (Svg.Attribute msg) -> Float -> Float -> Float -> Float -> Svg.Svg msg
-rectangle system attributes =
-  Svg.rectangle system (withinChartArea system :: attributes)
+rectangle : List (Svg.Attribute msg) -> Float -> Float -> Float -> Float -> Coordinate.System -> Svg.Svg msg
+rectangle attributes x1 x2 y1 y2 system =
+  Svg.rectangle (withinChartArea system :: attributes) x1 x2 y1 y2 system
 
 
 {-| Draws a circle. Pass the system, radius, color and x- and y-coordinates respectively.
 
 -}
-circle : Coordinate.System -> Float -> Color.Color -> Float -> Float -> Svg.Svg msg
-circle system radius color x y =
-  Svg.gridDot radius color <| Coordinate.toSvg system (Coordinate.Point x y)
+circle : Float -> Color.Color -> Float -> Float -> Coordinate.System -> Svg.Svg msg
+circle radius color x y system =
+  Svg.circle_ radius color <| Coordinate.toSvg system (Coordinate.Point x y)
 
 
 {-| Place a list of elements on a given spot.
@@ -309,9 +309,9 @@ Arguments:
   6. The list of elements
 
 -}
-placed : Coordinate.System -> Float -> Float -> Float -> Float -> List (Svg.Svg msg) -> Svg.Svg msg
-placed system x y xo yo =
-  Svg.g [ transform [ move system x y, offset xo yo ] ]
+placed : Float -> Float -> Float -> Float -> List (Svg.Svg msg) -> Coordinate.System -> Svg.Svg msg
+placed x y xo yo children system =
+  Svg.g [ transform [ move x y system, offset xo yo ] ] children
 
 
 
@@ -351,11 +351,11 @@ Arguments:
         , html = []
         }
 
--}
-labelAt : Coordinate.System -> Float -> Float -> Float -> Float -> String -> Color.Color -> String -> Svg.Svg msg
-labelAt system x y xo yo anchor color text =
+-} -- TODO add anchor type
+labelAt : Float -> Float -> Float -> Float -> String -> Color.Color -> String -> Coordinate.System -> Svg.Svg msg
+labelAt x y xo yo anchor color text system =
   Svg.g
-    [ transform [ move system x y, offset xo yo ]
+    [ transform [ move x y system, offset xo yo ]
     , Attributes.style <| "text-anchor: " ++ anchor ++ ";"
     ]
     [ label color text ]
@@ -384,4 +384,5 @@ hoverCustom :
   -> Html.Html msg
 hoverCustom =
   Junk.hoverCustom
+
 

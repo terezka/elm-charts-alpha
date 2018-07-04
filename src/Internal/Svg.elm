@@ -1,18 +1,4 @@
-module Internal.Svg exposing
-  ( none
-  , gridDot
-  , horizontal, vertical
-  , square
-  , rectangle
-  , horizontalGrid, verticalGrid
-  , xTick, yTick
-  , label
-  , Anchor(..), anchorStyle
-  , Transfrom, transform, move, offset
-  , withinChartArea
-  , horizontalBarCommands
-  , verticalBarCommands
-  )
+module Internal.Svg exposing (..)
 
 {-| -}
 
@@ -26,13 +12,16 @@ import Color
 import Color.Convert
 
 
--- NONE
-
-
 {-| -}
 none : Svg msg
 none =
   Svg.text ""
+
+
+{-| -}
+c : String -> List (Svg.Attribute msg) -> List (Svg msg) -> Svg msg
+c name attributes =
+  Svg.g (Attributes.class ("chart__" ++ name) :: attributes)
 
 
 
@@ -65,12 +54,13 @@ square width radius fill border =
     []
 
 
--- DOT
+
+-- CIRCLE
 
 
 {-| -}
-gridDot : Float -> Color.Color -> Point -> Svg msg
-gridDot radius color point =
+circle_ : Float -> Color.Color -> Point -> Svg msg
+circle_ radius color point =
   Svg.circle
     [ Attributes.cx (toString point.x)
     , Attributes.cy (toString point.y)
@@ -85,8 +75,8 @@ gridDot radius color point =
 
 
 {-| -}
-horizontal : Coordinate.System -> List (Attribute msg) -> Float -> Float -> Float -> Svg msg
-horizontal system userAttributes y x1 x2 =
+horizontal : List (Attribute msg) -> Float -> Float -> Float -> Coordinate.System -> Svg msg
+horizontal userAttributes y x1 x2 system =
   let
     attributes =
       concat
@@ -102,8 +92,8 @@ horizontal system userAttributes y x1 x2 =
 
 
 {-| -}
-vertical : Coordinate.System -> List (Attribute msg) -> Float -> Float -> Float -> Svg msg
-vertical system userAttributes x y1 y2 =
+vertical : List (Attribute msg) -> Float -> Float -> Float -> Coordinate.System -> Svg msg
+vertical userAttributes x y1 y2 system =
   let
     attributes =
       concat
@@ -119,8 +109,8 @@ vertical system userAttributes x y1 y2 =
 
 
 {-| -}
-rectangle : Coordinate.System -> List (Attribute msg) -> Float -> Float -> Float -> Float -> Svg msg
-rectangle system userAttributes x1 x2 y1 y2 =
+rectangle : List (Attribute msg) -> Float -> Float -> Float -> Float -> Coordinate.System -> Svg msg
+rectangle userAttributes x1 x2 y1 y2 system =
   let
     attributes =
       concat
@@ -145,7 +135,7 @@ horizontalGrid userAttributes y system =
         , Attributes.style "pointer-events: none;"
         ] userAttributes []
   in
-  horizontal system attributes y system.x.min system.x.max
+  horizontal attributes y system.x.min system.x.max system
 
 
 {-| -}
@@ -158,7 +148,7 @@ verticalGrid userAttributes x system =
         , Attributes.style "pointer-events: none;"
         ] userAttributes []
   in
-  vertical system attributes x system.y.min system.y.max
+  vertical attributes x system.y.min system.y.max system
 
 
 
@@ -166,8 +156,8 @@ verticalGrid userAttributes x system =
 
 
 {-| -}
-xTick : Coordinate.System -> Float -> List (Attribute msg) -> Float -> Float -> Svg msg
-xTick system height userAttributes y x =
+xTick : Float -> List (Attribute msg) -> Float -> Float -> Coordinate.System -> Svg msg
+xTick height userAttributes y x system =
   let
     attributes =
       concat
@@ -183,8 +173,8 @@ xTick system height userAttributes y x =
 
 
 {-| -}
-yTick : Coordinate.System -> Float -> List (Attribute msg) -> Float -> Float -> Svg msg
-yTick system width userAttributes x y =
+yTick : Float -> List (Attribute msg) -> Float -> Float -> Coordinate.System -> Svg msg
+yTick width userAttributes x y system =
   let
     attributes =
       concat
@@ -248,8 +238,8 @@ type Transfrom =
 
 
 {-| -}
-move : Coordinate.System -> Float -> Float -> Transfrom
-move system x y =
+move : Float -> Float -> Coordinate.System -> Transfrom
+move x y system =
   Transfrom (toSvgX system x) (toSvgY system y)
 
 

@@ -5,8 +5,8 @@ module Internal.Axis exposing
   )
 
 
-import Svg exposing (Svg, Attribute, g, text_, tspan, text)
-import Svg.Attributes as Attributes exposing (class, strokeWidth, stroke)
+import Svg
+import Svg.Attributes
 import Internal.Coordinate as Coordinate exposing (..)
 import Internal.Unit as Unit
 import Internal.Colors as Colors
@@ -18,7 +18,7 @@ import Internal.Axis.Ticks as Ticks
 import Internal.Axis.Line as AxisLine
 import Internal.Axis.Intersection as Intersection
 import Internal.Axis.Title as Title
-import Internal.Svg as Svg exposing (..)
+import Internal.Svg as Svg
 import Color.Convert
 
 
@@ -154,10 +154,9 @@ type alias ViewConfig msg =
 
 
 {-| -}
-viewHorizontal : Coordinate.System -> Intersection.Config -> Config Float data msg -> Svg msg
+viewHorizontal : Coordinate.System -> Intersection.Config -> Config Float data msg -> Svg.Svg msg
 viewHorizontal system intersection (Config config) =
-    let
-        viewConfig =
+    let viewConfig =
           { line = AxisLine.config config.axisLine system.xData system.x
           , ticks = Ticks.ticks config.pixels system.xData system.x config.ticks
           , intersection = Intersection.getY intersection system
@@ -167,24 +166,20 @@ viewHorizontal system intersection (Config config) =
         at x =
           { x = x, y = viewConfig.intersection }
 
-        viewAxisLine =
-          viewHorizontalAxisLine system viewConfig.intersection
-
         viewTick tick =
-          viewHorizontalTick system (at tick.position) tick
+          viewHorizontalTick (at tick.position) tick system
     in
-    g [ class "chart__axis--horizontal" ]
-      [ viewHorizontalTitle system at viewConfig
-      , viewAxisLine viewConfig.line
-      , g [ class "chart__ticks" ] (List.map viewTick viewConfig.ticks)
+    Svg.c "axis--horizontal" []
+      [ viewHorizontalTitle at viewConfig system
+      , viewHorizontalAxisLine viewConfig.intersection viewConfig.line system
+      , Svg.c "ticks" [] (List.map viewTick viewConfig.ticks)
       ]
 
 
 {-| -}
-viewVertical : Coordinate.System -> Intersection.Config -> Config value data msg -> Svg msg
+viewVertical : Coordinate.System -> Intersection.Config -> Config value data msg -> Svg.Svg msg
 viewVertical system intersection (Config config) =
-    let
-        viewConfig =
+    let viewConfig =
           { line = AxisLine.config config.axisLine system.yData system.y
           , ticks = Ticks.ticks config.pixels system.yData system.y config.ticks
           , intersection = Intersection.getX intersection system
@@ -194,16 +189,13 @@ viewVertical system intersection (Config config) =
         at y =
           { x = viewConfig.intersection, y = y }
 
-        viewAxisLine =
-          viewVerticalAxisLine system viewConfig.intersection
-
         viewTick tick =
-          viewVerticalTick system (at tick.position) tick
+          viewVerticalTick (at tick.position) tick system
     in
-    g [ class "chart__axis--vertical" ]
-      [ viewVerticalTitle system at viewConfig
-      , viewAxisLine viewConfig.line
-      , g [ class "chart__ticks" ] (List.map viewTick viewConfig.ticks)
+    Svg.c "axis--vertical" []
+      [ viewVerticalTitle at viewConfig system
+      , viewVerticalAxisLine viewConfig.intersection viewConfig.line system 
+      , Svg.c "ticks" [] (List.map viewTick viewConfig.ticks)
       ]
 
 
@@ -211,32 +203,26 @@ viewVertical system intersection (Config config) =
 -- INTERNAL / VIEW / TITLE
 
 
-viewHorizontalTitle : Coordinate.System -> (Float -> Data.Point) -> ViewConfig msg -> Svg msg
-viewHorizontalTitle system at { title } =
+viewHorizontalTitle : (Float -> Data.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalTitle at { title } system =
   let position = at (title.position system.xData system.x)
       ( xOffset, yOffset ) = title.offset
   in
-  g [ class "chart__title"
-    , transform
-        [ move system position.x position.y
-        , offset (xOffset + 15) (yOffset + 5)
-        ]
-    , anchorStyle (Maybe.withDefault Start title.anchor)
+  Svg.c "title" 
+    [ Svg.transform [ Svg.move position.x position.y system, Svg.offset (xOffset + 15) (yOffset + 5) ]
+    , Svg.anchorStyle (Maybe.withDefault Svg.Start title.anchor)
     ]
     [ title.view title.text ]
 
 
-viewVerticalTitle : Coordinate.System -> (Float -> Data.Point) -> ViewConfig msg -> Svg msg
-viewVerticalTitle system at { title } =
+viewVerticalTitle : (Float -> Data.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalTitle at { title } system =
   let position = at (title.position system.yData system.y)
       ( xOffset, yOffset ) = title.offset
   in
-  g [ class "chart__title"
-    , transform
-        [ move system position.x position.y
-        , offset (xOffset + 2) (yOffset - 10)
-        ]
-    , anchorStyle (Maybe.withDefault End title.anchor)
+  Svg.c "title"
+    [ Svg.transform [ Svg.move position.x position.y system, Svg.offset (xOffset + 2) (yOffset - 10) ]
+    , Svg.anchorStyle (Maybe.withDefault Svg.End title.anchor)
     ]
     [ title.view title.text ]
 
@@ -245,21 +231,21 @@ viewVerticalTitle system at { title } =
 -- INTERNAL / VIEW / LINE
 
 
-viewHorizontalAxisLine : Coordinate.System -> Float -> AxisLine.Properties msg -> Svg msg
-viewHorizontalAxisLine system axisPosition config =
-  horizontal system (attributesLine system config) axisPosition config.start config.end
+viewHorizontalAxisLine : Float -> AxisLine.Properties msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalAxisLine axisPosition config system =
+  Svg.horizontal (attributesLine config system) axisPosition config.start config.end system
 
 
-viewVerticalAxisLine : Coordinate.System -> Float -> AxisLine.Properties msg -> Svg msg
-viewVerticalAxisLine system axisPosition config =
-  vertical system (attributesLine system config) axisPosition config.start config.end
+viewVerticalAxisLine : Float -> AxisLine.Properties msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalAxisLine axisPosition config system =
+  Svg.vertical (attributesLine config system) axisPosition config.start config.end system
 
 
-attributesLine : Coordinate.System -> AxisLine.Properties msg -> List (Svg.Attribute msg)
-attributesLine system { events, width, color } =
+attributesLine :AxisLine.Properties msg -> Coordinate.System -> List (Svg.Attribute msg)
+attributesLine { events, width, color } system =
   events ++
-    [ strokeWidth (toString width)
-    , stroke (Color.Convert.colorToCssRgba color)
+    [ Svg.Attributes.strokeWidth (toString width)
+    , Svg.Attributes.stroke (Color.Convert.colorToCssRgba color)
     , Svg.withinChartArea system
     ]
 
@@ -268,19 +254,19 @@ attributesLine system { events, width, color } =
 -- INTERNAL / VIEW / TICK
 
 
-viewHorizontalTick : Coordinate.System -> Data.Point -> Ticks.Compiled msg -> Svg msg
-viewHorizontalTick system ({ x, y } as point) tick =
-  g [ class "chart__tick" ]
-    [ xTick system (lengthOfTick tick.config) (attributesTick tick.config) y x
-    , viewHorizontalLabel system tick.config point (tick.config.label tick.label)
+viewHorizontalTick : Data.Point -> Ticks.Compiled msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalTick ({ x, y } as point) tick system =
+  Svg.c "tick" []
+    [ Svg.xTick (lengthOfTick tick.config) (attributesTick tick.config) y x system
+    , viewHorizontalLabel tick.config point (tick.config.label tick.label) system
     ]
 
 
-viewVerticalTick : Coordinate.System -> Data.Point -> Ticks.Compiled msg -> Svg msg
-viewVerticalTick system ({ x, y } as point) tick =
-  g [ class "chart__tick" ]
-    [ yTick system (lengthOfTick tick.config) (attributesTick tick.config) x y
-    , viewVerticalLabel system tick.config point (tick.config.label tick.label)
+viewVerticalTick : Data.Point -> Ticks.Compiled msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalTick ({ x, y } as point) tick system =
+  Svg.c "tick" []
+    [ Svg.yTick (lengthOfTick tick.config) (attributesTick tick.config) x y system
+    , viewVerticalLabel tick.config point (tick.config.label tick.label) system
     ]
 
 
@@ -291,27 +277,29 @@ lengthOfTick { length, direction } =
 
 attributesTick : Tick.Properties msg -> List (Svg.Attribute msg)
 attributesTick { width, color } =
-  [ strokeWidth (toString width), stroke (Color.Convert.colorToCssRgba color) ]
+  [ Svg.Attributes.strokeWidth (toString width)
+  , Svg.Attributes.stroke (Color.Convert.colorToCssRgba color) 
+  ]
 
 
-viewHorizontalLabel : Coordinate.System -> Tick.Properties msg -> Data.Point -> Svg msg -> Svg msg
-viewHorizontalLabel system { direction, length } position view =
-  let
-    yOffset = if Tick.isPositive direction then -5 - length else 15 + length
+viewHorizontalLabel : Tick.Properties msg -> Data.Point -> Svg.Svg msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalLabel { direction, length } position view system =
+  let yOffset = if Tick.isPositive direction then -5 - length else 15 + length
   in
-  g [ transform [ move system position.x position.y, offset 0 yOffset ]
-    , anchorStyle Middle
+  Svg.c "tick__label"
+    [ Svg.transform [ Svg.move position.x position.y system, Svg.offset 0 yOffset ]
+    , Svg.anchorStyle Svg.Middle
     ]
     [ view ]
 
 
-viewVerticalLabel : Coordinate.System -> Tick.Properties msg -> Data.Point -> Svg msg -> Svg msg
-viewVerticalLabel system { direction, length } position view =
-  let
-    anchor = if Tick.isPositive direction then Start else End
-    xOffset = if Tick.isPositive direction then 5 + length else -5 - length
+viewVerticalLabel : Tick.Properties msg -> Data.Point -> Svg.Svg msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalLabel { direction, length } position view system =
+  let anchor = if Tick.isPositive direction then Svg.Start else Svg.End
+      xOffset = if Tick.isPositive direction then 5 + length else -5 - length
   in
-  g [ transform [ move system position.x position.y, offset xOffset 5 ]
-    , anchorStyle anchor
+  Svg.c "tick__label" 
+    [ Svg.transform [ Svg.move position.x position.y system, Svg.offset xOffset 5 ]
+    , Svg.anchorStyle anchor
     ]
     [ view ]

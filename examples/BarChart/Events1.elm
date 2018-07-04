@@ -25,7 +25,6 @@ import Color
 -- - fix pattern border issue
 -- - Swap axes?
 -- - clean up dep and indep
--- - swap system arg order
 -- - Unit to plural
 
 

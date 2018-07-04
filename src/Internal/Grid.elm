@@ -90,7 +90,7 @@ viewDots system verticals horizontals radius color =
     dot x y =
       Coordinate.toSvg system (Coordinate.Point x y)
   in
-  List.map (Svg.gridDot radius color) dots
+  List.map (Svg.circle_ radius color) dots
 
 
 viewLines : Coordinate.System -> List Float -> List Float -> Float -> Color.Color -> List (Svg.Svg msg)
