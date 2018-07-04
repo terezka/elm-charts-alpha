@@ -2,7 +2,7 @@ module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
     , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
-    , Found(..), data, point, color, label
+    , Found(..), data, point, color, label, isExactly, isSeries, isDatum
     , map, map2, map3
     -- INTERNAL
     , toChartAttributes
@@ -238,6 +238,30 @@ label (Found data) =
 color : Found chart data -> Color.Color
 color (Found data) =
   data.color
+
+
+{-| -}
+isExactly : Maybe (Found chart data) -> Int -> data -> Bool
+isExactly found index datum =
+  case found of
+    Just (Found data) -> data.seriesIndex == index && data.user == datum
+    Nothing -> False
+
+
+{-| -}
+isSeries : Maybe (Found chart data) -> Int -> data -> Bool
+isSeries found index datum =
+  case found of
+    Just (Found data) -> data.seriesIndex == index
+    Nothing -> False
+
+
+{-| -}
+isDatum : Maybe (Found chart data) -> Int -> data -> Bool
+isDatum found index datum =
+  case found of
+    Just (Found data) -> data.user == datum
+    Nothing -> False
 
 
 

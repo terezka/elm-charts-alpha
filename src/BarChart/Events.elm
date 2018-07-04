@@ -2,7 +2,7 @@ module BarChart.Events exposing
   ( Config, default, hoverBar, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
   , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
-  , Found, data, color, label
+  , Found, data, color, label, isExactly, isSeries, isGroup
   , map, map2, map3
   )
 
@@ -292,6 +292,24 @@ label =
 color : Found data -> Color.Color
 color =
   Events.color
+
+
+{-| -}
+isExactly : Maybe (Found data) -> Int -> data -> Bool
+isExactly =
+  Events.isExactly
+
+
+{-| -}
+isSeries : Maybe (Found data) -> Int -> data -> Bool
+isSeries =
+  Events.isSeries
+
+
+{-| -}
+isGroup : Maybe (Found data) -> Int -> data -> Bool
+isGroup =
+  Events.isDatum
 
 
 

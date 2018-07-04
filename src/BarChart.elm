@@ -1,4 +1,4 @@
-module BarChart exposing (view, Config, Series, series, Style, solid, bordered, alternate, isBar, isGroup)
+module BarChart exposing (view, Config, Series, series, Style, solid, bordered, alternate)
 
 {-| -}
 
@@ -100,18 +100,6 @@ alternate =
   Internal.Bars.alternate
 
 
-{-| -} -- TODO move elsewhere
-isBar : Maybe (Events.Found data) -> Int -> data -> Bool
-isBar =
-  Internal.Bars.isBar
-
-
-{-| -}
-isGroup : Maybe (Events.Found data) -> Int -> data -> Bool
-isGroup =
-  Internal.Bars.isGroup
-
-
 
 -- VIEW
 
@@ -139,7 +127,7 @@ view config bars data =
     dataPointsAll = List.concat dataPoints
 
     -- Axes
-    ( horizontalAxis, verticalAxis ) = -- TODO swap axes
+    ( horizontalAxis, verticalAxis ) =
       Internal.Orientation.chooses config.orientation
         { horizontal =
             ( Internal.Axis.Dependent.toNormal config.dependentAxis data

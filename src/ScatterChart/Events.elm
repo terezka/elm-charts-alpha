@@ -2,7 +2,7 @@ module ScatterChart.Events exposing
   ( Config, default, hoverOne, hoverMany, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
   , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
-  , Found, data, label, color
+  , Found, data, label, color, isExactly, isSeries, isDatum
   , map, map2, map3
   )
 
@@ -20,7 +20,7 @@ module ScatterChart.Events exposing
 @docs Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
 
 ## Found
-@docs Found, data, label, color
+@docs Found, data, label, color, isExactly, isSeries, isDatum
 
 ### Maps
 
@@ -315,6 +315,24 @@ label =
 color : Found data -> Color.Color
 color =
   Events.color
+
+
+{-| -}
+isExactly : Maybe (Found data) -> Int -> data -> Bool
+isExactly =
+  Events.isExactly
+
+
+{-| -}
+isSeries : Maybe (Found data) -> Int -> data -> Bool
+isSeries =
+  Events.isSeries
+
+
+{-| -}
+isDatum : Maybe (Found data) -> Int -> data -> Bool
+isDatum =
+  Events.isDatum
 
 
 
