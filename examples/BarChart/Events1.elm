@@ -20,8 +20,15 @@ import Color
 
 -- TODO
 -- tooltip arrow
--- should pixels be defined elsewhere due to orientation switching?
 -- style api
+-- hover stuff for bar chart
+-- legend api
+-- source
+-- notes
+-- chart title
+-- unit in axis title
+-- dashed grid
+
 
 -- TODO / INTERNAL
 -- collapse everything <---

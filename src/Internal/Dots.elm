@@ -1,6 +1,6 @@
 module Internal.Dots exposing
   ( Config, default, custom, customAny
-  , Shape(..), ShapeOrNone(..)
+  , Shape(..)
   , Style, style, empty, disconnected, aura, full
   , Variety
   , Outlier
@@ -76,11 +76,6 @@ type Variety
   | Disconnected Int
   | Aura Int Float
   | Full
-
-
-{-| -}
-type ShapeOrNone =
-  ShapeOrNone (Maybe Shape)
 
 
 {-| -}

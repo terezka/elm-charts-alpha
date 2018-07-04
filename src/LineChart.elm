@@ -1,6 +1,6 @@
 module LineChart exposing
   ( view1, view2, view3
-  , view, Series, line, dash
+  , view, Series, line, plain, dashed
   , viewCustom, Config
   )
 
@@ -27,7 +27,7 @@ module LineChart exposing
 @docs view1, view2, view3
 
 # Customizing lines
-@docs view, Series, line, dash
+@docs view, Series, line, plain, dashed
 
 # Customizing everything
 @docs viewCustom, Config
@@ -264,6 +264,12 @@ line =
   Internal.Line.line
 
 
+{-| -}
+plain : Color.Color -> String -> List data -> Series data
+plain =
+  Internal.Line.plain
+
+
 {-|
 
 ** Customize a dashed line **
@@ -285,7 +291,7 @@ for examples of patterns.
 
     dashedLine : LineChart.Series Human
     dashedLine =
-      LineChart.dash Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
+      LineChart.dashed Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
       --                                                    ^^^^^^^^
       -- (Scroll to the left to see the pattern!)
       -- Try passing different numbers!
@@ -301,9 +307,9 @@ Dashed lines are especially good for visualizing processed data like
 averages or predicted values.
 
 -}
-dash : Color.Color -> Dots.Shape -> String -> List Float -> List data -> Series data
-dash =
-  Internal.Line.dash
+dashed : Color.Color -> String -> List Float -> List data -> Series data
+dashed =
+  Internal.Line.dashed
 
 
 

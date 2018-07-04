@@ -1,6 +1,5 @@
 module LineChart.Dots exposing
-  ( Shape, none
-  , circle, triangle, square, diamond, plus, cross
+  ( Shape, circle, triangle, square, diamond, plus, cross
   , Config, default, custom, customAny, hoverOne, hoverMany
   , Style, empty, disconnected, aura, full
   )
@@ -14,7 +13,7 @@ module LineChart.Dots exposing
 Hopefully, these are self-explanatory.
 <img alt="Legends" width="610" style="margin-top: 10px; margin-left: -10px" src="https://github.com/terezka/line-charts/blob/master/images/shapes.png?raw=true"></src>
 
-@docs none, circle, triangle, square, diamond, plus, cross
+@docs circle, triangle, square, diamond, plus, cross
 
 # Styles
 @docs Config, default
@@ -65,49 +64,43 @@ They can be different shapes (circle, square, etc.) for each line.
 
 -}
 type alias Shape =
-  Dots.ShapeOrNone
-
-
-{-| -}
-none : Shape
-none =
- Dots.ShapeOrNone Nothing
+  Dots.Shape
 
 
 {-| -}
 circle : Shape
 circle =
-  Dots.ShapeOrNone (Just Dots.Circle)
+  Dots.Circle
 
 
 {-| -}
 triangle : Shape
 triangle =
-  Dots.ShapeOrNone (Just Dots.Triangle)
+  Dots.Triangle
 
 
 {-| -}
 square : Shape
 square =
-  Dots.ShapeOrNone (Just Dots.Square)
+  Dots.Square
 
 
 {-| -}
 diamond : Shape
 diamond =
-  Dots.ShapeOrNone (Just Dots.Diamond)
+  Dots.Diamond
 
 
 {-| -}
 plus : Shape
 plus =
-  Dots.ShapeOrNone (Just Dots.Plus)
+  Dots.Plus
 
 
 {-| -}
 cross : Shape
 cross =
-  Dots.ShapeOrNone (Just Dots.Cross)
+  Dots.Cross
 
 
 {-|

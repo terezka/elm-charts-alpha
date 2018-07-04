@@ -1,5 +1,5 @@
 module Internal.Line exposing
-  ( Series, line, dash
+  ( Series, line, plain, dashed
   , Config, default, wider, custom
   , Style, style
   -- INTERNAL
@@ -85,15 +85,21 @@ color (Config config) (Series line) data =
 
 
 {-| -}
-line : Color.Color -> Dots.ShapeOrNone -> String -> List data -> Series data
-line color (Dots.ShapeOrNone shape) label data =
-  Series <| SeriesConfig color shape [] label data
+line : Color.Color -> Dots.Shape -> String -> List data -> Series data
+line color shape label data =
+  Series <| SeriesConfig color (Just shape) [] label data
 
 
 {-| -}
-dash : Color.Color -> Dots.ShapeOrNone -> String -> List Float -> List data -> Series data
-dash color (Dots.ShapeOrNone shape) label dashing data =
-  Series <| SeriesConfig color shape dashing label data
+plain : Color.Color -> String -> List data -> Series data
+plain color label data =
+  Series <| SeriesConfig color Nothing [] label data
+
+
+{-| -}
+dashed : Color.Color -> String -> List Float -> List data -> Series data
+dashed color label dashing data =
+  Series <| SeriesConfig color Nothing dashing label data
 
 
 
