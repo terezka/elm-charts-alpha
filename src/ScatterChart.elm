@@ -36,9 +36,9 @@ module ScatterChart exposing
 import Html
 import Svg
 
-import ScatterChart.Unit as Unit
 import ScatterChart.Junk as Junk
 import ScatterChart.Axis as Axis
+import ScatterChart.Axis.Unit as Unit
 import ScatterChart.Junk as Junk
 import ScatterChart.Dots as Dots
 import ScatterChart.Grid as Grid

@@ -5,6 +5,7 @@ import Html.Attributes
 import BarChart
 import BarChart.Axis.Independent as IndependentAxis
 import BarChart.Axis.Dependent as DependentAxis
+import BarChart.Axis.Unit as Unit
 import BarChart.Orientation as Orientation
 import BarChart.Legends as Legends
 import BarChart.Events as Events
@@ -13,14 +14,11 @@ import BarChart.Events as Events
 import BarChart.Grid as Grid
 import BarChart.Bars as Bars
 import BarChart.Junk as Junk
-import BarChart.Unit as Unit
 import BarChart.Pattern as Pattern
 import Color
 
 
 -- TODO
--- fix pattern border issue
--- Unit to plural
 -- tooltip arrow
 -- style api
 
@@ -83,7 +81,7 @@ chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
     { independentAxis = IndependentAxis.default 700 "quarter" .label
-    , dependentAxis = DependentAxis.default 700 "income" Unit.dollar
+    , dependentAxis = DependentAxis.default 700 "income" Unit.dollars
     , container = Container.default "bar-chart"
     , orientation = Orientation.default
     , legends = Legends.default
@@ -111,7 +109,7 @@ indonesia hovering =
           (BarChart.bordered (Color.rgba 245 105 215 0.5) (Color.rgba 245 105 215 1))
           (BarChart.bordered (Color.rgba 245 105 215 0.7) (Color.rgba 245 105 215 1))
     , variable = .indonesia
-    , pattern = False
+    , pattern = True
     }
 
 

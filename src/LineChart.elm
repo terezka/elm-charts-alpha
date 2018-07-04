@@ -38,9 +38,9 @@ import Html
 import Svg
 
 import LineChart.Junk as Junk
-import LineChart.Unit as Unit
 import LineChart.Area as Area
 import LineChart.Axis as Axis
+import LineChart.Axis.Unit as Unit
 import LineChart.Dots as Dots
 import LineChart.Grid as Grid
 import LineChart.Line as Line

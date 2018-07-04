@@ -1,8 +1,8 @@
 module Internal.Unit
   exposing
-    ( Config, none, year, dollar
-    , millimeter, meter, kilometer
-    , gram, kilogram
+    ( Config, none, years, dollars
+    , millimeters, meters, kilometers
+    , grams, kilograms
     , custom
     -- INTERNAL
     , view
@@ -36,8 +36,8 @@ none =
 
 
 {-| -}
-year : Config
-year =
+years : Config
+years =
   custom
     { symbol = "y"
     , space = True
@@ -46,8 +46,8 @@ year =
 
 
 {-| -}
-dollar : Config
-dollar =
+dollars : Config
+dollars =
   custom
     { symbol = "$"
     , space = False
@@ -56,8 +56,8 @@ dollar =
 
 
 {-| -}
-meter : Config
-meter =
+meters : Config
+meters =
   custom
     { symbol = "m"
     , space = True
@@ -66,8 +66,8 @@ meter =
 
 
 {-| -}
-millimeter : Config
-millimeter =
+millimeters : Config
+millimeters =
   custom
     { symbol = "mm"
     , space = True
@@ -76,8 +76,8 @@ millimeter =
 
 
 {-| -}
-kilometer : Config
-kilometer =
+kilometers : Config
+kilometers =
   custom
     { symbol = "km"
     , space = True
@@ -86,8 +86,8 @@ kilometer =
 
 
 {-| -}
-gram : Config
-gram =
+grams : Config
+grams =
   custom
     { symbol = "g"
     , space = True
@@ -96,8 +96,8 @@ gram =
 
 
 {-| -}
-kilogram : Config
-kilogram =
+kilograms : Config
+kilograms =
   custom
     { symbol = "kg"
     , space = True
@@ -109,6 +109,10 @@ kilogram =
 custom : Properties -> Config
 custom =
   Config
+
+
+
+-- INTERNAL
 
 
 {-| -}

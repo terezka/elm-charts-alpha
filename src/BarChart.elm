@@ -15,7 +15,7 @@ import BarChart.Container as Container
 import BarChart.Orientation as Orientation
 import BarChart.Pattern as Pattern
 import BarChart.Bars as Bars
-import BarChart.Unit as Unit
+import BarChart.Axis.Unit as Unit
 
 import Internal.Chart
 import Internal.Bars

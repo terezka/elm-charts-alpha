@@ -1,4 +1,4 @@
-module BarChart.Unit exposing (Config, Properties, none, year, dollar, millimeter, meter, kilometer, gram, kilogram, custom)
+module LineChart.Axis.Unit exposing (Config, Properties, none, year, dollar, millimeter, meter, kilometer, gram, kilogram, custom)
 
 
 {-| -}

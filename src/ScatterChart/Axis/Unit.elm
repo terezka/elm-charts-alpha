@@ -1,4 +1,4 @@
-module LineChart.Unit exposing (Config, Properties, none, year, dollar, millimeter, meter, kilometer, gram, kilogram, custom)
+module ScatterChart.Axis.Unit exposing (Config, Properties, none, year, dollar, millimeter, meter, kilometer, gram, kilogram, custom)
 
 
 {-| -}
@@ -56,7 +56,6 @@ gram =
 kilogram : Config
 kilogram =
   Internal.Unit.kilogram
-
 
 
 {-| -}
