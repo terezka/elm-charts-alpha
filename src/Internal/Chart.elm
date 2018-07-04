@@ -62,10 +62,17 @@ view args data system =
         in Svg.defs [] (chartAreaCut :: args.defs)
 
       -- Chart components
-      grid = Internal.Grid.view (Internal.Axis.ticks args.horizontalAxis) (Internal.Axis.ticks args.verticalAxis) args.grid system
       horizontalAxis = Internal.Axis.viewHorizontal system args.intersection args.horizontalAxis
       verticalAxis = Internal.Axis.viewVertical system args.intersection args.verticalAxis
       legends = Internal.Legends.view args.legends
+      
+      grid =
+        Internal.Grid.view
+          { width = Internal.Axis.pixels args.horizontalAxis
+          , height = Internal.Axis.pixels args.verticalAxis
+          , xTicks = Internal.Axis.ticks args.horizontalAxis
+          , yTicks = Internal.Axis.ticks args.verticalAxis
+          }
 
       -- Overlay
       eventCatcher =
@@ -94,7 +101,7 @@ view args data system =
   in
   container
     [ defs
-    , grid
+    , grid args.grid system
     , junkBelow
     , args.series
     , eventCatcher

@@ -1,7 +1,8 @@
 module LineChart.Events exposing
   ( Config, default, hoverOne, hoverMany, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-  , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX, Found, data
+  , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+  , Found, data, label, color
   , map, map2, map3
   )
 
@@ -16,7 +17,10 @@ module LineChart.Events exposing
 @docs Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
 
 ## Decoders
-@docs Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX, Found, data
+@docs Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+
+## Found
+@docs Found, data, label, color
 
 ### Maps
 
@@ -39,6 +43,7 @@ module LineChart.Events exposing
 import Internal.Data as Data
 import Internal.Events as Events
 import LineChart.Coordinate as Coordinate
+import Color 
 
 
 
@@ -298,6 +303,18 @@ type alias Found data =
 data : Found data -> data
 data =
   Events.data
+
+
+{-| -}
+label : Found data -> String
+label =
+  Events.label
+
+
+{-| -}
+color : Found data -> Color.Color
+color =
+  Events.color
 
 
 

@@ -520,7 +520,7 @@ toSystem : Config data msg -> List (Data.ScatterChart data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container
-    size   = Coordinate.Size (Internal.Axis.pixels config.x) (Internal.Axis.pixels config.y)
+    size   = Coordinate.size (Internal.Axis.pixels config.x) (Internal.Axis.pixels config.y)
     frame  = Coordinate.Frame container.margin size
     xRange = Coordinate.range (.point >> .x) data
     yRange = Coordinate.range (.point >> .y) data

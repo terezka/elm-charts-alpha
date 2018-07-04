@@ -84,52 +84,46 @@ type alias Set msg =
 (adjusted to magnitude, of course!). For dates, it means whole days, weeks,
 months or hours, minutes, and seconds.
 
--} -- TODO make better approximate
+-}
 default : Config msg
 default =
-  custom <| \data axis ->
-    [ set Tick.float toString identity (Values.float (Values.around 5) axis) ]
+  Ticks.defaultFloat
 
 
 {-| -}
 int : Int -> Config msg
-int n =
-  custom <| \data axis ->
-    [ set Tick.int toString toFloat (Values.int (Values.around n) axis) ]
+int =
+  Ticks.int
 
 
 {-| -}
 time : Int -> Config msg
-time n =
-   custom <| \data axis ->
-    [ set Tick.int Tick.format .timestamp (List.map toLocalTime (Values.time n axis)) ]
+time =
+  Ticks.time
 
 
 {-| -}
 float : Int -> Config msg
-float n =
-   custom <| \data axis ->
-    [ set Tick.float toString identity (Values.float (Values.around n) axis) ]
+float =
+  Ticks.float
 
 
 {-| -}
 intCustom : Tick.Config msg -> Int -> Config msg
-intCustom tick n =
-  custom <| \data axis ->
-    [ set tick toString identity (Values.float (Values.around n) axis) ]
+intCustom =
+  Ticks.intCustom
 
 
 {-| -}
 floatCustom : Tick.Config msg -> Int -> Config msg
-floatCustom tick n =
-  custom <| \data axis ->
-    [ set tick toString identity (Values.float (Values.around n) axis) ]
+floatCustom =
+  Ticks.floatCustom
 
 
 {-| -}
 timeCustom : Tick.Config msg -> Int -> Config msg
 timeCustom tick n =
-  custom <| \data axis ->
+  custom <| \pixels data axis ->
     [ set tick Tick.format .timestamp (List.map toLocalTime (Values.time n axis)) ]
 
 
@@ -157,7 +151,7 @@ _See full example [here](https://github.com/terezka/line-charts/blob/master/exam
 You can use `Axis.Values` to produce "nice" values within a given range.
 
 -}
-custom : (Coordinate.Range -> Coordinate.Range -> List (Set msg)) -> Config msg
+custom : (Int -> Coordinate.Range -> Coordinate.Range -> List (Set msg)) -> Config msg
 custom =
   Ticks.custom
 
@@ -168,7 +162,8 @@ set =
   Ticks.set
 
 
--- UNIT CONVERSION
+
+-- INTERNAL / UNIT CONVERSION
 
 
 toLocalTime : Internal.Axis.Tick.Time -> Tick.Time

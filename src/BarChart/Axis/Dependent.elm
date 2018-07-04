@@ -3,12 +3,12 @@ module BarChart.Axis.Dependent exposing
   )
 
 
-import Internal.Unit as Unit
 import Internal.Axis.Dependent as Dependent
 import Internal.Axis.Ticks as Ticks
 import Internal.Axis.Line as AxisLine
 import Internal.Axis.Title as Title
 import Internal.Axis.Range as Range
+import Internal.Unit as Unit
 
 
 {-| -}

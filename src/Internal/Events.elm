@@ -2,7 +2,7 @@ module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
     , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
-    , Found(..), data, point
+    , Found(..), data, point, color, label
     , map, map2, map3
     -- INTERNAL
     , toChartAttributes
@@ -20,6 +20,7 @@ import Internal.Data as Data
 import Internal.Orientation as Orientation
 import Internal.Utils exposing (withFirst)
 import Json.Decode as Json
+import Color
 
 
 
@@ -225,6 +226,18 @@ data (Found data) =
 point : Found chart data -> Coordinate.Point
 point (Found data) =
   data.point
+
+
+{-| -}
+label : Found chart data -> String
+label (Found data) =
+  data.label
+
+
+{-| -}
+color : Found chart data -> Color.Color
+color (Found data) =
+  data.color
 
 
 

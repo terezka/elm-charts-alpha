@@ -49,23 +49,31 @@ lines =
 -- INTERNAL
 
 
+type alias Arguments msg =
+  { width : Int 
+  , height : Int 
+  , xTicks : Ticks.Config msg
+  , yTicks : Ticks.Config msg
+  }
+
+
 {-| -}
-view : Ticks.Config msg -> Ticks.Config msg -> Config -> Coordinate.System -> Svg.Svg msg
-view xTicks yTicks grid system =
+view : Arguments msg -> Config -> Coordinate.System -> Svg.Svg msg
+view args config system =
   let
-    verticals =
-      Ticks.ticks system.xData system.x xTicks
+    horizontals =
+      Ticks.ticks args.width system.yData system.y args.yTicks
         |> List.filterMap hasGrid
 
-    horizontals =
-      Ticks.ticks system.yData system.y yTicks
+    verticals =
+      Ticks.ticks args.height system.xData system.x args.xTicks
         |> List.filterMap hasGrid
 
     hasGrid tick =
       if tick.config.grid then Just tick.position else Nothing
   in
   Svg.g [ Attributes.class "chart__grids" ] <|
-    case grid of
+    case config of
       Dots radius color -> viewDots  system verticals horizontals radius color
       Lines width color -> viewLines system verticals horizontals width color
 

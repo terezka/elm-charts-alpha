@@ -1,5 +1,6 @@
 module Internal.Svg exposing
-  ( gridDot
+  ( none
+  , gridDot
   , horizontal, vertical
   , square
   , rectangle
@@ -13,41 +14,7 @@ module Internal.Svg exposing
   , verticalBarCommands
   )
 
-{-|
-
-# Lines
-@docs horizontal, vertical
-
-# Rectangles
-@docs square, rectangle
-
-# Grids
-
-## Dots
-@docs gridDot
-
-## Lines
-@docs horizontalGrid, verticalGrid
-
-# Axis
-@docs xTick, yTick
-
-# Helpers
-
-## Label
-@docs label
-
-## Anchor
-@docs Anchor, anchorStyle
-
-## Transfrom
-@docs Transfrom, transform, move, offset
-
-@docs withinChartArea
-
-@docs horizontalBarCommands, verticalBarCommands
-
--}
+{-| -}
 
 import Svg exposing (Svg, Attribute, g)
 import Svg.Attributes as Attributes
@@ -58,6 +25,18 @@ import Internal.Utils exposing (..)
 import Color
 import Color.Convert
 
+
+-- NONE
+
+
+{-| -}
+none : Svg msg
+none =
+  Svg.text ""
+
+
+
+-- CHART AREA
 
 
 {-| -}

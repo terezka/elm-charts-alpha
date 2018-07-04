@@ -2,7 +2,7 @@ module BarChart.Events exposing
   ( Config, default, hoverBar, click, custom
   , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
   , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
-  , Found, data
+  , Found, data, color, label
   , map, map2, map3
   )
 
@@ -40,7 +40,7 @@ module BarChart.Events exposing
 import Internal.Events as Events
 import Internal.Data as Data
 import BarChart.Coordinate as Coordinate
-
+import Color
 
 
 -- QUICK START
@@ -280,6 +280,18 @@ type alias Found data =
 data : Found data -> data
 data =
   Events.data
+
+
+{-| -}
+label : Found data -> String
+label =
+  Events.label
+
+
+{-| -}
+color : Found data -> Color.Color
+color =
+  Events.color
 
 
 

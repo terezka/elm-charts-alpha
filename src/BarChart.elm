@@ -142,21 +142,18 @@ view config bars data =
     ( horizontalAxis, verticalAxis ) = -- TODO swap axes
       Internal.Orientation.chooses config.orientation
         { horizontal =
-            ( Internal.Axis.Dependent.toNormal data config.dependentAxis
-            , Internal.Axis.Independent.toNormal data config.independentAxis
+            ( Internal.Axis.Dependent.toNormal config.dependentAxis data
+            , Internal.Axis.Independent.toNormal config.independentAxis data
             )
         , vertical =
-            ( Internal.Axis.Independent.toNormal data config.independentAxis
-            , Internal.Axis.Dependent.toNormal data config.dependentAxis
+            ( Internal.Axis.Independent.toNormal config.independentAxis data
+            , Internal.Axis.Dependent.toNormal config.dependentAxis data
             )
         }
 
     -- Junk
     hoverMany (Internal.Events.Found hovered) =
-      let independent = Internal.Axis.Independent.config config.independentAxis
-          title = Internal.Axis.Title.config >> .title
-          offsetValue = width * countOfSeries / 2
-
+      let offsetValue = width * countOfSeries / 2
           ( position, offset ) =
             Internal.Orientation.chooses config.orientation
               { horizontal = 
@@ -175,19 +172,18 @@ view config bars data =
             , Internal.Axis.Dependent.unit config.dependentAxis (Internal.Bars.variable bar hovered.user)
             )
       in
-      { line = \_ -> Svg.text ""
+      { line = always Svg.none
       , position = position
       , offset = offset
-      , title = title independent.title ++ ": " ++ Internal.Axis.Independent.label config.independentAxis hovered.user
+      , title =
+          Utils.pair
+              (Internal.Axis.Independent.title config.independentAxis)
+              (Internal.Axis.Independent.label config.independentAxis hovered.user)
       , values = List.map value bars
       }
 
     hoverOne (Internal.Events.Found hovered) =
-      let independent = Internal.Axis.Independent.config config.independentAxis
-          dependent = Internal.Axis.Dependent.config config.dependentAxis
-          title = Internal.Axis.Title.config >> .title
-
-          ( dependentValue, offset ) =
+      let ( dependentValue, offset ) =
             Internal.Orientation.chooses config.orientation
               { horizontal = (  hovered.point.x, { x = 0, y = -15 - Coordinate.scaleSvgY system (width / 2) } )
               , vertical = ( hovered.point.y, { x = 15 + Coordinate.scaleSvgX system (width / 2), y = 0 } )
@@ -198,8 +194,8 @@ view config bars data =
       , color = hovered.color
       , title = hovered.label
       , values =
-          [ ( title independent.title, independent.label hovered.user )
-          , ( title dependent.title, Internal.Axis.Dependent.unit config.dependentAxis dependentValue )
+          [ ( Internal.Axis.Independent.title config.independentAxis, Internal.Axis.Independent.label config.independentAxis hovered.user )
+          , ( Internal.Axis.Dependent.title config.dependentAxis, Internal.Axis.Dependent.unit config.dependentAxis dependentValue )
           ]
       }
 
@@ -276,7 +272,7 @@ toSystem :  Config data msg -> Internal.Axis.Config Float data msg -> Internal.A
 toSystem config xAxis yAxis countOfData seriesAll data =
   let
     container = Internal.Container.properties identity config.container
-    size = Coordinate.Size (Internal.Axis.pixels xAxis) (Internal.Axis.pixels yAxis)
+    size = Coordinate.size (Internal.Axis.pixels xAxis) (Internal.Axis.pixels yAxis)
     frame = Coordinate.Frame container.margin size
 
     value data = List.map (flip Internal.Bars.variable data) seriesAll

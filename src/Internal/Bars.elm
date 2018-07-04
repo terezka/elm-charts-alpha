@@ -38,42 +38,21 @@ type Config =
 
 {-| -}
 type alias ConfigProps =
-  { label : Maybe (Float -> Label)
+  { borderRadius : Int
   , width : Float
-  , borderRadius : Int
-  }
-
-
-{-| -}
-type alias Label =
-  { xOffset : Float
-  , yOffset : Float
-  , text : String
   }
 
 
 {-| -}
 default : Config
 default =
-  custom
-    { label = Just defaultLabel
-    , width = 100
-    , borderRadius = 3
-    }
-
-
-defaultLabel : Float -> Label
-defaultLabel n =
-  { xOffset = 0
-  , yOffset = 0
-  , text = toString n
-  }
+  custom 3 100
 
 
 {-| -}
-custom : ConfigProps -> Config
-custom =
-  Config
+custom : Int -> Float -> Config
+custom border width =
+  Config (ConfigProps border width)
 
 
 {-| -}
@@ -239,7 +218,7 @@ width length scale system (Config config) countOfSeries countOfData =
 viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Series data -> Data.BarChart data -> Svg.Svg msg
 viewSeries system orientation (Config config) width (Series series) datum =
   let
-    viewBarWith toCommands toPoint toLabel =
+    viewBarWith toCommands toPoint =
       let
         (Style style) =
           series.style
@@ -253,28 +232,10 @@ viewSeries system orientation (Config config) width (Series series) datum =
       Svg.g
         [ Svg.Attributes.class "chart__bar", Svg.Attributes.style "pointer-events: none;" ]
         [ Path.view system attributes (toCommands system config.borderRadius width datum.point)
-        , Utils.viewMaybe config.label (Utils.apply datum.point.y >> toLabel system width datum.point)
         ]
   in
   Orientation.chooses orientation
-    { horizontal = viewBarWith Svg.horizontalBarCommands Coordinate.horizontalPoint horizontalLabel
-    , vertical = viewBarWith Svg.verticalBarCommands Coordinate.verticalPoint verticalLabel
+    { horizontal = viewBarWith Svg.horizontalBarCommands Coordinate.horizontalPoint
+    , vertical = viewBarWith Svg.verticalBarCommands Coordinate.verticalPoint
     }
-
-
-horizontalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label -> Svg.Svg msg
-horizontalLabel system width point label =
-  let y = point.y - width / 2 -- move to middle
-      xOffset = label.xOffset + 10 -- lift above bar
-      yOffset = label.yOffset + 3
-  in
-  Junk.labelAt system point.x y xOffset yOffset "middle" Color.black label.text
-
-
-verticalLabel : Coordinate.System -> Float -> Coordinate.Point -> Label -> Svg.Svg msg
-verticalLabel system width point label =
-  let x = point.x + width / 2 -- move to middle
-      yOffset = label.yOffset - 5 -- lift above bar
-  in
-  Junk.labelAt system x point.y label.xOffset yOffset "middle" Color.black label.text
 

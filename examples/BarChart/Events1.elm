@@ -18,7 +18,15 @@ import BarChart.Pattern as Pattern
 import Color
 
 
-
+-- TODO
+-- - add border width config?
+-- - SVG clean up
+-- - tooltip arrow
+-- - fix pattern border issue
+-- - Swap axes?
+-- - clean up dep and indep
+-- - swap system arg order
+-- - Unit to plural
 
 
 main : Program Never Model Msg
@@ -73,14 +81,14 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
-    { independentAxis = IndependentAxis.default 700 "quarter" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 700 "income" Unit.dollar -- TODO negative labels
+    { independentAxis = IndependentAxis.default 700 "quarter" .label
+    , dependentAxis = DependentAxis.default 700 "income" Unit.dollar
     , container = Container.default "bar-chart"
-    , orientation = Orientation.default -- horizontal
+    , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.hoverBar Hover
     , grid = Grid.none
-    , bars = Bars.custom (Bars.Properties Nothing 100 2)
+    , bars = Bars.custom 2 100
     , junk = Junk.hoverGroup model.hovering
     , pattern = Pattern.default
     }

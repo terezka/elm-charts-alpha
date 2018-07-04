@@ -6,7 +6,9 @@ module LineChart.Axis.Title exposing
 
 {-|
 
-@docs Config, default, atAxisMax, atDataMax, atPosition, custom, Anchor, start, middle, end
+@docs Config, default, atAxisMax, atDataMax, atPosition, custom
+
+@docs Anchor, start, middle, end
 
 -}
 
@@ -127,6 +129,10 @@ _See full example [here](https://github.com/terezka/line-charts/blob/master/exam
 custom : (Coordinate.Range -> Coordinate.Range -> Float) -> Float -> Float -> Anchor -> Svg msg -> Config msg
 custom position x y anchor =
   Title.custom position x y (Just anchor)
+
+
+
+-- ANCHOR / TODO
 
 
 {-| -}

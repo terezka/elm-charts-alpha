@@ -1,5 +1,6 @@
 module Internal.Coordinate exposing
   ( System, Frame, Size, Margin, Range
+  , size
   , range, minimum, minimumOrZero, maximum, maximumOrZero
   , ground, reachX, reachY, lengthX, lengthY
   , smallestRange, largestRange
@@ -56,6 +57,10 @@ type alias Range =
   , max : Float
   }
 
+
+size : Int -> Int -> Size 
+size w h =
+  Size (toFloat w) (toFloat h)
 
 
 -- HELPERS

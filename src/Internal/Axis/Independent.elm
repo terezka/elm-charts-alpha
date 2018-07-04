@@ -1,7 +1,8 @@
 module Internal.Axis.Independent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal, tick, config, label
+  , title, label
+  , toNormal
   )
 
 
@@ -14,6 +15,7 @@ import Internal.Axis as Axis
 import Internal.Unit as Unit
 import Internal.Colors as Colors
 import Internal.Svg as Svg
+import Internal.Utils as Utils
 
 
 
@@ -42,7 +44,7 @@ default pixels title label =
     , pixels = pixels
     , axisLine = AxisLine.default
     , label = label
-    , tick = defaultTick
+    , tick = Tick.float
     }
 
 
@@ -52,16 +54,15 @@ custom =
   Config
 
 
-{-| -}
-config : Config data msg -> Properties data msg
-config (Config properties) =
-  properties
+
+-- INTERNAL / API
 
 
 {-| -}
-tick : Config data msg -> Tick.Config msg
-tick (Config config) =
-  config.tick
+title : Config data msg -> String
+title (Config config) =
+  let title = Title.config config.title in
+  title.text
 
 
 {-| -}
@@ -70,39 +71,32 @@ label (Config config) =
   config.label
 
 
-toNormal : List data -> Config data msg -> Axis.Config Float data msg
-toNormal data (Config config) =
-  let
-    find datum =
-      List.filterMap (isOk datum)
-        >> List.head >> Maybe.withDefault 0 >> (+) 1 >> toFloat
 
-    isOk datum ( i, v ) =
-      if datum == v then Just i else Nothing
+-- INTERNAL / CONVERT TO NORMAL AXIS
+
+
+{-| -}
+toNormal : Config data msg -> List data -> Axis.Config Float data msg
+toNormal (Config config) data =
+  let variable datum =
+        Maybe.withDefault 1 (Utils.findIndex datum data)
+
+      indexTicks =
+        Ticks.custom <| \_ _ _ ->
+          let position = Tuple.first >> Utils.add 1 >> toFloat
+              label = Tuple.second >> config.label
+              indexedData = List.indexedMap (,) data
+          in
+          [ Ticks.set config.tick label position indexedData ]
   in
   Axis.custom
     { title = config.title
     , unit = Unit.none
-    , variable = \datum -> find datum (List.indexedMap (,) data)
+    , variable = variable >> toFloat
     , pixels = config.pixels
     , range = config.range
     , axisLine = config.axisLine
-    , ticks =
-        Ticks.custom <| \_ _ ->
-          let position = Tuple.first >> (+) 1 >> toFloat
-              label = Tuple.second >> config.label
-          in
-          [ Ticks.set config.tick label position (List.indexedMap (,) data) ]
+    , ticks = indexTicks
     }
 
 
-defaultTick : Tick.Config msg
-defaultTick =
-  Tick.custom
-    { color = Colors.gray
-    , width = 1
-    , length = 5
-    , grid = True
-    , direction = Tick.Negative
-    , label = Svg.label "inherit"
-    }

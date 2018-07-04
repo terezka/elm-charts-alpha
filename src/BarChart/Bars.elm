@@ -1,6 +1,6 @@
-module BarChart.Bars exposing (Config, default, custom, Properties, Label)
+module BarChart.Bars exposing (Config, default, custom)
 
-{-| @docs Config, default, custom, Properties -}
+{-| @docs Config, default, custom -}
 
 
 import Internal.Bars
@@ -18,22 +18,8 @@ default =
 
 
 {-| -}
-custom : Properties -> Config
+custom : Int -> Float -> Config
 custom =
   Internal.Bars.custom
 
 
-{-| -}
-type alias Properties =
-  { label : Maybe (Float -> Label)
-  , width : Float
-  , borderRadius : Int
-  }
-
-
-{-| -}
-type alias Label =
-  { xOffset : Float
-  , yOffset : Float
-  , text : String
-  }

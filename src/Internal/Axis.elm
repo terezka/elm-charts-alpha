@@ -1,5 +1,5 @@
 module Internal.Axis exposing
-  ( Config, default, custom, full, time, none, picky
+  ( Config, default, custom, full, time, picky
   , variable, pixels, range, ticks, title, unit
   , viewHorizontal, viewVertical
   )
@@ -49,16 +49,7 @@ default pixels title unit variable =
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.rangeFrame Colors.gray
-    , ticks =
-        Ticks.custom <| \data range ->
-          let smallest = Coordinate.smallestRange data range
-              rangeLong = range.max - range.min
-              rangeSmall = smallest.max - smallest.min
-              diff = 1 - (rangeLong - rangeSmall) / rangeLong
-              amount = round <| diff * toFloat pixels / 90
-              values = Values.float (Values.around amount) smallest
-          in
-          [ Ticks.set Tick.float toString identity values ]
+    , ticks = Ticks.defaultFloat
     }
 
 
@@ -73,13 +64,7 @@ full pixels title unit variable =
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
-    , ticks =
-        Ticks.custom <| \data range ->
-          let largest = Coordinate.largestRange data range
-              amount = pixels // 90
-              values = Values.float (Values.around amount) largest
-          in
-          [ Ticks.set Tick.float toString identity values ]
+    , ticks = Ticks.full
     }
 
 
@@ -93,30 +78,7 @@ time pixels title unit variable =
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.rangeFrame Colors.gray
-    , ticks =
-        Ticks.custom <| \data range ->
-          let smallest = Coordinate.smallestRange data range
-              rangeLong = range.max - range.min
-              rangeSmall = smallest.max - smallest.min
-              diff = 1 - (rangeLong - rangeSmall) / rangeLong
-              amount = round <| diff * toFloat pixels / 90
-              values = Values.time amount smallest
-          in
-          [ Ticks.set Tick.time Tick.format .timestamp values ]
-    }
-
-
-{-| -} -- TODO should this exist??
-none : Int -> Unit.Config -> (data -> value) ->  Config value data msg
-none pixels unit variable =
-  custom
-    { title = Title.default ""
-    , unit = unit
-    , variable = variable
-    , pixels = pixels
-    , range = Range.padded 20 20
-    , axisLine = AxisLine.none
-    , ticks = Ticks.custom <| \_ _ -> []
+    , ticks = Ticks.defaultTime
     }
 
 
@@ -130,7 +92,9 @@ picky pixels title unit variable ticks =
     , pixels = pixels
     , range = Range.padded 20 20
     , axisLine = AxisLine.default
-    , ticks = Ticks.custom <| \_ _ -> [ Ticks.set Tick.float toString identity ticks ]
+    , ticks = 
+        Ticks.custom <| \_ _ _ ->
+         [ Ticks.set Tick.float toString identity ticks ]
     }
 
 
@@ -147,9 +111,9 @@ variable (Config config) =
 
 
 {-| -}
-pixels : Config value data msg -> Float
+pixels : Config value data msg -> Int
 pixels (Config config) =
-  toFloat config.pixels
+  config.pixels
 
 
 {-| -}
@@ -167,8 +131,8 @@ ticks (Config config) =
 {-| -}
 title : Config value data msg -> String
 title (Config config) =
-  let { title } = Title.config config.title in
-  title
+  let title = Title.config config.title in
+  title.text
 
 
 {-| -}
@@ -195,7 +159,7 @@ viewHorizontal system intersection (Config config) =
     let
         viewConfig =
           { line = AxisLine.config config.axisLine system.xData system.x
-          , ticks = Ticks.ticks system.xData system.x config.ticks
+          , ticks = Ticks.ticks config.pixels system.xData system.x config.ticks
           , intersection = Intersection.getY intersection system
           , title = Title.config config.title
           }
@@ -222,7 +186,7 @@ viewVertical system intersection (Config config) =
     let
         viewConfig =
           { line = AxisLine.config config.axisLine system.yData system.y
-          , ticks = Ticks.ticks system.yData system.y config.ticks
+          , ticks = Ticks.ticks config.pixels system.yData system.y config.ticks
           , intersection = Intersection.getX intersection system
           , title = Title.config config.title
           }
@@ -259,7 +223,7 @@ viewHorizontalTitle system at { title } =
         ]
     , anchorStyle (Maybe.withDefault Start title.anchor)
     ]
-    [ title.view title.title ]
+    [ title.view title.text ]
 
 
 viewVerticalTitle : Coordinate.System -> (Float -> Data.Point) -> ViewConfig msg -> Svg msg
@@ -274,7 +238,7 @@ viewVerticalTitle system at { title } =
         ]
     , anchorStyle (Maybe.withDefault End title.anchor)
     ]
-    [ title.view title.title ]
+    [ title.view title.text ]
 
 
 

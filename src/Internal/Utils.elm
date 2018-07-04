@@ -8,6 +8,33 @@ import Internal.Coordinate as Coordinate
 
 
 {-| -}
+findIndex : v -> List v -> Maybe Int 
+findIndex searched data =
+  let isIndex ( i, v ) = 
+        if searched == v 
+          then Just i 
+          else Nothing
+  in
+  data
+    |> List.indexedMap (,) 
+    |> List.filterMap isIndex
+    |> List.head 
+    |> Maybe.map (add 1)
+
+
+{-| -}
+add : number -> number -> number 
+add a b =
+  a + b
+
+
+{-| -}
+pair : String -> String -> String 
+pair p v =
+  p ++ ": " ++ v
+
+
+{-| -}
 addIf : Bool -> List a -> List a
 addIf condition stuff =
   if condition then stuff else []

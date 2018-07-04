@@ -1,7 +1,8 @@
 module Internal.Axis.Dependent exposing
   ( Config, Properties, default, custom
   -- INTERNAL
-  , toNormal, config, unit
+  , unit, title
+  , toNormal
   )
 
 
@@ -14,6 +15,7 @@ import Internal.Axis.Line as AxisLine
 import Internal.Axis.Title as Title
 import Internal.Axis as Axis
 import Internal.Unit as Unit
+import Internal.Utils as Utils
 
 
 
@@ -42,16 +44,7 @@ default pixels title unit =
     , range = Range.default
     , pixels = pixels
     , axisLine = AxisLine.default
-    , ticks = -- TODO weird oppisite axis length ticks discrepancy
-        Ticks.custom <| \data range ->
-          let smallest = Coordinate.smallestRange data range
-              rangeLong = range.max - range.min
-              rangeSmall = smallest.max - smallest.min
-              diff = 1 - (rangeLong - rangeSmall) / rangeLong
-              amount = round <| diff * toFloat pixels / 90
-              values = Values.float (Values.around amount) smallest
-          in
-          [ Ticks.set Tick.float toString identity values ]
+    , ticks = Ticks.defaultFloat
     }
 
 
@@ -61,6 +54,10 @@ custom =
   Config
 
 
+
+-- INTERNAL / API
+
+
 {-| -}
 unit : Config msg -> Float -> String
 unit (Config properties) =
@@ -68,25 +65,26 @@ unit (Config properties) =
 
 
 {-| -}
-config : Config msg -> Properties msg
-config (Config properties) =
-  properties
+title : Config msg -> String
+title (Config config) =
+  let title = Title.config config.title in
+  title.text
 
 
-toNormal : List data -> Config msg -> Axis.Config Float data msg
-toNormal data (Config config) =
-  let
-    find datum =
-      List.filterMap (isOk datum)
-        >> List.head >> Maybe.withDefault 0 >> (+) 1 >> toFloat
 
-    isOk datum ( i, v ) =
-      if datum == v then Just i else Nothing
+-- INTERNAL / CONVERT TO NORMAL AXIS
+
+
+{-| -}
+toNormal : Config msg -> List data -> Axis.Config Float data msg
+toNormal (Config config) data =
+  let variable datum =
+        Maybe.withDefault 1 (Utils.findIndex datum data)
   in
   Axis.custom
     { title = config.title
     , unit = config.unit
-    , variable = \datum -> find datum (List.indexedMap (,) data)
+    , variable = variable >> toFloat
     , pixels = config.pixels
     , range = config.range
     , axisLine = config.axisLine
