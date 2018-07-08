@@ -14,15 +14,15 @@ import Internal.Utils
 import Internal.Events
 import Internal.Legends
 import Internal.Grid
-import Internal.Data
+import Internal.Point
 import Internal.Junk
 import Internal.Utils
 
 
 {-| -}
-type alias Arguments chart value data msg =
+type alias Arguments element value data msg =
   { container : Internal.Container.Config msg
-  , events : Internal.Events.Config chart data msg
+  , events : Internal.Events.Config element data msg
   , defs : List (Svg.Svg msg)
   , grid : Internal.Grid.Config
   , series : Svg.Svg msg
@@ -37,7 +37,7 @@ type alias Arguments chart value data msg =
 
 
 {-| -}
-view : Arguments chart value data msg -> List (Internal.Data.Data chart data) -> Internal.Coordinate.System -> Html.Html msg
+view : Arguments element value data msg -> List (Internal.Point.Point element data) -> Internal.Coordinate.System -> Html.Html msg
 view args data system =
   let withSystem = List.map (Internal.Utils.apply system)
       size = Internal.Container.properties .size args.container

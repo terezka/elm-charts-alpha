@@ -10,7 +10,7 @@ import Svg.Attributes
 import Internal.Coordinate as Coordinate exposing (..)
 import Internal.Unit as Unit
 import Internal.Colors as Colors
-import Internal.Data as Data
+import Internal.Point as Point
 import Internal.Axis.Range as Range
 import Internal.Axis.Tick as Tick
 import Internal.Axis.Values as Values
@@ -192,7 +192,7 @@ viewVertical system pixels intersection (Config config) =
 -- INTERNAL / VIEW / TITLE
 
 
-viewHorizontalTitle : (Float -> Data.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalTitle : (Float -> Coordinate.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
 viewHorizontalTitle at { title } system =
   let position = at (title.position system.xData system.x)
       ( xOffset, yOffset ) = title.offset
@@ -204,7 +204,7 @@ viewHorizontalTitle at { title } system =
     [ title.view title.text ]
 
 
-viewVerticalTitle : (Float -> Data.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalTitle : (Float -> Coordinate.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
 viewVerticalTitle at { title } system =
   let position = at (title.position system.yData system.y)
       ( xOffset, yOffset ) = title.offset
@@ -243,19 +243,19 @@ attributesLine { events, width, color } system =
 -- INTERNAL / VIEW / TICK
 
 
-viewHorizontalTick : Data.Point -> Ticks.Compiled msg -> Coordinate.System -> Svg.Svg msg
-viewHorizontalTick ({ x, y } as point) tick system =
+viewHorizontalTick : Coordinate.Point -> Ticks.Compiled msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalTick ({ x, y } as coordinates) tick system =
   Svg.c "tick" []
     [ Svg.xTick (lengthOfTick tick.config) (attributesTick tick.config) y x system
-    , viewHorizontalLabel tick.config point (tick.config.label tick.label) system
+    , viewHorizontalLabel tick.config coordinates (tick.config.label tick.label) system
     ]
 
 
-viewVerticalTick : Data.Point -> Ticks.Compiled msg -> Coordinate.System -> Svg.Svg msg
-viewVerticalTick ({ x, y } as point) tick system =
+viewVerticalTick : Coordinate.Point -> Ticks.Compiled msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalTick ({ x, y } as coordinates) tick system =
   Svg.c "tick" []
     [ Svg.yTick (lengthOfTick tick.config) (attributesTick tick.config) x y system
-    , viewVerticalLabel tick.config point (tick.config.label tick.label) system
+    , viewVerticalLabel tick.config coordinates (tick.config.label tick.label) system
     ]
 
 
@@ -271,7 +271,7 @@ attributesTick { width, color } =
   ]
 
 
-viewHorizontalLabel : Tick.Properties msg -> Data.Point -> Svg.Svg msg -> Coordinate.System -> Svg.Svg msg
+viewHorizontalLabel : Tick.Properties msg -> Coordinate.Point -> Svg.Svg msg -> Coordinate.System -> Svg.Svg msg
 viewHorizontalLabel { direction, length } position view system =
   let yOffset = if Tick.isPositive direction then -5 - length else 15 + length
   in
@@ -282,7 +282,7 @@ viewHorizontalLabel { direction, length } position view system =
     [ view ]
 
 
-viewVerticalLabel : Tick.Properties msg -> Data.Point -> Svg.Svg msg -> Coordinate.System -> Svg.Svg msg
+viewVerticalLabel : Tick.Properties msg -> Coordinate.Point -> Svg.Svg msg -> Coordinate.System -> Svg.Svg msg
 viewVerticalLabel { direction, length } position view system =
   let anchor = if Tick.isPositive direction then Svg.Start else Svg.End
       xOffset = if Tick.isPositive direction then 5 + length else -5 - length

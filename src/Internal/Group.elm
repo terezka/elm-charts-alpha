@@ -15,8 +15,8 @@ module Internal.Group exposing
 import Svg
 import Svg.Attributes as Attributes
 import Internal.Coordinate as Coordinate
-import Internal.Data as Data
-import Internal.Dots as Dots
+import Internal.Point as Point
+import Internal.Dot as Dots
 import Internal.Outliers as Outliers
 import Color
 
@@ -65,11 +65,11 @@ colorBase (Group config) =
 
 
 {-| -}
-color : Config data -> Group data -> List (Data.ScatterChart data) -> Color.Color
-color (Config config) (Group line) data =
+color : Config data -> Group data -> List (Point.Point Element.Dot data) -> Color.Color
+color (Config config) (Group line) point =
   let
     (Style style) =
-      config (List.map .user data)
+      config (List.map .source point)
   in
   style.color line.color
 
@@ -142,27 +142,27 @@ type alias Arguments data =
 
 
 {-| -}
-view : Arguments data -> List (Group data) -> List (List (Data.ScatterChart data)) -> Svg.Svg msg
-view arguments lines datas =
+view : Arguments data -> List (Group data) -> List (List (Point.Point Element.Dot data)) -> Svg.Svg msg
+view arguments lines points =
   let
     container =
       Svg.g [ Attributes.class "chart__groups" ]
   in
-  List.map2 (viewSingle arguments) lines datas
+  List.map2 (viewSingle arguments) lines points
     |> container
 
 
-viewSingle : Arguments data -> Group data -> List (Data.ScatterChart data) -> Svg.Svg msg
-viewSingle arguments line data =
+viewSingle : Arguments data -> Group data -> List (Point.Point Element.Dot data) -> Svg.Svg msg
+viewSingle arguments line points =
   let
     -- Style
     style =
-      arguments.lineConfig |> \(Config look) -> look (List.map .user data)
+      arguments.lineConfig |> \(Config look) -> look (List.map .source points)
 
     -- Dots
     viewDots =
-      data
-        |> List.filter (Data.isWithinRange arguments.system << .point)
+      points
+        |> List.filter (Coordinate.isWithinRange arguments.system << .coordinates)
         |> List.map (viewDot arguments line style)
         |> Svg.g [ Attributes.class "chart__group" ]
   in
@@ -173,7 +173,7 @@ viewSingle arguments line data =
 -- VIEW / DOT
 
 
-viewDot : Arguments data -> Group data -> Style -> Data.ScatterChart data -> Svg.Svg msg
+viewDot : Arguments data -> Group data -> Style -> Point.Point Element.Dot data -> Svg.Svg msg
 viewDot arguments (Group lineConfig) (Style style) =
   Dots.viewForScatter
     { system = arguments.system
@@ -189,7 +189,7 @@ viewDot arguments (Group lineConfig) (Style style) =
 
 
 {-| -}
-viewSample : Dots.Config data -> Config data -> Coordinate.System -> Group data -> List (Data.ScatterChart data) -> Float -> Svg.Svg msg
+viewSample : Dots.Config data -> Config data -> Coordinate.System -> Group data -> List (Point.Point Element.Dot data) -> Float -> Svg.Svg msg
 viewSample dotsConfig lineConfig system line data sampleWidth =
   let
     dotPosition =

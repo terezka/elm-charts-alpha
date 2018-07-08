@@ -22,7 +22,7 @@ import Internal.Colors as Colors
 import Internal.Coordinate as Coordinate
 import Internal.Svg as Svg
 import Internal.Path as Path
-import Internal.Data as Data
+import Internal.Point as Point
 import Internal.Group as Group
 import Internal.Utils as Utils
 

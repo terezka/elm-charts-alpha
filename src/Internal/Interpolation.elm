@@ -3,7 +3,7 @@ module Internal.Interpolation exposing (Config(..), toCommands)
 {-| -}
 
 import Internal.Path as Path exposing (..)
-import Internal.Data as Data exposing (..)
+import Internal.Point as Point exposing (..)
 
 
 
@@ -15,19 +15,19 @@ type Config
 
 
 {-| -}
-toCommands : Config -> List (List (Data.Data chart data), Maybe (Data.Data chart data)) -> List (List Command)
-toCommands interpolation data =
+toCommands : Config -> List (List (Point.Point element data), Maybe (Point.Point element data)) -> List (List Command)
+toCommands interpolation point =
   let
     points =
-      List.map (Tuple.first >> List.map .point)
+      List.map (Tuple.first >> List.map .coordinates)
 
     pointsSections =
-      List.map (Tuple.mapFirst (List.map .point) >> Tuple.mapSecond (Maybe.map .point))
+      List.map (Tuple.mapFirst (List.map .coordinates) >> Tuple.mapSecond (Maybe.map .coordinates))
   in
   case interpolation of
-    Linear   -> linear (points data)
-    Monotone -> monotone (points data)
-    Stepped  -> stepped (pointsSections data)
+    Linear   -> linear (points point)
+    Monotone -> monotone (points point)
+    Stepped  -> stepped (pointsSections point)
 
 
 

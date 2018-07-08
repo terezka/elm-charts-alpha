@@ -14,11 +14,11 @@ module Internal.Line exposing
 
 import Svg
 import Svg.Attributes as Attributes
-import LineChart.Junk as Junk
+import Chart.Junk as Junk
 import Internal.Area as Area
 import Internal.Coordinate as Coordinate
-import Internal.Data as Data
-import Internal.Dots as Dots
+import Internal.Point as Point
+import Internal.Dot as Dots
 import Internal.Interpolation as Interpolation
 import Internal.Path as Path
 import Internal.Utils as Utils
@@ -71,11 +71,11 @@ colorBase (Series config) =
 
 
 {-| -}
-color : Config data -> Series data -> List (Data.LineChart data) -> Color.Color
-color (Config config) (Series line) data =
+color : Config data -> Series data -> List (Point.Point Element.LineDot data) -> Color.Color
+color (Config config) (Series line) point =
   let
     (Style style) =
-      config (List.map .user data)
+      config (List.map .source point)
   in
   style.color line.color
 
@@ -161,8 +161,8 @@ type alias Arguments data =
 
 
 {-| -}
-view : Arguments data -> List (Series data) -> List (List (Data.LineChart data)) -> Svg.Svg msg
-view arguments lines datas =
+view : Arguments data -> List (Series data) -> List (List (Point.Point Element.LineDot data)) -> Svg.Svg msg
+view arguments lines points =
   let
     container =
       Svg.g [ Attributes.class "chart__lines" ]
@@ -172,7 +172,7 @@ view arguments lines datas =
         then viewStacked arguments.area
         else viewNormal
   in
-  List.map2 (viewSingle arguments) lines datas
+  List.map2 (viewSingle arguments) lines points
     |> Utils.unzip3
     |> buildSeriesViews
     |> container
@@ -198,25 +198,25 @@ viewStacked area ( areas, lines, dots ) =
   ]
 
 
-viewSingle : Arguments data -> Series data -> List (Data.LineChart data) -> ( Svg.Svg msg, Svg.Svg msg, Svg.Svg msg )
-viewSingle arguments line data =
+viewSingle : Arguments data -> Series data -> List (Point.Point Element.LineDot data) -> ( Svg.Svg msg, Svg.Svg msg, Svg.Svg msg )
+viewSingle arguments line point =
   let
     -- Parting
     sections =
-      Utils.part .isReal data [] []
+      Utils.part Element.isReal point [] []
 
     parts =
       List.map Tuple.first sections
 
     -- Style
     style =
-      arguments.lineConfig |> \(Config look) -> look (List.map .user data)
+      arguments.lineConfig |> \(Config look) -> look (List.map .source point)
 
     -- Dots
     viewDots =
       parts
         |> List.concat
-        |> List.filter (Data.isWithinRange arguments.system << .point)
+        |> List.filter (Coordinate.isWithinRange arguments.system << .coordinates)
         |> List.map (viewDot arguments line style)
         |> Svg.g [ Attributes.class "chart__dots" ]
 
@@ -227,7 +227,7 @@ viewSingle arguments line data =
     viewAreas () =
       Svg.g
         [ Attributes.class "chart__interpolation__area" ] <|
-        List.map2 (viewArea arguments line style) commands parts
+        List.map (viewArea arguments line style) commands
 
     viewSeriess =
       Svg.g
@@ -244,7 +244,7 @@ viewSingle arguments line data =
 -- VIEW / DOT
 
 
-viewDot : Arguments data -> Series data -> Style -> Data.LineChart data -> Svg.Svg msg
+viewDot : Arguments data -> Series data -> Style -> Point.Point Element.LineDot data -> Svg.Svg msg
 viewDot arguments (Series lineConfig) (Style style) =
   Dots.viewForLines
     { system = arguments.system
@@ -259,14 +259,14 @@ viewDot arguments (Series lineConfig) (Style style) =
 -- VIEW / LINE
 
 
-viewSeries : Arguments data -> Series data -> Style -> List Path.Command -> List (Data.LineChart data) -> Svg.Svg msg
-viewSeries { system, lineConfig } line style interpolation data =
+viewSeries : Arguments data -> Series data -> Style -> List Path.Command -> List (Point.Point Element.LineDot data) -> Svg.Svg msg
+viewSeries { system, lineConfig } line style interpolation points =
   let
     attributes =
       Junk.withinChartArea system :: toSeriesAttributes line style
   in
-  Utils.viewWithFirst data <| \first _ ->
-    Path.view system attributes (Path.Move first.point :: interpolation)
+  Utils.viewWithFirst points <| \first _ ->
+    Path.view system attributes (Path.Move first.coordinates :: interpolation)
 
 
 toSeriesAttributes : Series data -> Style -> List (Svg.Attribute msg)
@@ -284,8 +284,8 @@ toSeriesAttributes (Series { color, dashing }) (Style style) =
 -- VIEW / AREA
 
 
-viewArea : Arguments data -> Series data -> Style -> List Path.Command -> List (Data.LineChart data) -> Svg.Svg msg
-viewArea { system, lineConfig, area } line style interpolation data =
+viewArea : Arguments data -> Series data -> Style -> List Path.Command -> Svg.Svg msg
+viewArea { system, lineConfig, area } line style interpolation =
   let
     ground point =
       Data.Point point.x (Utils.towardsZero system.y)
@@ -316,7 +316,7 @@ toAreaAttributes (Series { color }) (Style style) area =
 
 
 {-| -}
-viewSample : Dots.Config data -> Config data -> Area.Config -> Coordinate.System -> Series data -> List (Data.LineChart data) -> Float -> Svg.Svg msg
+viewSample : Dots.Config data -> Config data -> Area.Config -> Coordinate.System -> Series data -> List (Point.Point Element.LineDot data) -> Float -> Svg.Svg msg
 viewSample dotsConfig lineConfig area system line data sampleWidth =
   let
     dotPosition =
@@ -336,11 +336,11 @@ viewSample dotsConfig lineConfig area system line data sampleWidth =
     ]
 
 
-viewLineSample : Config data -> Series data -> Area.Config -> List (Data.LineChart data) -> Float -> Svg.Svg msg
-viewLineSample (Config look) line area data sampleWidth =
+viewLineSample : Config data -> Series data -> Area.Config -> List (Point.Point Element.LineDot data) -> Float -> Svg.Svg msg
+viewLineSample (Config look) line area points sampleWidth =
   let
     style =
-      look (List.map .user data)
+      look (List.map .source points)
 
     lineAttributes =
       toSeriesAttributes line style

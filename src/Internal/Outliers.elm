@@ -11,7 +11,7 @@ module Internal.Outliers
 
 
 import Color.Manipulate
-import Internal.Dots as Dots
+import Internal.Dot as Dots
 import Color.Manipulate
 
 
