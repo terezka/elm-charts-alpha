@@ -37,7 +37,7 @@ pink =
 {-| -}
 pinkLight : Color.Color
 pinkLight =
-  Color.rgba 244 143 177 1
+  Color.rgba 255 185 240 1
 
 
 {-| -}
@@ -61,7 +61,7 @@ blue =
 {-| -}
 blueLight : Color.Color
 blueLight =
-  Color.rgba 128 222 234 1
+  Color.rgba 156 224 255 1
 
 
 {-| -}
@@ -115,7 +115,7 @@ cyan =
 {-| -}
 cyanLight : Color.Color
 cyanLight =
-  Color.rgba 128 222 234 1
+  Color.rgba 171 247 255 1
 
 
 {-| -}

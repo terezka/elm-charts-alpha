@@ -8,7 +8,7 @@ module Chart.Events exposing
 
 {-|
 
-@docs Config, default, hoverOne, hoverMany, click
+@docs Config, default, hoverOne, hoverBlock, hoverBlocks, hoverMany, click
 
 # Customization
 @docs custom

@@ -14,6 +14,7 @@ import Chart.Grid
 import Chart.Block
 import Chart.Junk
 import Chart.Pattern
+import Chart.Colors as Colors
 import Chart.Blocks
 import Chart.Element as Element
 import Color
@@ -98,7 +99,7 @@ chart model =
     , grid = Chart.Grid.none
     , bars = Chart.Block.custom 2 100
     , junk = Chart.Junk.hoverBlocks model.hovering
-    , pattern = Chart.Pattern.default
+    , pattern = Chart.Pattern.custom 2 1
     }
     [ indonesia
     , malaysia
@@ -113,7 +114,7 @@ indonesia : Chart.Blocks.Series Data
 indonesia =
   Chart.Blocks.series
     { title = "Indonesia"
-    , style = Chart.Blocks.bordered (Color.rgba 245 105 215 0.5) (Color.rgba 245 105 215 1)
+    , style = Chart.Blocks.bordered Colors.pinkLight Colors.pink
     , variable = .indonesia
     , pattern = True
     }
@@ -123,7 +124,7 @@ malaysia : Chart.Blocks.Series Data
 malaysia =
   Chart.Blocks.series
     { title = "Malaysia"
-    , style = Chart.Blocks.bordered (Color.rgba 0 229 255 0.5) (Color.rgba 0 229 255 1)
+    , style = Chart.Blocks.bordered Colors.blueLight Colors.blue 
     , variable = .malaysia
     , pattern = False
     }
@@ -133,7 +134,7 @@ vietnam : Chart.Blocks.Series Data
 vietnam =
   Chart.Blocks.series
     { title = "Vietnam"
-    , style = Chart.Blocks.bordered (Color.rgba 3 169 244 0.5) (Color.rgba 3 169 244 1)
+    , style = Chart.Blocks.bordered Colors.cyanLight Colors.cyan
     , variable = .vietnam
     , pattern = False
     }
@@ -153,8 +154,8 @@ type alias Data =
 
 data : List Data
 data =
-  [ Data 1 5 2 "1st"
-  , Data 2 6 3 "2nd"
-  , Data 3 7 6 "3rd"
-  , Data 4 8 3 "4th"
+  [ Data 1 5 2 "1"
+  , Data 2 6 3 "2"
+  , Data 3 7 6 "3"
+  , Data 4 8 3 "4"
   ]

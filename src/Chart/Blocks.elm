@@ -33,55 +33,55 @@ module Chart.Blocks exposing
 
 import Svg
 import Svg.Attributes
+import Color
 
-import Chart.Junk as Junk
-import Chart.Axis.Dependent as AxisDependent
-import Chart.Axis.Independent as AxisIndependent
-import Chart.Grid as Grid
-import Chart.Events as Events
-import Chart.Legends as Legends
-import Chart.Container as Container
-import Chart.Orientation as Orientation
-import Chart.Pattern as Pattern
-import Chart.Block as Block
-import Chart.Axis.Unit as Unit
-import Chart.Element as Element
-import Chart.Colors as Colors
+import Chart.Axis.Unit
+import Chart.Axis.Dependent
+import Chart.Axis.Independent
+import Chart.Block
+import Chart.Colors
+import Chart.Container
+import Chart.Element
+import Chart.Events
+import Chart.Grid
+import Chart.Junk
+import Chart.Legends
+import Chart.Orientation
+import Chart.Pattern
 
-import Internal.Chart
-import Internal.Block
-import Internal.Orientation
-import Internal.Events
-import Internal.Element
 import Internal.Axis
 import Internal.Axis.Dependent
 import Internal.Axis.Independent
 import Internal.Axis.Intersection
 import Internal.Axis.Range
 import Internal.Axis.Title
-import Internal.Junk
+import Internal.Block
+import Internal.Chart
 import Internal.Container
+import Internal.Element
+import Internal.Events
+import Internal.Junk
 import Internal.Pattern
+import Internal.Orientation
 
 import Internal.Point as Point
 import Internal.Utils as Utils
 import Internal.Coordinate as Coordinate
 import Internal.Svg as Svg
-import Color
 
 
 {-| -}
 type alias Config data msg =
-  { independentAxis : AxisIndependent.Config data msg
-  , dependentAxis : AxisDependent.Config msg
-  , container : Container.Config msg
-  , orientation : Orientation.Config
-  , legends : Legends.Config msg
-  , events : Events.Config Element.Block data msg
-  , grid : Grid.Config
-  , bars : Block.Config
-  , junk : Junk.Config Element.Block msg
-  , pattern : Pattern.Config
+  { independentAxis : Chart.Axis.Independent.Config data msg
+  , dependentAxis : Chart.Axis.Dependent.Config msg
+  , container : Chart.Container.Config msg
+  , orientation : Chart.Orientation.Config
+  , legends : Chart.Legends.Config msg
+  , events : Chart.Events.Config Chart.Element.Block data msg
+  , grid : Chart.Grid.Config
+  , bars : Chart.Block.Config
+  , junk : Chart.Junk.Config Chart.Element.Block msg
+  , pattern : Chart.Pattern.Config
   }
 
 
@@ -142,7 +142,7 @@ view1 toInd toDep =
   viewCustom (defaultConfig toInd)
     [ series
         { title = "Serie 1"
-        , style = solid Colors.pink
+        , style = solid Chart.Colors.pink
         , variable = toDep
         , pattern = False
         }
@@ -155,13 +155,13 @@ view2 toInd toDep1 toDep2 =
   viewCustom (defaultConfig toInd)
     [ series
         { title = "Serie 1"
-        , style = solid Colors.blue
+        , style = solid Chart.Colors.blue
         , variable = toDep1
         , pattern = False
         }
     , series
         { title = "Serie 2"
-        , style = solid Colors.pink
+        , style = solid Chart.Colors.pink
         , variable = toDep2
         , pattern = False
         }
@@ -174,19 +174,19 @@ view3 toInd toDep1 toDep2 toDep3 =
   viewCustom (defaultConfig toInd)
     [ series
         { title = "Serie 1"
-        , style = solid Colors.blue
+        , style = solid Chart.Colors.blue
         , variable = toDep1
         , pattern = False
         }
     , series
         { title = "Serie 2"
-        , style = solid Colors.pink
+        , style = solid Chart.Colors.pink
         , variable = toDep2
         , pattern = False
         }
     , series
         { title = "Serie 3"
-        , style = solid Colors.cyanLight
+        , style = solid Chart.Colors.cyanLight
         , variable = toDep3
         , pattern = False
         }
@@ -243,7 +243,7 @@ viewCustom config bars data =
       , defaults = { width = 10, offsetY = 0 }
       , legends = \width ->
           let legend bar =
-                { sample = Svg.square width (Internal.Block.borderRadius config.bars) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
+                { sample = Svg.square bar.pattern width (Internal.Block.borderRadius config.bars) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
                 , label = bar.title
                 }
           in List.map legend seriesProps
@@ -284,7 +284,7 @@ viewCustom config bars data =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> List (Series data) -> List data -> List (List (Point.Point Element.Block data))
+toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> List (Series data) -> List data -> List (List (Point.Point Internal.Element.Block data))
 toDataPoints config system countOfSeries countOfData width seriesAll data =
   let
     coordinates =
@@ -365,22 +365,15 @@ toSystem config xAxis yAxis countOfData seriesAll data =
 
 defaultConfig : (data -> String) -> Config data msg
 defaultConfig label =
-  { independentAxis = AxisIndependent.default "" label
-  , dependentAxis = AxisDependent.default "" Unit.none
-  , container = Container.default "bar-chart" 700 400
-  , orientation = Orientation.default
-  , legends = Legends.default
-  , events = Events.default
-  , grid = Grid.default
-  , bars = Block.default
-  , junk = Junk.default
-  , pattern = Pattern.default
+  { independentAxis = Chart.Axis.Independent.default "" label
+  , dependentAxis = Chart.Axis.Dependent.default "" Chart.Axis.Unit.none
+  , container = Chart.Container.default "bar-chart" 700 400
+  , orientation = Chart.Orientation.default
+  , legends = Chart.Legends.default
+  , events = Chart.Events.default
+  , grid = Chart.Grid.default
+  , bars = Chart.Block.default
+  , junk = Chart.Junk.default
+  , pattern = Chart.Pattern.default
   }
 
-
-defaultColors : List Color.Color
-defaultColors =
-  [ Colors.pink
-  , Colors.blue
-  , Colors.gold
-  ]

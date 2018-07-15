@@ -7,7 +7,7 @@ import Svg.Attributes as Attributes
 import Internal.Colors as Colors
 import Internal.Coordinate as Coordinate exposing (..)
 import Internal.Path as Path exposing (..)
-import Internal.Utils exposing (..)
+import Internal.Utils as Utils exposing (..)
 import Color
 import Color.Convert
 
@@ -39,19 +39,26 @@ withinChartArea { id } =
 
 
 {-| -}
-square : Float -> Int -> Color.Color -> Color.Color -> Svg msg
-square width radius fill border =
-  -- TODO add pattern and border radius
-  Svg.rect
-    [ Attributes.y (toString (-width / 2))
-    , Attributes.width (toString width)
-    , Attributes.height (toString width)
-    , Attributes.fill (Color.Convert.colorToCssRgba fill)
-    , Attributes.stroke (Color.Convert.colorToCssRgba border)
-    , Attributes.rx (toString radius)
-    , Attributes.ry (toString radius)
-    ]
-    []
+square : Bool -> Float -> Int -> Color.Color -> Color.Color -> Svg msg
+square pattern width radius fill border =
+  let
+    dependent = 
+      Utils.addIf pattern [ Attributes.mask "url(#mask-stripe)" ]
+
+    default =
+      [ Attributes.y (toString (-width / 2))
+      , Attributes.width (toString width)
+      , Attributes.height (toString width)
+      , Attributes.fill (Color.Convert.colorToCssRgba fill)
+      , Attributes.stroke (Color.Convert.colorToCssRgba border)
+      , Attributes.rx (toString radius)
+      , Attributes.ry (toString radius)
+      ]
+
+    attributes =
+      List.concat [ default, dependent ]
+  in
+  Svg.rect attributes []
 
 
 

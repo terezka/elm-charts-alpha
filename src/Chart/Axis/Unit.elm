@@ -1,7 +1,13 @@
 module Chart.Axis.Unit exposing (Config, Properties, none, years, dollars, millimeters, meters, kilometers, grams, kilograms, custom)
 
 
-{-| -}
+{-|
+
+@docs Config, Properties, none, years, dollars, millimeters, meters, kilometers, grams, kilograms, custom
+
+-}
+
+
 import Internal.Unit
 
 
@@ -56,7 +62,6 @@ grams =
 kilograms : Config
 kilograms =
   Internal.Unit.kilograms
-
 
 
 {-| -}

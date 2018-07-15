@@ -17,7 +17,7 @@ this is where it's at.
 
 <img alt="Legends" width="610" src="https://github.com/terezka/line-charts/blob/master/images/junk.png?raw=true"></src>
 
-@docs Config, default, none, above, below, html, hoverOne, hoverMany
+@docs Config, default, none, above, below, html, hoverBlock, hoverBlocks, hoverDot, hoverDots
 
 # Helpers
 
@@ -145,6 +145,7 @@ hoverDot hovered =
           }
 
 
+{-| -}
 hoverDots : List (Events.Found Element.LineDot data) -> Config Element.LineDot msg
 hoverDots hovered =
   case hovered of

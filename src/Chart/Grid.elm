@@ -2,7 +2,7 @@ module Chart.Grid exposing (Config, default, none, dots, lines)
 
 {-|
 
-@docs Config, default, dots, lines
+@docs Config, default, none, dots, lines
 
 # How do I change where the grid lines/dots are placed?
 
