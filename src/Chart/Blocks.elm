@@ -1,6 +1,35 @@
-module Chart.Blocks exposing (view, Config, Series, series, Style, solid, bordered, alternate)
+module Chart.Blocks exposing 
+  ( view1, view2, view3
+  , view, Series, series
+  , Style, solid, bordered, alternate
+  , viewCustom, Config
+  )
 
-{-| -}
+{-| 
+
+## Table of contents
+
+### Quick start
+> [view1](#view1) for visualizing a single data series.</br>
+> [view2](#view2) for visualizing two data series.</br>
+> [view3](#view3) for visualizing three data series.</br>
+> [view](#view) for visualizing *any* amount of data series.</br>
+
+### Customizing everything
+> [viewCustom](#viewCustom) for configuring any other aspect of the chart (axis, grid, etc.).</br>
+
+
+# Quick start
+@docs view1, view2, view3
+
+# Customizing blocks
+@docs view, Series, series
+@docs Style, solid, bordered, alternate
+
+# Customizing everything
+@docs viewCustom, Config
+
+-}
 
 import Svg
 import Svg.Attributes
@@ -17,6 +46,7 @@ import Chart.Pattern as Pattern
 import Chart.Block as Block
 import Chart.Axis.Unit as Unit
 import Chart.Element as Element
+import Chart.Colors as Colors
 
 import Internal.Chart
 import Internal.Block
@@ -107,8 +137,71 @@ alternate =
 
 
 {-| -}
-view : Config data msg -> List (Series data) -> List data -> Svg.Svg msg
-view config bars data =
+view1 : (data -> String) -> (data -> Float) -> List data -> Svg.Svg msg
+view1 toInd toDep =
+  viewCustom (defaultConfig toInd)
+    [ series
+        { title = "Serie 1"
+        , style = solid Colors.pink
+        , variable = toDep
+        , pattern = False
+        }
+    ]
+
+
+{-| -}
+view2 : (data -> String) -> (data -> Float) -> (data -> Float) -> List data -> Svg.Svg msg
+view2 toInd toDep1 toDep2 =
+  viewCustom (defaultConfig toInd)
+    [ series
+        { title = "Serie 1"
+        , style = solid Colors.blue
+        , variable = toDep1
+        , pattern = False
+        }
+    , series
+        { title = "Serie 2"
+        , style = solid Colors.pink
+        , variable = toDep2
+        , pattern = False
+        }
+    ]
+
+
+{-| -}
+view3 : (data -> String) -> (data -> Float) -> (data -> Float) -> (data -> Float) -> List data -> Svg.Svg msg
+view3 toInd toDep1 toDep2 toDep3 =
+  viewCustom (defaultConfig toInd)
+    [ series
+        { title = "Serie 1"
+        , style = solid Colors.blue
+        , variable = toDep1
+        , pattern = False
+        }
+    , series
+        { title = "Serie 2"
+        , style = solid Colors.pink
+        , variable = toDep2
+        , pattern = False
+        }
+    , series
+        { title = "Serie 3"
+        , style = solid Colors.cyanLight
+        , variable = toDep3
+        , pattern = False
+        }
+    ]
+
+
+{-| -}
+view : (data -> String) -> List (Series data) -> List data -> Svg.Svg msg
+view toInd =
+  viewCustom (defaultConfig toInd)
+
+
+{-| -}
+viewCustom : Config data msg -> List (Series data) -> List data -> Svg.Svg msg
+viewCustom config bars data =
   let
     -- Data / System
     seriesProps = List.map Internal.Block.seriesProps bars
@@ -270,8 +363,8 @@ toSystem config xAxis yAxis countOfData seriesAll data =
 -- INTERNAL / DEFAULTS
 
 
-defaultConfig : (data -> String) -> (data -> Float) -> Config data msg
-defaultConfig label toY =
+defaultConfig : (data -> String) -> Config data msg
+defaultConfig label =
   { independentAxis = AxisIndependent.default "" label
   , dependentAxis = AxisDependent.default "" Unit.none
   , container = Container.default "bar-chart" 700 400
@@ -283,3 +376,11 @@ defaultConfig label toY =
   , junk = Junk.default
   , pattern = Pattern.default
   }
+
+
+defaultColors : List Color.Color
+defaultColors =
+  [ Colors.pink
+  , Colors.blue
+  , Colors.gold
+  ]

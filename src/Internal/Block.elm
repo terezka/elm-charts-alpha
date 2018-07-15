@@ -45,7 +45,7 @@ type alias ConfigProps =
 {-| -}
 default : Config
 default =
-  custom 3 100
+  custom 2 100
 
 
 {-| -}

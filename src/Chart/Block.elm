@@ -1,6 +1,10 @@
 module Chart.Block exposing (Config, default, custom)
 
-{-| @docs Config, default, custom -}
+{-| 
+
+@docs Config, default, custom 
+
+-}
 
 
 import Internal.Block

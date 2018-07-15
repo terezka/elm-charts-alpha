@@ -32,7 +32,6 @@ import Color
 
 
 -- TODO / INTERNAL
--- collapse everything <---
 -- SVG api
 -- review outliers
 
@@ -89,7 +88,7 @@ view model =
 
 chart : Model -> Html.Html Msg
 chart model =
-  Chart.Blocks.view
+  Chart.Blocks.viewCustom
     { independentAxis = Chart.Axis.Independent.default "quarter" .label
     , dependentAxis = Chart.Axis.Dependent.default "income" Chart.Axis.Unit.dollars
     , container = Chart.Container.default "bar-chart" 700 400
