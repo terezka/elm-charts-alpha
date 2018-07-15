@@ -1,11 +1,11 @@
-module Chart.Outliers
-  exposing
-    ( Config
-    , DotConfig
-    , default
-    , custom
-    , range
-    )
+module Chart.Outliers exposing (Config, DotConfig, default, custom, range)
+
+
+{-|
+
+@docs Config, DotConfig, default, custom, range
+
+-}
 
 
 import Color

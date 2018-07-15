@@ -30,7 +30,7 @@ Hopefully, these are self-explanatory.
 
 -}
 
-import Internal.Dot as Dots
+import Internal.Dot as Dot
 
 
 
@@ -46,12 +46,12 @@ The shape type changes the shape of your dots.
     humanChart : Html msg
     humanChart =
       Chart.view .age .income
-        [ Chart.line Colors.gold Dots.circle  "Alice" alice
-        --                           ^^^^^^^^^^^
-        , Chart.line Colors.blue Dots.square  "Bobby" bobby
-        --                           ^^^^^^^^^^^
-        , Chart.line Colors.pink Dots.diamond "Chuck" chuck
-        --                           ^^^^^^^^^^^^
+        [ Chart.line Colors.gold Dot.circle  "Alice" alice
+        --                       ^^^^^^^^^^^
+        , Chart.line Colors.blue Dot.square  "Bobby" bobby
+        --                       ^^^^^^^^^^^
+        , Chart.line Colors.pink Dot.diamond "Chuck" chuck
+        --                       ^^^^^^^^^^^^
         ]
 
 
@@ -64,43 +64,43 @@ They can be different shapes (circle, square, etc.) for each line.
 
 -}
 type alias Shape =
-  Dots.Shape
+  Dot.Shape
 
 
 {-| -}
 circle : Shape
 circle =
-  Dots.Circle
+  Dot.Circle
 
 
 {-| -}
 triangle : Shape
 triangle =
-  Dots.Triangle
+  Dot.Triangle
 
 
 {-| -}
 square : Shape
 square =
-  Dots.Square
+  Dot.Square
 
 
 {-| -}
 diamond : Shape
 diamond =
-  Dots.Diamond
+  Dot.Diamond
 
 
 {-| -}
 plus : Shape
 plus =
-  Dots.Plus
+  Dot.Plus
 
 
 {-| -}
 cross : Shape
 cross =
-  Dots.Cross
+  Dot.Cross
 
 
 {-|
@@ -112,7 +112,7 @@ Use in the `Chart.Config` passed to `Chart.viewCustom`.
     chartConfig : Chart.Config Data Msg
     chartConfig =
       { ...
-      , dots = Dots.default
+      , dots = Dot.default
       , ...
       }
 
@@ -124,14 +124,14 @@ like whether it has a border or not. See your options under _Styles_.
 
 -}
 type alias Config data =
-  Dots.Config data
+  Dot.Config data
 
 
 {-| Draws a white outline around all your dots.
 -}
 default : Config data
 default =
-  Dots.default
+  Dot.default
 
 
 
@@ -140,9 +140,9 @@ default =
 
 {-| Change the style of _all_ your dots.
 
-    dotsConfig : Dots.Config Data
+    dotsConfig : Dot.Config Data
     dotsConfig =
-      Dots.custom (Dots.full 5)
+      Dot.custom (Dot.full 5)
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Dots/Example2.elm)._
@@ -151,7 +151,7 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 -}
 custom : Style -> Config data
 custom =
-  Dots.custom
+  Dot.custom
 
 
 {-| Change the style of _any_ of your dots. Particularly useful
@@ -161,16 +161,16 @@ your chart by varying the size of your dots based on some property.
 
 **Extra dimension example**
 
-    customDotsConfig : Dots.Config Data
+    customDotsConfig : Dot.Config Data
     customDotsConfig =
       let
         styleLegend _ =
-          Dots.full 7
+          Dot.full 7
 
         styleIndividual datum =
-          Dots.full <| (datum.height - 1) * 12
+          Dot.full <| (datum.height - 1) * 12
       in
-      Dots.customAny
+      Dot.customAny
         { legend = styleLegend
         , individual = styleIndividual
         }
@@ -181,18 +181,18 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 **Hover state example**
 
-    customDotsConfig : Maybe Data -> Dots.Config Data
+    customDotsConfig : Maybe Data -> Dot.Config Data
     customDotsConfig maybeHovered =
       let
         styleLegend _ =
-          Dots.disconnected 10 2
+          Dot.disconnected 10 2
 
         styleIndividual datum =
           if Just datum == maybeHovered
-            then Dots.empty 8 2
-            else Dots.disconnected 10 2
+            then Dot.empty 8 2
+            else Dot.disconnected 10 2
       in
-      Dots.customAny
+      Dot.customAny
         { legend = styleLegend
         , individual = styleIndividual
         }
@@ -208,14 +208,14 @@ customAny :
   }
   -> Config data
 customAny =
-  Dots.customAny
+  Dot.customAny
 
 
 {-| Adds a hover effect on the given dot!
 
-    dotsConfig : Maybe Data -> Dots.Config Data
+    dotsConfig : Maybe Data -> Dot.Config Data
     dotsConfig hovered =
-      Dots.hoverOne hovered
+      Dot.hoverOne hovered
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Dots/Example3.elm)._
@@ -232,7 +232,7 @@ hoverOne maybeHovered =
         then aura 7 6 0.3
         else disconnected 10 2
   in
-  Dots.customAny
+  Dot.customAny
     { legend = styleLegend
     , individual = styleIndividual
     }
@@ -240,9 +240,9 @@ hoverOne maybeHovered =
 
 {-| Adds a hover effect on several given dots!
 
-    dotsConfig : List Data -> Dots.Config Data
+    dotsConfig : List Data -> Dot.Config Data
     dotsConfig hovered =
-      Dots.hoverMany hovered
+      Dot.hoverMany hovered
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Dots/Example5.elm)._
 
@@ -258,7 +258,7 @@ hoverMany hovered =
         then aura 7 6 0.3
         else disconnected 10 2
   in
-  Dots.customAny
+  Dot.customAny
     { legend = styleLegend
     , individual = styleIndividual
     }
@@ -270,7 +270,7 @@ hoverMany hovered =
 
 {-| -}
 type alias Style =
-  Dots.Style
+  Dot.Style
 
 
 {-| Makes dots plain and solid.
@@ -283,7 +283,7 @@ Pass the radius.
 -}
 full : Float -> Style
 full =
-  Dots.full
+  Dot.full
 
 
 {-| Makes dots with a white core and a colored border.
@@ -295,7 +295,7 @@ Pass the radius and the width of the border.
 -}
 empty : Float -> Int -> Style
 empty =
-  Dots.empty
+  Dot.empty
 
 
 {-| Makes dots with a colored core and a white border.
@@ -307,7 +307,7 @@ Pass the radius and the width of the border.
 -}
 disconnected : Float -> Int -> Style
 disconnected =
-  Dots.disconnected
+  Dot.disconnected
 
 
 {-| Makes dots with a colored core and a less colored, transparent "aura".
@@ -321,4 +321,4 @@ aura (A number between 0 and 1).
 -}
 aura : Float -> Int -> Float -> Style
 aura =
-  Dots.aura
+  Dot.aura

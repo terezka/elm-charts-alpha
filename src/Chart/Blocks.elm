@@ -1,6 +1,6 @@
 module Chart.Blocks exposing 
   ( view1, view2, view3
-  , view, Series, series
+  , view, Series, SeriesConfig, series
   , Style, solid, bordered, alternate
   , viewCustom, Config
   )
@@ -23,7 +23,7 @@ module Chart.Blocks exposing
 @docs view1, view2, view3
 
 # Customizing blocks
-@docs view, Series, series
+@docs view, Series, SeriesConfig, series
 @docs Style, solid, bordered, alternate
 
 # Customizing everything
@@ -70,73 +70,26 @@ import Internal.Coordinate as Coordinate
 import Internal.Svg as Svg
 
 
-{-| -}
-type alias Config data msg =
-  { independentAxis : Chart.Axis.Independent.Config data msg
-  , dependentAxis : Chart.Axis.Dependent.Config msg
-  , container : Chart.Container.Config msg
-  , orientation : Chart.Orientation.Config
-  , legends : Chart.Legends.Config msg
-  , events : Chart.Events.Config Chart.Element.Block data msg
-  , grid : Chart.Grid.Config
-  , bars : Chart.Block.Config
-  , junk : Chart.Junk.Config Chart.Element.Block msg
-  , pattern : Chart.Pattern.Config
-  }
-
-
-{-| -}
-type alias Series data =
-  Internal.Block.Series data
-
-
-
-{-| -}
-type alias SeriesConfig data =
-  { title : String
-  , style : Style data
-  , variable : data -> Float
-  , pattern : Bool
-  }
-
-
-{-| -}
-series : SeriesConfig data -> Series data
-series =
-  Internal.Block.series
-
-
--- STYLE
-
-
-{-| -}
-type alias Style data =
-  Internal.Block.Style data
-
-
-{-| -}
-solid : Color.Color -> Style data
-solid =
-  Internal.Block.solid
-
-
-{-| -}
-bordered : Color.Color -> Color.Color -> Style data
-bordered =
-  Internal.Block.bordered
-
-
-{-| -}
-alternate : (Int -> data -> Bool) -> Style data -> Style data -> Style data
-alternate =
-  Internal.Block.alternate
-
-
 
 -- VIEW
 
 
-{-| -}
+{-|
+
+** Show a blocks chart **
+
+    type alias Facts =
+      { country : String, population : Float }
+
+    chart : Html msg
+    chart =
+      Chart.Blocks.view1 .country .population
+        [ Facts "Denmark" 5748769
+        , Facts "Sweden" 10142686
+        , Facts "Norway" 5295619
+        ]
+
+-}
 view1 : (data -> String) -> (data -> Float) -> List data -> Svg.Svg msg
 view1 toInd toDep =
   viewCustom (defaultConfig toInd)
@@ -149,7 +102,25 @@ view1 toInd toDep =
     ]
 
 
-{-| -}
+{-|
+
+** Show a blocks chart with two series **
+
+    type alias Facts =
+      { country : String
+      , population : Float
+      , women : Float
+      }
+
+    chart : Html msg
+    chart =
+      Chart.Blocks.view1 .country .population .women
+        [ Facts "Denmark" 5.7 2.9 
+        , Facts "Sweden" 10.1 5.0
+        , Facts "Norway" 5.2 2.6
+        ]
+
+-}
 view2 : (data -> String) -> (data -> Float) -> (data -> Float) -> List data -> Svg.Svg msg
 view2 toInd toDep1 toDep2 =
   viewCustom (defaultConfig toInd)
@@ -168,7 +139,26 @@ view2 toInd toDep1 toDep2 =
     ]
 
 
-{-| -}
+{-|
+
+** Show a blocks chart with three series **
+
+    type alias Facts =
+      { country : String
+      , population : Float
+      , women : Float
+      , children : Float
+      }
+
+    chart : Html msg
+    chart =
+      Chart.Blocks.view1 .country .population .women .children
+        [ Facts "Denmark" 5.7 2.9 0.9
+        , Facts "Sweden" 10.1 5.0 2.0
+        , Facts "Norway" 5.2 2.6 0.8
+        ]
+
+-}
 view3 : (data -> String) -> (data -> Float) -> (data -> Float) -> (data -> Float) -> List data -> Svg.Svg msg
 view3 toInd toDep1 toDep2 toDep3 =
   viewCustom (defaultConfig toInd)
@@ -193,30 +183,255 @@ view3 toInd toDep1 toDep2 toDep3 =
     ]
 
 
-{-| -}
+
+-- VIEW / ANY AMOUNT
+
+
+{-| 
+
+** Show any amount of lines **
+
+    chart : Html msg
+    chart =
+      Chart.Blocks.view .label [ denmark, norway, sweden, iceland ] data
+        
+    denmark : Chart.Blocks.Series Data
+    denmark =
+      Chart.Blocks.series
+        { title = "Denmark"
+        , style = Chart.Blocks.bordered Colors.pinkLight Colors.pink
+        , variable = .denmark
+        , pattern = False
+        }
+
+    norway : Chart.Blocks.Series Data
+    norway =
+      Chart.Blocks.series
+        { title = "Norway"
+        , style = Chart.Blocks.bordered Colors.blueLight Colors.blue 
+        , variable = .norway
+        , pattern = False
+        }
+
+    sweden : Chart.Blocks.Series Data
+    sweden =
+      Chart.Blocks.series
+        { title = "Sweden"
+        , style = Chart.Blocks.bordered Colors.cyanLight Colors.cyan
+        , variable = .sweden
+        , pattern = False
+        }
+
+    iceland : Chart.Blocks.Series Data
+    iceland =
+      Chart.Blocks.series
+        { title = "Iceland"
+        , style = Chart.Blocks.bordered Colors.goldLight Colors.gold
+        , variable = .iceland
+        , pattern = False
+        }
+
+-}
 view : (data -> String) -> List (Series data) -> List data -> Svg.Svg msg
 view toInd =
   viewCustom (defaultConfig toInd)
 
 
+{-| This type represents the configuration of a series of blocks.
+-}
+type alias Series data =
+  Internal.Block.Series data
+
+
 {-| -}
+type alias SeriesConfig data =
+  { title : String
+  , style : Style data
+  , variable : data -> Float
+  , pattern : Bool
+  }
+
+
+{-| This is the configuration of visual properties of
+a series of blocks.
+
+** Examples of customizations **
+
+    solidBlocks : Chart.Blocks.Series Human
+    solidBlocks =
+      Chart.Blocks.series  Dots.cross "Alice" alice
+        { title = "Total Population"
+        , style = Chart.Blocks.solid Colors.purple
+        , variable = .population
+        , pattern = False
+        }
+
+    stripedBlocks : Chart.Blocks.Series Human
+    stripedBlocks =
+      Chart.Blocks.series
+        { title = "Expected Population"
+        , style = Chart.Blocks.solid Colors.purple
+        , variable = .expectedPopulation
+        , pattern = True -- This makes it striped!
+        }
+-}
+series : SeriesConfig data -> Series data
+series =
+  Internal.Block.series
+
+
+
+-- STYLE
+
+
+{-| The style of a block.
+-}
+type alias Style data =
+  Internal.Block.Style data
+
+
+{-| A solid block. Pass the color.
+-}
+solid : Color.Color -> Style data
+solid =
+  Internal.Block.solid
+
+
+{-| A block with a border. Pass the main color and the border color respectively.
+-}
+bordered : Color.Color -> Color.Color -> Style data
+bordered =
+  Internal.Block.bordered
+
+
+{-| 
+
+Change the style of the block based on the index and data.
+
+    blockStyle : Chart.Blocks.Style Data
+    blockStyle =
+      Chart.Blocks.alternate isNumberThree
+        (Chart.Blocks.solid Chart.Colors.pinkLight) -- shown when condition is false
+        (Chart.Blocks.solid Chart.Colors.pink) -- shown when condition is true
+
+    isNumberThree : Int -> Data -> Bool
+    isNumberThree index _ =
+      index == 3
+
+    isHovered : Model -> Int -> Data -> Bool
+    isHovered model index datum =
+      datum == model.hovered
+
+
+This is nice to use with `Chart.Events.isSeries`, `Chart.Events.isDatum`, 
+and `Chart.Events.isExactly` when working with events. See `Chart.Events`
+for more information and examples.
+
+
+See `viewCustom` for all other customizations.
+
+-}
+alternate : (Int -> data -> Bool) -> Style data -> Style data -> Style data
+alternate =
+  Internal.Block.alternate
+
+
+
+-- VIEW / CUSTOM
+
+
+{-| -}
+type alias Config data msg =
+  { independentAxis : Chart.Axis.Independent.Config data msg
+  , dependentAxis : Chart.Axis.Dependent.Config msg
+  , container : Chart.Container.Config msg
+  , orientation : Chart.Orientation.Config
+  , legends : Chart.Legends.Config msg
+  , events : Chart.Events.Config Chart.Element.Block data msg
+  , grid : Chart.Grid.Config
+  , block : Chart.Block.Config
+  , junk : Chart.Junk.Config Chart.Element.Block msg
+  , pattern : Chart.Pattern.Config
+  }
+
+
+
+{-| 
+** Available customizations **
+
+Use with `viewCustom`.
+
+  - **x**: Customizes your independent axis.</br>
+    _See [`Chart.Axis.Independent`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Axis-Independent) for more information and examples._
+
+  - **y**: Customizes your dependent axis.</br>
+    _See [`Chart.Axis.Dependent`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Axis-Dependent) for more information and examples._
+
+  - **container**: Customizes the container of your chart.</br>
+    _See [`Chart.Container`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Container) for more information and examples._
+
+  - **legends**: Customizes your chart's legends.</br>
+    _See [`Chart.Legends`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Legends) for more information and examples._
+
+  - **events**: Customizes your chart's events, allowing you to easily
+    make your chart interactive (adding tooltips, selection states etc.).</br>
+    _See [`Chart.Events`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Events) for more information and examples._
+
+  - **grid**: Customizes the style of your grid.</br>
+    _See [`Chart.Grid`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Grid) for more information and examples._
+
+  - **block**: Customizes your block width and corner radius.</br>
+    _See [`Chart.Block`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Block) for more information and examples._
+
+  - **pattern**: Customizes your blocks pattern.</br>
+    _See [`Chart.Pattern`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Pattern) for more information and examples._
+
+  - **junk**: Gets its name from
+    [Edward Tufte's concept of "chart junk"](https://en.wikipedia.org/wiki/Chartjunk).
+    Here you are finally allowed set your creativity loose and add whatever
+    SVG or HTML fun you can imagine.</br>
+    _See [`Chart.Junk`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Junk) for more information and examples._
+
+
+** Example configuration **
+
+A good start would be to copy it and play around with customizations
+available for each property.
+
+
+    chartConfig : Config Info msg
+    chartConfig =
+      { independentAxis = Chart.Axis.Independent.default "Country" .country
+      , dependentAxis = Chart.Axis.Dependent.default "GDP" Chart.Axis.Unit.dollars
+      , container = Chart.Container.default "blocks-chart" 700 400
+      , orientation = Chart.Orientation.default
+      , legends = Chart.Legends.default
+      , events = Chart.Events.default
+      , grid = Chart.Grid.default
+      , block = Chart.Block.default
+      , junk = Chart.Junk.default
+      , pattern = Chart.Pattern.default
+      }
+
+
+-}
 viewCustom : Config data msg -> List (Series data) -> List data -> Svg.Svg msg
-viewCustom config bars data =
+viewCustom config block data =
   let
     -- Data / System
-    seriesProps = List.map Internal.Block.seriesProps bars
-    countOfSeries = toFloat (List.length bars)
+    seriesProps = List.map Internal.Block.seriesProps block
+    countOfSeries = toFloat (List.length block)
     countOfData = toFloat (List.length data)
 
     width =
-      Utils.apply4 system config.bars countOfSeries countOfData <|
+      Utils.apply4 system config.block countOfSeries countOfData <|
         Internal.Orientation.chooses config.orientation
           { horizontal = Internal.Block.width Coordinate.lengthY Coordinate.scaleDataY
           , vertical = Internal.Block.width Coordinate.lengthX Coordinate.scaleDataX
           }
 
-    system = toSystem config horizontalAxis verticalAxis countOfData bars data
-    dataPoints = toDataPoints config system countOfSeries countOfData width bars data
+    system = toSystem config horizontalAxis verticalAxis countOfData block data
+    dataPoints = toDataPoints config system countOfSeries countOfData width block data
     dataPointsAll = List.concat dataPoints
 
     -- Axes
@@ -235,7 +450,7 @@ viewCustom config bars data =
     -- View
     viewSeries data =
       Svg.g [ Svg.Attributes.class "chart__group" ] <|
-        List.map2 (Internal.Block.viewSeries system config.orientation config.bars width) bars data
+        List.map2 (Internal.Block.viewSeries system config.orientation config.block width) block data
 
     viewLegends =
       { system = system
@@ -243,7 +458,7 @@ viewCustom config bars data =
       , defaults = { width = 10, offsetY = 0 }
       , legends = \width ->
           let legend bar =
-                { sample = Svg.square bar.pattern width (Internal.Block.borderRadius config.bars) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
+                { sample = Svg.square bar.pattern width (Internal.Block.borderRadius config.block) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
                 , label = bar.title
                 }
           in List.map legend seriesProps
@@ -270,7 +485,7 @@ viewCustom config bars data =
           , independent = Internal.Axis.Independent.title config.independentAxis 
           , dependent = Internal.Axis.Dependent.title config.dependentAxis
           , offsetOne = width / 2
-          , offsetMany = width * toFloat (List.length bars) / 2
+          , offsetMany = width * toFloat (List.length block) / 2
           }
           system
           config.junk
@@ -372,7 +587,7 @@ defaultConfig label =
   , legends = Chart.Legends.default
   , events = Chart.Events.default
   , grid = Chart.Grid.default
-  , bars = Chart.Block.default
+  , block = Chart.Block.default
   , junk = Chart.Junk.default
   , pattern = Chart.Pattern.default
   }

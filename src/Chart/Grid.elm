@@ -43,7 +43,7 @@ default =
   Grid.default
 
 
-{-| -}
+{-| No grid! (Ok, fine, it's there, but it's transparent!) -}
 none : Config
 none =
   Grid.none

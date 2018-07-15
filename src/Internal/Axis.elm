@@ -33,7 +33,7 @@ type alias Properties value data msg =
   , unit : Unit.Config
   , variable : data -> value
   , range : Range.Config
-  , axisLine : AxisLine.Config msg
+  , line : AxisLine.Config msg
   , ticks : Ticks.Config msg
   }
 
@@ -46,7 +46,7 @@ default title unit variable =
     , unit = unit
     , variable = variable
     , range = Range.padded 20 20
-    , axisLine = AxisLine.rangeFrame Colors.gray
+    , line = AxisLine.rangeFrame Colors.gray
     , ticks = Ticks.defaultFloat
     }
 
@@ -60,7 +60,7 @@ full title unit variable =
     , unit = unit
     , variable = variable
     , range = Range.padded 20 20
-    , axisLine = AxisLine.default
+    , line = AxisLine.default
     , ticks = Ticks.full
     }
 
@@ -73,7 +73,7 @@ time title unit variable =
     , unit = unit
     , variable = variable
     , range = Range.padded 20 20
-    , axisLine = AxisLine.rangeFrame Colors.gray
+    , line = AxisLine.rangeFrame Colors.gray
     , ticks = Ticks.defaultTime
     }
 
@@ -86,7 +86,7 @@ picky title unit variable ticks =
     , unit = unit
     , variable = variable
     , range = Range.padded 20 20
-    , axisLine = AxisLine.default
+    , line = AxisLine.default
     , ticks = 
         Ticks.custom <| \_ _ _ ->
          [ Ticks.set Tick.float toString identity ticks ]
@@ -146,7 +146,7 @@ type alias ViewConfig msg =
 viewHorizontal : Coordinate.System -> Int -> Intersection.Config -> Config Float data msg -> Svg.Svg msg
 viewHorizontal system pixels intersection (Config config) =
     let viewConfig =
-          { line = AxisLine.config config.axisLine system.xData system.x
+          { line = AxisLine.config config.line system.xData system.x
           , ticks = Ticks.ticks pixels system.xData system.x config.ticks
           , intersection = Intersection.getY intersection system
           , title = Title.config config.title
@@ -169,7 +169,7 @@ viewHorizontal system pixels intersection (Config config) =
 viewVertical : Coordinate.System -> Int -> Intersection.Config -> Config value data msg -> Svg.Svg msg
 viewVertical system pixels intersection (Config config) =
     let viewConfig =
-          { line = AxisLine.config config.axisLine system.yData system.y
+          { line = AxisLine.config config.line system.yData system.y
           , ticks = Ticks.ticks pixels system.yData system.y config.ticks
           , intersection = Intersection.getX intersection system
           , title = Title.config config.title

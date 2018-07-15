@@ -86,56 +86,43 @@ view model =
     [ chart model ]
 
 
-
 chart : Model -> Html.Html Msg
 chart model =
-  Chart.Blocks.viewCustom
-    { independentAxis = Chart.Axis.Independent.default "quarter" .label
-    , dependentAxis = Chart.Axis.Dependent.default "income" Chart.Axis.Unit.dollars
-    , container = Chart.Container.default "bar-chart" 700 400
-    , orientation = Chart.Orientation.default
-    , legends = Chart.Legends.default
-    , events = Chart.Events.hoverBlocks Hover
-    , grid = Chart.Grid.none
-    , bars = Chart.Block.custom 2 100
-    , junk = Chart.Junk.hoverBlocks model.hovering
-    , pattern = Chart.Pattern.custom 2 1
-    }
-    [ indonesia
-    , malaysia
-    , vietnam
-    ]
-    data
-
-
-
-
-indonesia : Chart.Blocks.Series Data
-indonesia =
+  Chart.Blocks.view .label [ denmark, norway, sweden, iceland ] data
+        
+denmark : Chart.Blocks.Series Data
+denmark =
   Chart.Blocks.series
-    { title = "Indonesia"
+    { title = "Denmark"
     , style = Chart.Blocks.bordered Colors.pinkLight Colors.pink
-    , variable = .indonesia
-    , pattern = True
-    }
-
-
-malaysia : Chart.Blocks.Series Data
-malaysia =
-  Chart.Blocks.series
-    { title = "Malaysia"
-    , style = Chart.Blocks.bordered Colors.blueLight Colors.blue 
-    , variable = .malaysia
+    , variable = .denmark
     , pattern = False
     }
 
-
-vietnam : Chart.Blocks.Series Data
-vietnam =
+norway : Chart.Blocks.Series Data
+norway =
   Chart.Blocks.series
-    { title = "Vietnam"
+    { title = "Norway"
+    , style = Chart.Blocks.bordered Colors.blueLight Colors.blue 
+    , variable = .norway
+    , pattern = False
+    }
+
+sweden : Chart.Blocks.Series Data
+sweden =
+  Chart.Blocks.series
+    { title = "Sweden"
     , style = Chart.Blocks.bordered Colors.cyanLight Colors.cyan
-    , variable = .vietnam
+    , variable = .sweden
+    , pattern = False
+    }
+
+iceland : Chart.Blocks.Series Data
+iceland =
+  Chart.Blocks.series
+    { title = "Iceland"
+    , style = Chart.Blocks.bordered Colors.goldLight Colors.gold
+    , variable = .iceland
     , pattern = False
     }
 
@@ -145,17 +132,18 @@ vietnam =
 
 
 type alias Data =
-  { indonesia : Float
-  , vietnam : Float
-  , malaysia : Float
+  { denmark : Float
+  , norway : Float
+  , sweden : Float
+  , iceland : Float
   , label : String
   }
 
 
 data : List Data
 data =
-  [ Data 1 5 2 "1"
-  , Data 2 6 3 "2"
-  , Data 3 7 6 "3"
-  , Data 4 8 3 "4"
+  [ Data 1 5 2 4 "1"
+  , Data 2 6 3 4 "2"
+  , Data 3 7 6 4 "3"
+  , Data 4 8 3 4 "4"
   ]

@@ -29,7 +29,7 @@ type alias Properties msg =
   { title : Title.Config msg
   , unit : Unit.Config
   , range : Range.Config
-  , axisLine : AxisLine.Config msg
+  , line : AxisLine.Config msg
   , ticks : Ticks.Config msg
   }
 
@@ -41,7 +41,7 @@ default title unit =
     { title = Title.default title
     , unit = unit
     , range = Range.default
-    , axisLine = AxisLine.default
+    , line = AxisLine.default
     , ticks = Ticks.defaultFloat
     }
 
@@ -84,7 +84,7 @@ toNormal (Config config) data =
     , unit = config.unit
     , variable = variable >> toFloat
     , range = config.range
-    , axisLine = config.axisLine
+    , line = config.line
     , ticks = config.ticks
     }
 

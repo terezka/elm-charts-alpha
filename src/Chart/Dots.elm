@@ -85,11 +85,11 @@ import Color
 
     chart : Html msg
     chart =
-      ScatterChart.view1 .x .y
+      Chart.Dots.view1 .x .y
         [ Point 0 2, Point 5 5, Point 10 10 ]
 
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example1.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example1.elm)._
 
 
 ** Choosing your variables **
@@ -100,7 +100,7 @@ So if we had more complex data structures, like a human with an `age`, `weight`,
 
     chart : Html msg
     chart =
-      ScatterChart.view1 .age .weight
+      Chart.Dots.view1 .age .weight
         [ Human  4 24 0.94     0
         , Human 25 75 1.73 25000
         , Human 43 83 1.75 40000
@@ -109,9 +109,9 @@ So if we had more complex data structures, like a human with an `age`, `weight`,
     -- Try changing .weight to .height
 
 
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ScatterChart1.png?raw=true"></src>
+<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots1.png?raw=true"></src>
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example2.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example2.elm)._
 
 
 ** Use any function to determine inputs **
@@ -142,12 +142,12 @@ to their age. Here's how you could plot it.
 
     chart : Html msg
     chart =
-      ScatterChart.view2 .age .weight alice chuck
+      Chart.Dots.view2 .age .weight alice chuck
 
 
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ScatterChart2.png?raw=true"></src>
+<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots2.png?raw=true"></src>
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example3.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example3.elm)._
 
 
 -}
@@ -164,12 +164,12 @@ It works just like `view1` and `view2`.
 
     chart : Html msg
     chart =
-      ScatterChart.view3 .age .weight alice bob chuck
+      Chart.Dots.view3 .age .weight alice bob chuck
 
 
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ScatterChart3.png?raw=true"></src>
+<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots3.png?raw=true"></src>
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example4.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example4.elm)._
 
 But what if you have more people? What if you have _four_ people?! In that case,
 check out `view`.
@@ -192,16 +192,16 @@ the `line` function.
 
     chart : Html msg
     chart =
-      ScatterChart.view .age .height
-        [ ScatterChart.line Colors.purple Dots.cross "Alice" alice
-        , ScatterChart.line Colors.blue Dots.square "Bobby" bobby
-        , ScatterChart.line Colors.cyan Dots.circle "Chuck" chuck
+      Chart.Dots.view .age .height
+        [ Chart.Dots.line Colors.purple Dots.cross "Alice" alice
+        , Chart.Dots.line Colors.blue Dots.square "Bobby" bobby
+        , Chart.Dots.line Colors.cyan Dots.circle "Chuck" chuck
         ]
 
 
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ScatterChart4.png?raw=true"></src>
+<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots4.png?raw=true"></src>
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example5.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example5.elm)._
 
 
 See `viewCustom` for all other customizations.
@@ -223,14 +223,14 @@ Definition of _series_:
 See the `line` and `dash` functions for more information!
 
 
-    solidLine : ScatterChart.Group Human
+    solidLine : Chart.Dots.Group Human
     solidLine =
-      ScatterChart.line Colors.purple Dots.cross "Alice" alice
+      Chart.Dots.line Colors.purple Dots.cross "Alice" alice
 
 
-    dashedLine : ScatterChart.Group Human
+    dashedLine : Chart.Dots.Group Human
     dashedLine =
-      ScatterChart.dash Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
+      Chart.Dots.dash Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
 
 
 -}
@@ -242,19 +242,19 @@ type alias Group data =
 
 ** Customize a solid line **
 
-Try changing the color or explore all the available dot shapes from `ScatterChart.Dot`!
+Try changing the color or explore all the available dot shapes from `Chart.Dots.Dot`!
 
     chart : Html msg
     chart =
-      ScatterChart.view .age .weight
-        [ ScatterChart.line Colors.pinkLight Dots.plus "Alice" alice
-        , ScatterChart.line Colors.goldLight Dots.diamond "Bobby" bobby
-        , ScatterChart.line Colors.blueLight Dots.square "Chuck" chuck
+      Chart.Dots.view .age .weight
+        [ Chart.Dots.line Colors.pinkLight Dots.plus "Alice" alice
+        , Chart.Dots.line Colors.goldLight Dots.diamond "Bobby" bobby
+        , Chart.Dots.line Colors.blueLight Dots.square "Chuck" chuck
         ]
 
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ScatterChart7.png?raw=true"></src>
+<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots7.png?raw=true"></src>
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example6.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example6.elm)._
 
 
 ** Regarding the title **
@@ -279,44 +279,44 @@ group =
 Use with `viewCustom`.
 
   - **x**: Customizes your horizontal axis.</br>
-    _See [`ScatterChart.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Axis) for more information and examples._
+    _See [`Chart.Dots.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Axis) for more information and examples._
 
   - **y**: Customizes your vertical axis.</br>
-    _See [`ScatterChart.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Axis) for more information and examples._
+    _See [`Chart.Dots.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Axis) for more information and examples._
 
   - **intersection**: Determines where your axes meet.</br>
-    _See [`ScatterChart.Axis.Intersection`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Axis-Intersection) for more information and examples._
+    _See [`Chart.Dots.Axis.Intersection`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Axis-Intersection) for more information and examples._
 
-  - **interpolation**: Customizes the curve of your ScatterChart.</br>
-    _See [`ScatterChart.Interpolation`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Interpolation) for more information and examples._
+  - **interpolation**: Customizes the curve of your Chart.Dots.</br>
+    _See [`Chart.Dots.Interpolation`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Interpolation) for more information and examples._
 
   - **container**: Customizes the container of your chart.</br>
-    _See [`ScatterChart.Container`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Container) for more information and examples._
+    _See [`Chart.Dots.Container`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Container) for more information and examples._
 
   - **legends**: Customizes your chart's legends.</br>
-    _See [`ScatterChart.Legends`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Legends) for more information and examples._
+    _See [`Chart.Dots.Legends`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Legends) for more information and examples._
 
   - **events**: Customizes your chart's events, allowing you to easily
     make your chart interactive (adding tooltips, selection states etc.).</br>
-    _See [`ScatterChart.Events`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Events) for more information and examples._
+    _See [`Chart.Dots.Events`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Events) for more information and examples._
 
   - **grid**: Customizes the style of your grid.</br>
-    _See [`ScatterChart.Grid`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Grid) for more information and examples._
+    _See [`Chart.Dots.Grid`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Grid) for more information and examples._
 
   - **area**: Customizes the area under your group.</br>
-    _See [`ScatterChart.Area`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Area) for more information and examples._
+    _See [`Chart.Dots.Area`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Area) for more information and examples._
 
   - **line**: Customizes your lines' width and color.</br>
-    _See [`ScatterChart.Line`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart-Line) for more information and examples._
+    _See [`Chart.Dots.Line`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots-Line) for more information and examples._
 
   - **dots**: Customizes your dots' size and style.</br>
-    _See `ScatterChart.Dot` for more information and examples._
+    _See `Chart.Dots.Dot` for more information and examples._
 
   - **junk**: Gets its name from
     [Edward Tufte's concept of "chart junk"](https://en.wikipedia.org/wiki/Chartjunk).
     Here you are finally allowed set your creativity loose and add whatever
     SVG or HTML fun you can imagine.</br>
-    _See [`ScatterChart.Junk`](http://package.elm-lang.org/packages/terezka/line-charts/latest/ScatterChart.Junk) for more information and examples._
+    _See [`Chart.Dots.Junk`](http://package.elm-lang.org/packages/terezka/line-charts/latest/Chart-Dots.Junk) for more information and examples._
 
 
 ** Example configuration **
@@ -341,7 +341,7 @@ available for each property.
       , dots = Dots.default
       }
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example8.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example8.elm)._
 
 -}
 type alias Config data msg =
@@ -374,10 +374,10 @@ The example below makes the line chart an area chart.
 
     chart : Html msg
     chart =
-      ScatterChart.viewCustom chartConfig
-        [ ScatterChart.line Colors.blueLight Dots.square "Chuck" chuck
-        , ScatterChart.line Colors.pinkLight Dots.plus "Alice" alice
-        , ScatterChart.line Colors.goldLight Dots.diamond "Bobby" bobby
+      Chart.Dots.viewCustom chartConfig
+        [ Chart.Dots.line Colors.blueLight Dots.square "Chuck" chuck
+        , Chart.Dots.line Colors.pinkLight Dots.plus "Alice" alice
+        , Chart.Dots.line Colors.goldLight Dots.diamond "Bobby" bobby
         ]
 
     chartConfig : Config Info msg
@@ -396,9 +396,9 @@ The example below makes the line chart an area chart.
       }
 
 
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ScatterChart6.png?raw=true"></src>
+<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots6.png?raw=true"></src>
 
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/ScatterChart/Example9.elm)._
+_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example9.elm)._
 
 
 ** Speaking of area charts **

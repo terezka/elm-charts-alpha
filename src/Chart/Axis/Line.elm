@@ -39,8 +39,8 @@ type alias Config msg =
 
 {-| Draws the full length of your axis range.
 
-    axisLineConfig : AxisLine.Config msg
-    axisLineConfig =
+    lineConfig : AxisLine.Config msg
+    lineConfig =
       AxisLine.default
 
 _See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._
@@ -53,8 +53,8 @@ default =
 
 {-| Same as the default, except you get to pick the color.
 
-    axisLineConfig : AxisLine.Config msg
-    axisLineConfig =
+    lineConfig : AxisLine.Config msg
+    lineConfig =
       AxisLine.full Color.red
 
 _See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._
@@ -67,8 +67,8 @@ full =
 
 {-| Draws the full length of your data range in your given color.
 
-    axisLineConfig : AxisLine.Config msg
-    axisLineConfig =
+    lineConfig : AxisLine.Config msg
+    lineConfig =
       AxisLine.rangeFrame Color.red
 
 _See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._
@@ -81,8 +81,8 @@ rangeFrame =
 
 {-| Removes the axis line entirely.
 
-    axisLineConfig : AxisLine.Config msg
-    axisLineConfig =
+    lineConfig : AxisLine.Config msg
+    lineConfig =
       AxisLine.none
 
 _See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._
@@ -110,8 +110,8 @@ type alias Properties msg =
 {-| Given your data range and axis range respectivily, define your own
 axis line configuration.
 
-    axisLineConfig : AxisLine.Config msg
-    axisLineConfig =
+    lineConfig : AxisLine.Config msg
+    lineConfig =
       AxisLine.custom <| \dataRange axisRange ->
         { color = Colors.gray
         , width = 2

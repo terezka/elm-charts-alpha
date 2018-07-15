@@ -12,6 +12,15 @@ module Chart.Trend
     )
 
 
+{-|
+
+@docs Config, default, single, singleCustom, individual, individualCustom
+
+@docs Function, linear
+
+-}
+
+
 import Internal.Trend as Trend
 import Color
 

@@ -83,7 +83,7 @@ import Color
 
     chart : Html msg
     chart =
-      LineChart.view1 .x .y
+      Chart.Lines.view1 .x .y
         [ Point 0 2, Point 5 5, Point 10 10 ]
 
 
@@ -98,7 +98,7 @@ So if we had more complex data structures, like a human with an `age`, `weight`,
 
     chart : Html msg
     chart =
-      LineChart.view1 .age .weight
+      Chart.Lines.view1 .age .weight
         [ Human  4 24 0.94     0
         , Human 25 75 1.73 25000
         , Human 43 83 1.75 40000
@@ -140,7 +140,7 @@ to their age. Here's how you could plot it.
 
     chart : Html msg
     chart =
-      LineChart.view2 .age .weight alice chuck
+      Chart.Lines.view2 .age .weight alice chuck
 
 
 <img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/linechart2.png?raw=true"></src>
@@ -162,7 +162,7 @@ It works just like `view1` and `view2`.
 
     chart : Html msg
     chart =
-      LineChart.view3 .age .weight alice bob chuck
+      Chart.Lines.view3 .age .weight alice bob chuck
 
 
 <img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/linechart3.png?raw=true"></src>
@@ -190,10 +190,10 @@ the `line` function.
 
     chart : Html msg
     chart =
-      LineChart.view .age .height
-        [ LineChart.line Colors.purple Dots.cross "Alice" alice
-        , LineChart.line Colors.blue Dots.square "Bobby" bobby
-        , LineChart.line Colors.cyan Dots.circle "Chuck" chuck
+      Chart.Lines.view .age .height
+        [ Chart.Lines.line Colors.purple Dots.cross "Alice" alice
+        , Chart.Lines.line Colors.blue Dots.square "Bobby" bobby
+        , Chart.Lines.line Colors.cyan Dots.circle "Chuck" chuck
         ]
 
 
@@ -210,8 +210,7 @@ view toX toY =
   viewCustom (defaultConfig toX toY)
 
 
-{-| This is the type holds the visual configuration representing
-a _series_ of data.
+{-| This type represents the visual configuration of a _series_ of data.
 
 Definition of _series_:
 > a number of events, objects, or people of a similar or related kind coming one after another.
@@ -221,14 +220,14 @@ Definition of _series_:
 See the `line` and `dash` functions for more information!
 
 
-    solidLine : LineChart.Series Human
+    solidLine : Chart.Lines.Series Human
     solidLine =
-      LineChart.line Colors.purple Dots.cross "Alice" alice
+      Chart.Lines.line Colors.purple Dots.cross "Alice" alice
 
 
-    dashedLine : LineChart.Series Human
+    dashedLine : Chart.Lines.Series Human
     dashedLine =
-      LineChart.dash Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
+      Chart.Lines.dash Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
 
 
 -}
@@ -240,14 +239,14 @@ type alias Series data =
 
 ** Customize a solid line **
 
-Try changing the color or explore all the available dot shapes from `LineChart.Dot`!
+Try changing the color or explore all the available dot shapes from `Chart.Lines.Dot`!
 
     chart : Html msg
     chart =
-      LineChart.view .age .weight
-        [ LineChart.line Colors.pinkLight Dots.plus "Alice" alice
-        , LineChart.line Colors.goldLight Dots.diamond "Bobby" bobby
-        , LineChart.line Colors.blueLight Dots.square "Chuck" chuck
+      Chart.Lines.view .age .weight
+        [ Chart.Lines.line Colors.pinkLight Dots.plus "Alice" alice
+        , Chart.Lines.line Colors.goldLight Dots.diamond "Bobby" bobby
+        , Chart.Lines.line Colors.blueLight Dots.square "Chuck" chuck
         ]
 
 <img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/linechart7.png?raw=true"></src>
@@ -284,16 +283,16 @@ for examples of patterns.
 
     chart : Html msg
     chart =
-      LineChart.view .age .height
-        [ LineChart.line Colors.pinkLight Dots.plus "Alice" alice
-        , LineChart.line Colors.goldLight Dots.diamond "Bobby" bobby
-        , LineChart.line Colors.blueLight Dots.square "Chuck" chuck
+      Chart.Lines.view .age .height
+        [ Chart.Lines.line Colors.pinkLight Dots.plus "Alice" alice
+        , Chart.Lines.line Colors.goldLight Dots.diamond "Bobby" bobby
+        , Chart.Lines.line Colors.blueLight Dots.square "Chuck" chuck
         , dashedLine
         ]
 
-    dashedLine : LineChart.Series Human
+    dashedLine : Chart.Lines.Series Human
     dashedLine =
-      LineChart.dashed Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
+      Chart.Lines.dashed Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
       --                                                    ^^^^^^^^
       -- (Scroll to the left to see the pattern!)
       -- Try passing different numbers!
@@ -325,44 +324,44 @@ dashed =
 Use with `viewCustom`.
 
   - **x**: Customizes your horizontal axis.</br>
-    _See [`LineChart.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Axis) for more information and examples._
+    _See [`Chart.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Axis) for more information and examples._
 
   - **y**: Customizes your vertical axis.</br>
-    _See [`LineChart.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Axis) for more information and examples._
+    _See [`Chart.Axis`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Axis) for more information and examples._
 
   - **intersection**: Determines where your axes meet.</br>
-    _See [`LineChart.Axis.Intersection`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Axis-Intersection) for more information and examples._
+    _See [`Chart.Axis.Intersection`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Axis-Intersection) for more information and examples._
 
-  - **interpolation**: Customizes the curve of your LineChart.</br>
-    _See [`LineChart.Interpolation`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Interpolation) for more information and examples._
+  - **interpolation**: Customizes the curve of your Chart.</br>
+    _See [`Chart.Interpolation`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Interpolation) for more information and examples._
 
   - **container**: Customizes the container of your chart.</br>
-    _See [`LineChart.Container`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Container) for more information and examples._
+    _See [`Chart.Container`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Container) for more information and examples._
 
   - **legends**: Customizes your chart's legends.</br>
-    _See [`LineChart.Legends`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Legends) for more information and examples._
+    _See [`Chart.Legends`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Legends) for more information and examples._
 
   - **events**: Customizes your chart's events, allowing you to easily
     make your chart interactive (adding tooltips, selection states etc.).</br>
-    _See [`LineChart.Events`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Events) for more information and examples._
+    _See [`Chart.Events`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Events) for more information and examples._
 
   - **grid**: Customizes the style of your grid.</br>
-    _See [`LineChart.Grid`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Grid) for more information and examples._
+    _See [`Chart.Grid`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Grid) for more information and examples._
 
   - **area**: Customizes the area under your line.</br>
-    _See [`LineChart.Area`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Area) for more information and examples._
+    _See [`Chart.Area`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Area) for more information and examples._
 
   - **line**: Customizes your lines' width and color.</br>
-    _See [`LineChart.Line`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Line) for more information and examples._
+    _See [`Chart.Line`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart-Line) for more information and examples._
 
   - **dots**: Customizes your dots' size and style.</br>
-    _See `LineChart.Dot` for more information and examples._
+    _See `Chart.Dot` for more information and examples._
 
   - **junk**: Gets its name from
     [Edward Tufte's concept of "chart junk"](https://en.wikipedia.org/wiki/Chartjunk).
     Here you are finally allowed set your creativity loose and add whatever
     SVG or HTML fun you can imagine.</br>
-    _See [`LineChart.Junk`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart.Junk) for more information and examples._
+    _See [`Chart.Junk`](http://package.elm-lang.org/packages/terezka/line-charts/latest/LineChart.Junk) for more information and examples._
 
 
 ** Example configuration **
@@ -420,10 +419,10 @@ The example below makes the line chart an area chart.
 
     chart : Html msg
     chart =
-      LineChart.viewCustom chartConfig
-        [ LineChart.line Colors.blueLight Dots.square "Chuck" chuck
-        , LineChart.line Colors.pinkLight Dots.plus "Alice" alice
-        , LineChart.line Colors.goldLight Dots.diamond "Bobby" bobby
+      Chart.Lines.viewCustom chartConfig
+        [ Chart.Lines.line Colors.blueLight Dots.square "Chuck" chuck
+        , Chart.Lines.line Colors.pinkLight Dots.plus "Alice" alice
+        , Chart.Lines.line Colors.goldLight Dots.diamond "Bobby" bobby
         ]
 
     chartConfig : Config Info msg

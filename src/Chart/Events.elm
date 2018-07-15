@@ -1,14 +1,14 @@
 module Chart.Events exposing
-  ( Config, default, hoverOne, hoverBlock, hoverBlocks, hoverMany, click, custom
-  , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-  , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
+  ( Config, default, hoverDot, hoverDots, hoverBlock, hoverBlocks, click, custom
+  , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, Options, onWithOptions
   , Found, data, label, color, isExactly, isSeries, isDatum
+  , Decoder, getSvg, getData, getNearest, getNearestX, getWithin, getWithinX
   , map, map2, map3
   )
 
 {-|
 
-@docs Config, default, hoverOne, hoverBlock, hoverBlocks, hoverMany, click
+@docs Config, default, hoverDot, hoverDots, hoverBlock, hoverBlocks, click
 
 # Customization
 @docs custom
@@ -27,12 +27,12 @@ module Chart.Events exposing
     type Msg =
       Hover ( Maybe Data, Coordinate.Point )
 
-    events : Events.Config element data msg
+    events : Events.Config Element.Dot Data Msg
     events =
       Events.custom
         [ Events.onMouseMove Hover decoder ]
 
-    decoder : Events.Decoder
+    decoder : Events.Decoder Element.Dot Data Msg
     decoder =
       Events.map2 (,) Events.getNearest Events.getSvg
 
@@ -73,8 +73,8 @@ default =
 
 
 {-| -}
-hoverOne : (Maybe (Found Element.LineDot data) -> msg) -> Config Element.LineDot data msg
-hoverOne msg =
+hoverDot : (Maybe (Found element data) -> msg) -> Config element data msg
+hoverDot msg =
   custom
     [ onMouseMove msg (getWithin 30)
     , on "touchstart" msg (getWithin 100)
@@ -84,8 +84,8 @@ hoverOne msg =
 
 
 {-| -}
-hoverMany : (List (Found Element.LineDot data) -> msg) -> Config Element.LineDot data msg
-hoverMany msg =
+hoverDots : (List (Found element data) -> msg) -> Config element data msg
+hoverDots msg =
   custom
     [ onMouseMove msg getNearestX
     , onMouseLeave (msg [])

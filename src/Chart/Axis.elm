@@ -24,8 +24,8 @@ import Chart.Axis.Ticks as Ticks
     chartConfig : Chart.Config value data msg
     chartConfig =
       { ...
-      , x = Axis.default 650 "Age (years)" .age
-      , y = Axis.default 400 "Weight (kg)" .weight
+      , x = Chart.Axis.default "Age" Chart.Axis.Unit.years .age
+      , y = Chart.Axis.default "Weight" Chart.Axis.Unit.kilograms .weight
       , ...
       }
 
@@ -39,9 +39,9 @@ both sides of that line. Also adds some nice ticks to it.
 
 Pass the length of your axis in pixels, the title and it's variable.
 
-    xAxisConfig : Axis.Config Data msg
+    xAxisConfig : Axis.Config Float Data msg
     xAxisConfig =
-      Axis.default 650 "Age (years)" .age
+      Axis.default "Age (years)" Chart.Axis.Unit.years .age
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example1.elm)._
@@ -57,9 +57,9 @@ default =
 Pass the length of your axis in pixels, the title and it's variable.
 
 
-    xAxisConfig : Axis.Config Data msg
+    xAxisConfig : Axis.Config Float Data msg
     xAxisConfig =
-      Axis.full 650 "Age (years)" .age
+      Axis.full "Age (years)" Chart.Axis.Unit.years .age
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example2.elm)._
@@ -75,9 +75,9 @@ full =
 Pass the length of your axis in pixels, the title and it's variable.
 
 
-    xAxisConfig : Axis.Config Data msg
+    xAxisConfig : Axis.Config Float Data msg
     xAxisConfig =
-      Axis.time 650 "Date" .date
+      Axis.time 650 "Date" Chart.Axis.Unit.none .date
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example3.elm)._
@@ -95,9 +95,9 @@ Pass the length of your axis in pixels, the title, it's variable and the
 numbers where you'd like ticks to show up.
 
 
-    xAxisConfig : Axis.Config Data msg
+    xAxisConfig : Axis.Config Float Data msg
     xAxisConfig =
-      Axis.picky 650 "Age (years)" .age [ 4, 25, 46 ]
+      Axis.picky 650 "Age (years)" Chart.Axis.Unit.years .age [ 4, 25, 46 ]
 
 
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example4.elm)._
@@ -119,24 +119,25 @@ Properties:
   - **title**: Adds a title on your axis. </br>
     _See `Chart.Axis.Title` for more information and examples._
   - **variable**: Determines what data is drawn in the chart! </br>
-  - **pixels**: The length of the dimension.
+  - **unit**: The unit of this dimension. </br>
+    _See `Chart.Axis.Unit` for more information and examples._
   - **range**: Determines the axis range. </br>
     _See `Chart.Axis.Range` for more information and examples._
-  - **axisLine**: Customizes your axis line. </br>
+  - **line**: Customizes your axis line. </br>
     _See `Chart.Axis.Line` for more information and examples._
   - **ticks**: Customizes your ticks. </br>
     _See `Chart.Axis.Ticks` for more information and examples._
 
 
-    xAxisConfig : Axis.Config Data msg
+    xAxisConfig : Axis.Config Float Data msg
     xAxisConfig =
       Axis.custom
-        { title = Title.default "Year"
+        { title = Chart.Axis.Title.default "Year"
         , variable = Just << .date
-        , pixels = 700
-        , range = Range.padded 20 20
-        , axisLine = AxisLine.full Colors.black
-        , ticks = Ticks.time 5
+        , unit = Chart.Axis.Unit.none
+        , range = Chart.Axis.Range.padded 20 20
+        , line = Chart.Axis.Line.full Colors.black
+        , ticks = Chart.Axis.Ticks.time 5
         }
 
 
@@ -154,6 +155,6 @@ type alias Properties value data msg =
   , unit : Unit.Config
   , variable : data -> value
   , range : Range.Config
-  , axisLine : AxisLine.Config msg
+  , line : AxisLine.Config msg
   , ticks : Ticks.Config msg
   }

@@ -17,9 +17,9 @@ Blocks charts are for data where the independent variable is a discrete
 variable. Imagine you have a chart where you plot countries against
 their GDP. In this case the countries are the discrete values.
 
-In a blocks chart where the blocks are vertical (a bar chart),
+In a blocks chart where the blocks are vertical (a column chart),
 the independent axis is the x-axis. In a horizontal blocks chart 
-(a column chart), the independent axis is the y-axis.
+(a bar chart), the independent axis is the y-axis.
 
 
 @docs Config, default, custom
@@ -64,7 +64,7 @@ custom =
 
   - title: The title of your axis. See the `Chart.Axis.Title` module.
   - range: The range of your axis. See the `Chart.Axis.Range` module.
-  - axisLine: The line of your axis. See the `Chart.Axis.Line` module.
+  - line: The line of your axis. See the `Chart.Axis.Line` module.
   - label: The property on your data which determines the label.
   - tick: The configuration for the ticks on your axis. See the `Chart.Axis.Tick` module.
 
@@ -72,7 +72,7 @@ custom =
 type alias Properties data msg =
   { title : Title.Config msg
   , range : Range.Config
-  , axisLine : AxisLine.Config msg
+  , line : AxisLine.Config msg
   , label : data -> String
   , tick : Tick.Config msg -- TODO depend on index and label?
   }

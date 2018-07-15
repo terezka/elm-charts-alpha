@@ -8,6 +8,8 @@ import Chart.Dots
 import Chart.Dot as Dot
 import Chart.Colors as Colors
 import Chart.Junk as Junk
+import Chart.Events
+import Chart.Element as Element
 import Chart.Coordinate as Coordinate
 import Chart.Container as Container
 import Chart.Axis.Intersection as Intersection
@@ -24,15 +26,58 @@ import Json.Decode
 import Color.Manipulate
 
 
-main : Html.Html msg
+
+main : Program Never Model Msg
 main =
+  Html.beginnerProgram
+    { model = init
+    , update = update
+    , view = view
+    }
+
+
+
+-- MODEL
+
+
+type alias Model =
+    { hovering : Maybe (Chart.Events.Found Element.Dot Info) }
+
+
+
+init : Model
+init =
+    { hovering = Nothing }
+
+
+
+-- UPDATE
+
+
+type Msg
+  = Hover (Maybe (Chart.Events.Found Element.Dot Info))
+
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Hover hovering ->
+      { model | hovering = hovering }
+
+
+
+-- VIEW
+
+
+view : Model -> Html.Html Msg
+view model =
   Html.div
-    [ class "container" ]
-    [ chart ]
+    [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]
+    [ chart model ]
 
 
-chart : Html.Html msg
-chart =
+chart : Model -> Html.Html Msg
+chart model =
   let
     groups =
       data
@@ -42,30 +87,30 @@ chart =
   in
   Html.div []
     [ Html.div []
-        [ viewChart .sepalWidth .sepalLength groups
-        , viewChart .petalLength .sepalLength groups
-        , viewChart .petalWidth .sepalLength groups
+        [ viewChart model .sepalWidth .sepalLength groups
+        , viewChart model .petalLength .sepalLength groups
+        , viewChart model .petalWidth .sepalLength groups
         ]
     , Html.div []
-        [ viewChart .sepalLength .sepalWidth groups
-        , viewChart .petalLength .sepalWidth groups
-        , viewChart .petalWidth .sepalWidth groups
+        [ viewChart model .sepalLength .sepalWidth groups
+        , viewChart model .petalLength .sepalWidth groups
+        , viewChart model .petalWidth .sepalWidth groups
         ]
     , Html.div []
-        [ viewChart .sepalLength .petalLength groups
-        , viewChart .sepalWidth .petalLength groups
-        , viewChart .petalWidth .petalLength groups
+        [ viewChart model .sepalLength .petalLength groups
+        , viewChart model .sepalWidth .petalLength groups
+        , viewChart model .petalWidth .petalLength groups
         ]
     , Html.div []
-        [ viewChart .sepalLength .petalWidth groups
-        , viewChart .sepalWidth .petalWidth groups
-        , viewChart .petalLength .petalWidth groups
+        [ viewChart model .sepalLength .petalWidth groups
+        , viewChart model .sepalWidth .petalWidth groups
+        , viewChart model .petalLength .petalWidth groups
         ]
     ]
 
 
-viewChart : (Info -> Float) -> (Info -> Float) -> List (Chart.Dots.Group Info) -> Html.Html msg
-viewChart toX toY groups =
+viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Chart.Dots.Group Info) -> Html.Html Msg
+viewChart model toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
     [ Chart.Dots.viewCustom
@@ -82,7 +127,7 @@ viewChart toX toY groups =
               }
         , intersection = Intersection.default
         , legends = Legends.none
-        , events = Events.default
+        , events = Events.hoverDot Hover
         , outliers =
             Outliers.custom (\_ datum -> datum.sepalWidth < 2.5)
               { shape = Dot.cross
@@ -98,7 +143,7 @@ viewChart toX toY groups =
               }
         , junk = Junk.default
         , grid = Grid.default
-        , line = Group.default
+        , line = Group.hoverOne (Maybe.map Events.data model.hovering)
         , dots = Dot.custom (Dot.empty 2 1)
         }
         groups

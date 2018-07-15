@@ -36,7 +36,7 @@ block =
 
 
 {-| -}
-type Dot =
+type Dot = -- GROUP DOT?
   Dot { isOutlier : Bool }
 
 

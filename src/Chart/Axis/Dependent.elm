@@ -42,7 +42,7 @@ default =
   - title: The title of your axis. See the `Chart.Axis.Title` module.
   - unit: The unit of your axis. See the `Chart.Axis.Unit` module.
   - range: The range of your axis. See the `Chart.Axis.Range` module.
-  - axisLine: The line of your axis. See the `Chart.Axis.Line` module.
+  - line: The line of your axis. See the `Chart.Axis.Line` module.
   - ticks: The ticks on your axis. See the `Chart.Axis.Ticks` module.
 
 -}
@@ -56,7 +56,7 @@ type alias Properties msg =
   { title : Title.Config msg
   , unit : Unit.Config
   , range : Range.Config
-  , axisLine : AxisLine.Config msg
+  , line : AxisLine.Config msg
   , ticks : Ticks.Config msg
   }
 

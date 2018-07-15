@@ -24,6 +24,7 @@
         "Chart.Coordinate",
         "Chart.Dot",
         "Chart.Events",
+        "Chart.Element",
         "Chart.Grid",
         "Chart.Interpolation",
         "Chart.Junk",
