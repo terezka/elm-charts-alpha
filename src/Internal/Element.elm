@@ -1,4 +1,4 @@
-module Internal.Element exposing (Element, Block, block, Dot, dot, isOutlier, LineDot, lineDot, isReal, makeFake)
+module Internal.Element exposing (Element, Block, block, Dot, dot, LineDot, lineDot, isReal, makeFake)
 
 
 import Color
@@ -37,19 +37,13 @@ block =
 
 {-| -}
 type Dot = -- GROUP DOT?
-  Dot { isOutlier : Bool }
+  Dot
 
 
 {-| -}
-dot : Bool -> Dot
-dot isOutlier =
-  Dot { isOutlier = isOutlier }
-
-
-{-| -}
-isOutlier : Element Dot -> Bool
-isOutlier element =
-  let (Dot { isOutlier }) = element.element in isOutlier
+dot : Dot
+dot =
+  Dot
 
 
 

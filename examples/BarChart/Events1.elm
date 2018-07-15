@@ -89,7 +89,8 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   Chart.Blocks.view .label [ denmark, norway, sweden, iceland ] data
-        
+    
+
 denmark : Chart.Blocks.Series Data
 denmark =
   Chart.Blocks.series
@@ -108,6 +109,7 @@ norway =
     , pattern = False
     }
 
+
 sweden : Chart.Blocks.Series Data
 sweden =
   Chart.Blocks.series
@@ -116,6 +118,7 @@ sweden =
     , variable = .sweden
     , pattern = False
     }
+
 
 iceland : Chart.Blocks.Series Data
 iceland =

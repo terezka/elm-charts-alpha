@@ -1,6 +1,6 @@
 module Chart.Dots exposing
   ( view1, view2, view3
-  , view, Group, group
+  , view, Series, series
   , viewCustom, Config
   )
 
@@ -15,7 +15,7 @@ module Chart.Dots exposing
 
 ### Customizing lines
 > [view](#view) for visualizing *any* amount of data series.</br>
-> [group](#group) for configuring color, dot etc. of a group representing a data series.</br>
+> [series](#series) for configuring color, dot etc. of a data series.</br>
 
 ### Customizing everything
 > [viewCustom](#viewCustom) for configuring any other aspect of the chart (axis, area, etc.).</br>
@@ -26,7 +26,7 @@ module Chart.Dots exposing
 @docs view1, view2, view3
 
 # Customizing lines
-@docs view, Group, group
+@docs view, Series, series
 
 # Customizing everything
 @docs viewCustom, Config
@@ -40,16 +40,13 @@ import Chart.Junk as Junk
 import Chart.Axis as Axis
 import Chart.Axis.Unit as Unit
 import Chart.Junk as Junk
-import Chart.Dot as Dots
 import Chart.Grid as Grid
-import Chart.Dot as Dots
+import Chart.Dot as Dot
 import Chart.Trend as Trend
-import Chart.Group as Group
 import Chart.Element as Element
 import Chart.Colors as Colors
 import Chart.Events as Events
 import Chart.Legends as Legends
-import Chart.Outliers as Outliers
 import Chart.Container as Container
 import Chart.Axis.Intersection as Intersection
 
@@ -58,12 +55,10 @@ import Internal.Junk
 import Internal.Dot
 import Internal.Element
 import Internal.Chart
-import Internal.Group
 import Internal.Events
 import Internal.Container
 import Internal.Axis.Range
 import Internal.Trend
-import Internal.Outliers
 import Internal.Orientation
 
 import Internal.Svg as Svg
@@ -183,89 +178,21 @@ view3 toX toY dataset1 dataset2 dataset3 =
 -- VIEW
 
 
-{-|
-
-** Show any amount of lines **
-
-If you want to change the color, the dot, or the title of a line, then see
-the `line` function.
-
-    chart : Html msg
-    chart =
-      Chart.Dots.view .age .height
-        [ Chart.Dots.line Colors.purple Dots.cross "Alice" alice
-        , Chart.Dots.line Colors.blue Dots.square "Bobby" bobby
-        , Chart.Dots.line Colors.cyan Dots.circle "Chuck" chuck
-        ]
-
-
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots4.png?raw=true"></src>
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example5.elm)._
-
-
-See `viewCustom` for all other customizations.
-
--}
-view : (data -> Float) -> (data -> Float) -> List (Group data) -> Svg.Svg msg
+{-| -}
+view : (data -> Float) -> (data -> Float) -> List (Series data) -> Svg.Svg msg
 view toX toY =
   viewCustom (defaultConfig toX toY)
 
 
-{-| This is the type holds the visual configuration representing
-a _series_ of data.
-
-Definition of _series_:
-> a number of events, objects, or people of a similar or related kind coming one after another.
-
-** Examples of customizations **
-
-See the `line` and `dash` functions for more information!
+{-| -}
+type alias Series data =
+  Internal.Dot.Series data
 
 
-    solidLine : Chart.Dots.Group Human
-    solidLine =
-      Chart.Dots.line Colors.purple Dots.cross "Alice" alice
-
-
-    dashedLine : Chart.Dots.Group Human
-    dashedLine =
-      Chart.Dots.dash Colors.purpleLight Dots.none "Average" [ 4, 2 ] average
-
-
--}
-type alias Group data =
-  Internal.Group.Group data
-
-
-{-|
-
-** Customize a solid line **
-
-Try changing the color or explore all the available dot shapes from `Chart.Dots.Dot`!
-
-    chart : Html msg
-    chart =
-      Chart.Dots.view .age .weight
-        [ Chart.Dots.line Colors.pinkLight Dots.plus "Alice" alice
-        , Chart.Dots.line Colors.goldLight Dots.diamond "Bobby" bobby
-        , Chart.Dots.line Colors.blueLight Dots.square "Chuck" chuck
-        ]
-
-<img alt="Chart Result" width="540" src="https://github.com/terezka/line-charts/blob/master/images/ChartDots7.png?raw=true"></src>
-
-_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Chart-Dots/Example6.elm)._
-
-
-** Regarding the title **
-
-The string title will show up in the legends. If you are interested in
-customizing your legends, dot size or line width, check out `viewCustom`.
-
- -}
-group : Color.Color -> Dots.Shape -> String -> List data -> Group data
-group =
-  Internal.Group.group
+{-| -}
+series : Color.Color -> Dot.Shape -> String -> List data -> Series data
+series =
+  Internal.Dot.series
 
 
 
@@ -337,7 +264,6 @@ available for each property.
       , junk = Junk.default
       , grid = Grid.default
       , area = Area.default
-      , line = Group.default
       , dots = Dots.default
       }
 
@@ -349,13 +275,11 @@ type alias Config data msg =
   , y : Axis.Config Float data msg
   , container : Container.Config msg
   , intersection : Intersection.Config
-  , outliers : Outliers.Config data
   , legends : Legends.Config msg
   , events : Events.Config Element.Dot data msg
   , trend : Trend.Config data
   , grid : Grid.Config
-  , line : Group.Config data
-  , dots : Dots.Config data
+  , dots : Dot.Config data
   , junk : Junk.Config data msg
   }
 
@@ -391,7 +315,6 @@ The example below makes the line chart an area chart.
       , events = Events.default
       , junk = Junk.default
       , grid = Grid.default
-      , line = Group.default
       , dots = Dots.default
       }
 
@@ -412,11 +335,11 @@ If the that total amount is not important for the relationship you're
 trying to visualize, it's best to leave it out!
 
 -}
-viewCustom : Config data msg -> List (Group data) -> Html.Html msg
-viewCustom config lines =
+viewCustom : Config data msg -> List (Series data) -> Html.Html msg
+viewCustom config series =
   let
     -- Data
-    data = toDataPoints config lines
+    data = toDataPoints config series
     dataAll = List.concat data
 
     -- System
@@ -424,24 +347,19 @@ viewCustom config lines =
       toSystem config dataAll
 
     -- View
-    viewLines =
-      Internal.Group.view
-        { system = system
-        , dotsConfig = config.dots
-        , lineConfig = config.line
-        , outliersConfig = config.outliers
-        }
+    viewDots =
+      Internal.Dot.viewMany config.dots system
 
     viewLegends =
       { system = system
       , config = config.legends
       , defaults = { width = 30, offsetY = 10 }
       , legends = \width ->
-          let legend serie data =
-              { sample = Internal.Group.viewSample config.dots config.line system serie data width
-              , label = Internal.Group.label serie
+          let legend series_ data =
+              { sample = Internal.Dot.viewSampleForScatter config.dots system series_ data width
+              , label = Internal.Dot.label series_
               }
-          in List.map2 legend lines data
+          in List.map2 legend series data
       }
   in
   Internal.Chart.view
@@ -449,12 +367,12 @@ viewCustom config lines =
     , events = config.events
     , defs = []
     , grid = config.grid
-    , series = viewLines lines data
+    , series = viewDots series data
     , intersection = config.intersection
     , horizontalAxis = config.x
     , verticalAxis = config.y
     , legends = viewLegends
-    , trends = Internal.Trend.view system config.trend config.line lines data
+    , trends = Internal.Trend.view system config.trend series data
     , junk =
         Internal.Junk.getLayers
           { orientation = Internal.Orientation.Vertical
@@ -475,28 +393,26 @@ viewCustom config lines =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> List (Group data) -> List (List (Point.Point Element.Dot data))
-toDataPoints config groups =
+toDataPoints : Config data msg -> List (Series data) -> List (List (Point.Point Element.Dot data))
+toDataPoints config series =
   let
     x = Internal.Axis.variable config.x
     y = Internal.Axis.variable config.y
 
     data =
-      List.indexedMap eachSerie groups
+      List.indexedMap eachSeries series
 
-    eachSerie seriesIndex group =
-      let data = Internal.Group.data group
-          isOutlier = Internal.Outliers.isOutlier config.outliers data
-      in
-      List.map (addPoint seriesIndex group isOutlier) data
+    eachSeries seriesIndex series =
+      let data = Internal.Dot.data series in
+      List.map (addPoint seriesIndex series) data
 
-    addPoint seriesIndex group isOutlier datum =
+    addPoint seriesIndex series datum =
       { source = datum
       , coordinates = Coordinate.Point (x datum) (y datum)
       , element =
-          { element = Internal.Element.dot (isOutlier datum)
-          , label = Internal.Group.label group
-          , color = Internal.Group.colorBase group
+          { element = Internal.Element.dot
+          , label = Internal.Dot.label series
+          , color = Internal.Dot.color series
           , independent = Internal.Axis.unit config.x (x datum)
           , dependent = Internal.Axis.unit config.y (y datum)
           , seriesIndex = seriesIndex
@@ -539,20 +455,18 @@ defaultConfig toX toY =
   , x = Axis.default "" Unit.none toX
   , container = Container.default "scatter-chart-1" 700 400
   , intersection = Intersection.default
-  , outliers = Outliers.default
   , legends = Legends.default
   , events = Events.default
   , trend = Trend.default
   , junk = Junk.default
   , grid = Grid.default
-  , line = Group.default
-  , dots = Dots.default
+  , dots = Dot.default
   }
 
 
-defaultLines : List (List data) -> List (Group data)
+defaultLines : List (List data) -> List (Series data)
 defaultLines =
-  List.map4 Internal.Group.group defaultColors defaultShapes defaultLabel
+  List.map4 Internal.Dot.series defaultColors defaultShapes defaultLabel
 
 
 defaultColors : List Color.Color
@@ -563,7 +477,7 @@ defaultColors =
   ]
 
 
-defaultShapes : List Dots.Shape
+defaultShapes : List Dot.Shape
 defaultShapes =
   [ Internal.Dot.Circle
   , Internal.Dot.Triangle

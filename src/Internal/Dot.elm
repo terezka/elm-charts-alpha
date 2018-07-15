@@ -1,10 +1,10 @@
 module Internal.Dot exposing
   ( Config, default, custom, customAny
+  , Series, series, label, data, color
   , Shape(..)
   , Style, style, empty, disconnected, aura, full
   , Variety
-  , Outlier
-  , viewForLines, viewForScatter, viewSample
+  , viewForLines, viewForScatter, viewSample, viewMany, viewSampleForScatter
   )
 
 {-| -}
@@ -53,6 +53,48 @@ customAny :
   -> Config data
 customAny =
   Config
+
+
+
+-- SERIES
+
+
+{-| -}
+type Series data
+  = Series (SeriesConfig data)
+
+
+{-| -}
+type alias SeriesConfig data =
+  { color : Color.Color
+  , shape : Shape
+  , label : String
+  , data : List data
+  }
+
+
+{-| -}
+series : Color.Color -> Shape -> String -> List data -> Series data
+series color shape label data =
+  Series (SeriesConfig color shape label data)
+
+
+{-| -}
+label : Series data -> String
+label (Series series) =
+  series.label
+
+
+{-| -}
+data : Series data -> List data
+data (Series series) =
+  series.data
+
+
+{-| -}
+color : Series data -> Color.Color
+color (Series series) =
+  series.color
 
 
 
@@ -123,18 +165,6 @@ full radius =
 
 
 
--- OUTLIERS
-
-
-{-| -}
-type alias Outlier =
-  { shape : Shape
-  , style : Style
-  , color : Color.Color -> Color.Color
-  }
-
-
-
 -- INTERNAL / VIEW
 
 
@@ -142,7 +172,6 @@ type alias Outlier =
 type alias Arguments data =
   { system : Coordinate.System
   , dotsConfig : Config data
-  , outlier : Outlier
   , shape : Maybe Shape
   , color : Color.Color
   }
@@ -169,19 +198,13 @@ viewForScatter arguments point =
       arguments.dotsConfig
 
     (Style style) =
-      if Element.isOutlier point.element
-        then arguments.outlier.style
-        else config.individual point.source -- TODO
+      config.individual point.source -- TODO
 
     shape =
-      if Element.isOutlier point.element
-        then Just arguments.outlier.shape
-        else arguments.shape
+      arguments.shape
 
     color =
-      if Element.isOutlier point.element
-        then arguments.outlier.color arguments.color
-        else arguments.color
+      arguments.color
   in
   viewShape arguments.system style shape color point.coordinates
 
@@ -194,6 +217,44 @@ viewSample (Config config) shape color system data =
        config.legend (List.map .source data)
   in
   viewShape system style shape color
+
+
+
+-- INTERNAL / VIEW / MANY
+
+
+{-| -}
+viewMany : Config data -> Coordinate.System -> List (Series data) -> List (List (Point.Point Element.Dot data)) -> Svg.Svg msg
+viewMany dotsConfig system series points =
+  let
+    view_ series_ points_ =
+      let visible = List.filter (Coordinate.isWithinRange system << .coordinates) points_
+      in Svg.g [ Attributes.class "chart__group" ] (List.map (viewDot series_) visible)
+
+    viewDot (Series series_) =
+      viewForScatter
+        { system = system
+        , dotsConfig = dotsConfig
+        , shape = Just series_.shape
+        , color = series_.color
+        }
+  in
+  Svg.g 
+    [ Attributes.class "chart__groups" ] 
+    (List.map2 view_ series points)
+
+
+viewSampleForScatter : Config data -> Coordinate.System -> Series data -> List (Point.Point Element.Dot data) -> Float -> Svg.Svg msg
+viewSampleForScatter dotsConfig system (Series series) data sampleWidth =
+  let
+    dotPosition =
+      Coordinate.Point (sampleWidth / 2) 0
+        |> Coordinate.toData system
+  in
+  Svg.g
+    [ Attributes.class "chart__sample" ]
+    [ viewSample dotsConfig (Just series.shape) series.color system data dotPosition
+    ]
 
 
 

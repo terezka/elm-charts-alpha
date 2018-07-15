@@ -15,12 +15,10 @@ import Chart.Container as Container
 import Chart.Axis.Intersection as Intersection
 import Chart.Axis as Axis
 import Chart.Legends as Legends
-import Chart.Group as Group
 import Chart.Axis.Unit as Unit
 import Chart.Events as Events
 import Chart.Grid as Grid
 import Chart.Trend as Trend
-import Chart.Outliers as Outliers
 import Color
 import Json.Decode
 import Color.Manipulate
@@ -82,7 +80,7 @@ chart model =
     groups =
       data
         |> List.sortBy .species
-        |> List.foldl toSerie []
+        |> List.foldl toSeries []
         |> List.map3 toChartSeries defaultColors defaultShapes
   in
   Html.div []
@@ -109,7 +107,7 @@ chart model =
     ]
 
 
-viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Chart.Dots.Group Info) -> Html.Html Msg
+viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Chart.Dots.Series Info) -> Html.Html Msg
 viewChart model toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
@@ -128,60 +126,53 @@ viewChart model toX toY groups =
         , intersection = Intersection.default
         , legends = Legends.none
         , events = Events.hoverDot Hover
-        , outliers =
-            Outliers.custom (\_ datum -> datum.sepalWidth < 2.5)
-              { shape = Dot.cross
-              , style = Dot.disconnected 4 1
-              , color = Color.Manipulate.lighten 0
-              }
         , trend =
             Trend.individualCustom
               { color = identity
               , width = always 1
               , function = Trend.linear
-              , includeOutliers = False
               }
         , junk = Junk.default
         , grid = Grid.default
-        , line = Group.hoverOne (Maybe.map Events.data model.hovering)
-        , dots = Dot.custom (Dot.empty 2 1)
+        , dots = hoverOne (Maybe.map Events.data model.hovering)
         }
         groups
     ]
 
 
-isOutlier : List Info -> Info -> Bool
-isOutlier data =
+hoverOne : Maybe Info -> Dot.Config Info
+hoverOne maybeHovered =
   let
-    xRange =
-      Outliers.range .sepalLength data
+    styleLegend _ =
+      Dot.empty 3 1
 
-    yRange =
-      Outliers.range .sepalLength data
-
-    limit =
-      data
+    styleIndividual datum =
+      if Just datum == maybeHovered
+        then Dot.aura 3 4 0.5
+        else Dot.empty 3 1
   in
-  \_ -> False
+  Dot.customAny
+    { legend = styleLegend
+    , individual = styleIndividual
+    }
 
 
 
-toSerie : Info -> List ( String, List Info ) -> List ( String, List Info )
-toSerie info series =
+toSeries : Info -> List ( String, List Info ) -> List ( String, List Info )
+toSeries info series =
   case series of
     [] ->
       [ ( info.species, [ info ] ) ]
 
     ( name, data ) :: rest ->
-      if info.species == name then
-        ( name, info :: data ) :: rest
-      else
-        ( info.species, [ info ] ) :: ( name, data ) :: rest
+      if info.species == name 
+      then ( name, info :: data ) :: rest
+      else ( info.species, [ info ] ) :: ( name, data ) :: rest
 
 
-toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Chart.Dots.Group Info
+toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Chart.Dots.Series Info
 toChartSeries color dot ( name, data ) =
-  Chart.Dots.group color dot name data
+  Chart.Dots.series color dot name data
 
 
 defaultColors : List Color.Color

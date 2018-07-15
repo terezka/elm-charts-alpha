@@ -47,11 +47,10 @@ singleCustom :
   { color : Color.Color
   , width : List data -> Float
   , function : Function
-  , includeOutliers : Bool
   }
   -> Config data
-singleCustom { color, width, function, includeOutliers } =
-  Trend.singleCustom color width function includeOutliers
+singleCustom { color, width, function } =
+  Trend.singleCustom color width function
 
 
 {-| -}
@@ -65,11 +64,10 @@ individualCustom :
   { color : Color.Color -> Color.Color
   , width : List data -> Float
   , function : Function
-  , includeOutliers : Bool
   }
   -> Config data
-individualCustom { color, width, function, includeOutliers } =
-  Trend.individualCustom color width function includeOutliers
+individualCustom { color, width, function } =
+  Trend.individualCustom color width function
 
 
 

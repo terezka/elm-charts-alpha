@@ -23,7 +23,6 @@ import Internal.Interpolation as Interpolation
 import Internal.Path as Path
 import Internal.Element as Element
 import Internal.Utils as Utils
-import Internal.Outliers as Outliers
 import Color
 import Color.Convert
 
@@ -250,7 +249,6 @@ viewDot arguments (Series lineConfig) (Style style) =
   Dots.viewForLines
     { system = arguments.system
     , dotsConfig = arguments.dotsConfig
-    , outlier = Outliers.basic
     , shape = lineConfig.shape
     , color = style.color lineConfig.color
     }
