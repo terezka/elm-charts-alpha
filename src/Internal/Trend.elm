@@ -23,6 +23,7 @@ import Internal.Coordinate as Coordinate
 import Internal.Svg as Svg
 import Internal.Path as Path
 import Internal.Point as Point
+import Internal.Element as Element
 import Internal.Group as Group
 import Internal.Utils as Utils
 
@@ -95,7 +96,7 @@ linear data x =
 
 
 {-| -}
-view : Coordinate.System -> Config data -> Group.Config data -> List (Group.Group data) -> List (List (Data.ScatterChart data)) -> Svg.Svg msg
+view : Coordinate.System -> Config data -> Group.Config data -> List (Group.Group data) -> List (List (Point.Point Element.Dot data)) -> Svg.Svg msg
 view system config groupConfig groups data =
   case config of
     None ->
@@ -116,16 +117,16 @@ view system config groupConfig groups data =
       Svg.g [ Svg.Attributes.class "chart__trends" ] viewTrends
 
 
-viewSingle : Coordinate.System -> Color.Color -> Function -> Width data -> Bool -> List (Data.ScatterChart data) -> Svg.Svg msg
+viewSingle : Coordinate.System -> Color.Color -> Function -> Width data -> Bool -> List (Point.Point Element.Dot data) -> Svg.Svg msg
 viewSingle system color function editWidth includeOutliers dataRaw =
   let
     data =
       if includeOutliers
         then dataRaw
-        else List.filter (not << .isOutlier) dataRaw
+        else List.filter (not << Element.isOutlier << .element) dataRaw
 
-    dataTuples = List.map Data.asTuple data
-    dataUser = List.map .user data
+    dataTuples = List.map Point.asTuple data
+    dataUser = List.map .source data
 
     y = function dataTuples
     range = Coordinate.range Tuple.first dataTuples

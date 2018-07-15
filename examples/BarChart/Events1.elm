@@ -98,7 +98,7 @@ chart model =
     , events = Chart.Events.hoverBlocks Hover
     , grid = Chart.Grid.none
     , bars = Chart.Block.custom 2 100
-    , junk = Chart.Junk.tooltipForBlocks model.hovering
+    , junk = Chart.Junk.hoverBlocks model.hovering
     , pattern = Chart.Pattern.default
     }
     [ indonesia

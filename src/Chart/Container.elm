@@ -107,7 +107,9 @@ type alias Properties msg =
 
 {-| -}
 type alias Size =
-  Container.Size
+  { width : Int
+  , height : Int
+  }
 
 
 {-| -}

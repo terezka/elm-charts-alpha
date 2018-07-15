@@ -73,7 +73,7 @@ default =
 
 
 {-| -}
-hoverOne : (Maybe (Found Element.Dot data) -> msg) -> Config Element.Dot data msg
+hoverOne : (Maybe (Found Element.LineDot data) -> msg) -> Config Element.LineDot data msg
 hoverOne msg =
   custom
     [ onMouseMove msg (getWithin 30)
@@ -84,7 +84,7 @@ hoverOne msg =
 
 
 {-| -}
-hoverMany : (List (Found Element.Dot data) -> msg) -> Config Element.Dot data msg
+hoverMany : (List (Found Element.LineDot data) -> msg) -> Config Element.LineDot data msg
 hoverMany msg =
   custom
     [ onMouseMove msg getNearestX

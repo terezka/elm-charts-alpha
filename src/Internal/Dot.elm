@@ -13,6 +13,7 @@ import Svg exposing (Svg)
 import Svg.Attributes as Attributes
 import Internal.Coordinate as Coordinate exposing (..)
 import Internal.Point as Point
+import Internal.Element as Element
 import Color
 import Color.Convert
 
@@ -161,7 +162,7 @@ viewForLines arguments point =
 
 
 {-| -}
-viewForScatter : Arguments data -> Data.Point Element.Dot data -> Svg msg
+viewForScatter : Arguments data -> Point.Point Element.Dot data -> Svg msg
 viewForScatter arguments point =
   let
     (Config config) =
@@ -170,7 +171,7 @@ viewForScatter arguments point =
     (Style style) =
       if Element.isOutlier point.element
         then arguments.outlier.style
-        else config.individual point.user -- TODO
+        else config.individual point.source -- TODO
 
     shape =
       if Element.isOutlier point.element
@@ -190,7 +191,7 @@ viewSample : Config data -> Maybe Shape -> Color.Color -> Coordinate.System -> L
 viewSample (Config config) shape color system data =
   let
     (Style style) =
-       config.legend (List.map .user data)
+       config.legend (List.map .source data)
   in
   viewShape system style shape color
 

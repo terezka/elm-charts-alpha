@@ -18,6 +18,7 @@ import Internal.Coordinate as Coordinate
 import Internal.Point as Point
 import Internal.Dot as Dots
 import Internal.Outliers as Outliers
+import Internal.Element as Element
 import Color
 
 
@@ -193,7 +194,7 @@ viewSample : Dots.Config data -> Config data -> Coordinate.System -> Group data 
 viewSample dotsConfig lineConfig system line data sampleWidth =
   let
     dotPosition =
-      Data.Point (sampleWidth / 2) 0
+      Coordinate.Point (sampleWidth / 2) 0
         |> Coordinate.toData system
 
     color_ =

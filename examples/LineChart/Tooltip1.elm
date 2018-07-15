@@ -3,9 +3,9 @@ module Tooltip1 exposing (main)
 import Html exposing (Html, div, h1, node, p, text)
 import Html.Attributes exposing (class)
 import Svg exposing (Attribute, Svg, g, text_, tspan)
-import LineChart as LineChart
+import Chart.Lines
 import Chart.Junk as Junk exposing (..)
-import Chart.Dots as Dots
+import Chart.Dot as Dot
 import Chart.Container as Container
 import Chart.Junk as Junk
 import Chart.Axis.Unit as Unit
@@ -15,11 +15,10 @@ import Chart.Axis as Axis
 import Chart.Legends as Legends
 import Chart.Line as Line
 import Chart.Events as Events
+import Chart.Element as Element
 import Chart.Grid as Grid
 import Chart.Legends as Legends
 import Chart.Area as Area
-import Internal.Data as Data 
--- TODO ^^^
 import Color
 
 
@@ -38,7 +37,7 @@ main =
 
 
 type alias Model =
-    { hovered : Maybe (Events.Found (Data.LineChart Info) Info) }
+    { hovered : Maybe (Events.Found Element.LineDot Info) }
 
 
 init : Model
@@ -51,7 +50,7 @@ init =
 
 
 type Msg
-  = Hover (Maybe (Events.Found (Data.LineChart Info) Info))
+  = Hover (Maybe (Events.Found Element.LineDot Info))
 
 
 update : Msg -> Model -> Model
@@ -74,7 +73,7 @@ view model =
 
 chart : Model -> Html.Html Msg
 chart model =
-  LineChart.viewCustom
+  Chart.Lines.viewCustom
     { y = Axis.default "Weight" Unit.kilograms (Just << .weight)
     , x = Axis.default "Age" Unit.years .age
     , container = Container.styled "line-chart-1" 700 450 [ ( "font-family", "monospace" ) ]
@@ -82,15 +81,15 @@ chart model =
     , intersection = Intersection.default
     , legends = Legends.default
     , events = Events.hoverOne Hover
-    , junk = Junk.hoverOne model.hovered
+    , junk = Junk.hoverDot model.hovered
     , grid = Grid.default
     , area = Area.default
     , line = Line.default
-    , dots = Dots.hoverOne (Maybe.map Events.data model.hovered)
+    , dots = Dot.hoverOne (Maybe.map Events.data model.hovered)
     }
-    [ LineChart.line Color.orange Dots.triangle "Chuck" chuck
-    , LineChart.line Color.yellow Dots.circle "Bobby" bobby
-    , LineChart.line Color.purple Dots.diamond "Alice" alice
+    [ Chart.Lines.line Color.orange Dot.triangle "Chuck" chuck
+    , Chart.Lines.line Color.yellow Dot.circle "Bobby" bobby
+    , Chart.Lines.line Color.purple Dot.diamond "Alice" alice
     ]
 
 

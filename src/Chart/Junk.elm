@@ -1,5 +1,5 @@
 module Chart.Junk exposing
-  ( Config, default, tooltipForBlock, tooltipForBlocks, none, above, below, html
+  ( Config, default, hoverDot, hoverDots, hoverBlock, hoverBlocks, none, above, below, html
   , Transfrom, transform, move, offset, placed
   , vertical, horizontal, verticalCustom, horizontalCustom
   , rectangle, circle
@@ -125,62 +125,104 @@ type alias Config element msg =
 
 -- TODO recalc point for hover on render
 {-| -}
-tooltipForBlock : Maybe (Events.Found Element.Block data) -> Config Element.Block msg
-tooltipForBlock hovered =
+hoverDot : Maybe (Events.Found Element.LineDot data) -> Config Element.LineDot msg
+hoverDot hovered =
   case hovered of
-      Nothing ->
-        Junk.none
+    Nothing ->
+      Junk.none
 
-      Just (Internal.Events.Found hovered_) ->
-        Junk.Config <| \args system ->
-          Junk.hover 
-            { line = False
-            , position = { x = Just hovered_.coordinates.x, y = Just hovered_.coordinates.y }
-            , offset =
-                Internal.Orientation.chooses args.orientation
-                  { horizontal = { x = 0, y = -15 - Coordinate.scaleSvgY system args.offsetOne }
-                  , vertical = { x = 15 + Coordinate.scaleSvgX system args.offsetOne, y = 0 }
-                  }
-            , title = ( hovered_.element.color, hovered_.element.label )
-            , values = 
-                [ ( Color.black, args.independent, hovered_.element.independent )
-                , ( Color.black, args.dependent, hovered_.element.dependent )
-                ]
-            }
+    Just (Internal.Events.Found hovered_) ->
+      Junk.Config <| \args system ->
+        Junk.hover 
+          { line = False
+          , position = { x = Just hovered_.coordinates.x, y = Just hovered_.coordinates.y }
+          , offset = { x = 15, y = 0 }
+          , title = ( hovered_.element.color, hovered_.element.label )
+          , values =
+              [ ( Color.black, args.independent, hovered_.element.independent )
+              , ( Color.black, args.dependent, hovered_.element.dependent )
+              ]
+          }
+
+
+hoverDots : List (Events.Found Element.LineDot data) -> Config Element.LineDot msg
+hoverDots hovered =
+  case hovered of
+    [] ->
+      Junk.none
+
+    (Internal.Events.Found first) :: _ ->
+      Junk.Config <| \args system ->
+        Junk.hover 
+          { line = True
+          , position = { x = Just first.coordinates.x, y = Nothing }
+          , offset = { x = 15, y = 0 }
+          , title = ( Color.black, Utils.pair args.independent first.element.independent )
+          , values =
+              let 
+                value (Internal.Events.Found one) =
+                  ( one.element.color, one.element.label, one.element.dependent)
+              in List.map value hovered
+          }
 
 
 {-| -}
-tooltipForBlocks : List (Events.Found Element.Block data) -> Config Element.Block msg
-tooltipForBlocks hovered =
+hoverBlock : Maybe (Events.Found Element.Block data) -> Config Element.Block msg
+hoverBlock hovered =
   case hovered of
-      [] ->
-        Junk.none
+    Nothing ->
+      Junk.none
 
-      (Internal.Events.Found first) :: _ ->
-        Junk.Config <| \args system ->
-          let 
-              ( position, offset ) =
-                Internal.Orientation.chooses args.orientation
-                  { horizontal = 
-                      ( { x = Nothing, y = Just (toFloat (round first.coordinates.y)) }
-                      , { x = 0, y = -15 - Coordinate.scaleSvgY system args.offsetMany } 
-                      )
-                  , vertical = 
-                      ( { x = Just (toFloat (round first.coordinates.x)), y = Nothing }
-                      , { x = 15 + Coordinate.scaleSvgX system args.offsetMany, y = 0 }
-                      )
-                  }
+    Just (Internal.Events.Found hovered_) ->
+      Junk.Config <| \args system ->
+        Junk.hover 
+          { line = False
+          , position = { x = Just hovered_.coordinates.x, y = Just hovered_.coordinates.y }
+          , offset =
+              Internal.Orientation.chooses args.orientation
+                { horizontal = { x = 0, y = -15 - Coordinate.scaleSvgY system args.offsetOne }
+                , vertical = { x = 15 + Coordinate.scaleSvgX system args.offsetOne, y = 0 }
+                }
+          , title = ( hovered_.element.color, hovered_.element.label )
+          , values = 
+              [ ( Color.black, args.independent, hovered_.element.independent )
+              , ( Color.black, args.dependent, hovered_.element.dependent )
+              ]
+          }
 
-              value (Internal.Events.Found one) = 
-                ( one.element.color, one.element.label, one.element.dependent )
-          in
-          Junk.hover 
-            { line = False
-            , position = position
-            , offset = offset
-            , title = ( Color.black, Utils.pair args.independent first.element.independent )
-            , values = List.map value hovered
-            }
+
+{-| -}
+hoverBlocks : List (Events.Found Element.Block data) -> Config Element.Block msg
+hoverBlocks hovered =
+  case hovered of
+    [] ->
+      Junk.none
+
+    (Internal.Events.Found first) :: _ ->
+      Junk.Config <| \args system ->
+        let 
+            ( position, offset ) =
+              Internal.Orientation.chooses args.orientation
+                { horizontal = 
+                    ( { x = Nothing, y = Just (toFloat (round first.coordinates.y)) }
+                    , { x = 0, y = -15 - Coordinate.scaleSvgY system args.offsetMany } 
+                    )
+                , vertical = 
+                    ( { x = Just (toFloat (round first.coordinates.x)), y = Nothing }
+                    , { x = 15 + Coordinate.scaleSvgX system args.offsetMany, y = 0 }
+                    )
+                }
+
+            value (Internal.Events.Found one) = 
+              ( one.element.color, one.element.label, one.element.dependent )
+        in
+        Junk.hover 
+          { line = False
+          , position = position
+          , offset = offset
+          , title = ( Color.black, Utils.pair args.independent first.element.independent )
+          , values = List.map value hovered
+          }
 
 
 

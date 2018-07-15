@@ -4,21 +4,21 @@ module Lines exposing (main)
 import Svg
 import Html
 import Html.Attributes exposing (class)
-import ScatterChart
-import ScatterChart.Dots as Dots
-import ScatterChart.Colors as Colors
-import ScatterChart.Junk as Junk
-import ScatterChart.Coordinate as Coordinate
-import ScatterChart.Container as Container
-import ScatterChart.Axis.Intersection as Intersection
-import ScatterChart.Axis as Axis
-import ScatterChart.Legends as Legends
-import ScatterChart.Group as Group
-import ScatterChart.Axis.Unit as Unit
-import ScatterChart.Events as Events
-import ScatterChart.Grid as Grid
-import ScatterChart.Trend as Trend
-import ScatterChart.Outliers as Outliers
+import Chart.Dots
+import Chart.Dot as Dot
+import Chart.Colors as Colors
+import Chart.Junk as Junk
+import Chart.Coordinate as Coordinate
+import Chart.Container as Container
+import Chart.Axis.Intersection as Intersection
+import Chart.Axis as Axis
+import Chart.Legends as Legends
+import Chart.Group as Group
+import Chart.Axis.Unit as Unit
+import Chart.Events as Events
+import Chart.Grid as Grid
+import Chart.Trend as Trend
+import Chart.Outliers as Outliers
 import Color
 import Json.Decode
 import Color.Manipulate
@@ -64,11 +64,11 @@ chart =
     ]
 
 
-viewChart : (Info -> Float) -> (Info -> Float) -> List (ScatterChart.Group Info) -> Html.Html msg
+viewChart : (Info -> Float) -> (Info -> Float) -> List (Chart.Dots.Group Info) -> Html.Html msg
 viewChart toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
-    [ ScatterChart.viewCustom
+    [ Chart.Dots.viewCustom
         { y = Axis.default "y" Unit.none toY
         , x = Axis.default "x" Unit.none toX
         , container =
@@ -85,8 +85,8 @@ viewChart toX toY groups =
         , events = Events.default
         , outliers =
             Outliers.custom (\_ datum -> datum.sepalWidth < 2.5)
-              { shape = Dots.cross
-              , style = Dots.disconnected 4 1
+              { shape = Dot.cross
+              , style = Dot.disconnected 4 1
               , color = Color.Manipulate.lighten 0
               }
         , trend =
@@ -99,7 +99,7 @@ viewChart toX toY groups =
         , junk = Junk.default
         , grid = Grid.default
         , line = Group.default
-        , dots = Dots.custom (Dots.empty 2 1)
+        , dots = Dot.custom (Dot.empty 2 1)
         }
         groups
     ]
@@ -134,9 +134,9 @@ toSerie info series =
         ( info.species, [ info ] ) :: ( name, data ) :: rest
 
 
-toChartSeries : Color.Color -> Dots.Shape -> ( String, List Info ) -> ScatterChart.Group Info
+toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Chart.Dots.Group Info
 toChartSeries color dot ( name, data ) =
-  ScatterChart.group color dot name data
+  Chart.Dots.group color dot name data
 
 
 defaultColors : List Color.Color
@@ -147,11 +147,11 @@ defaultColors =
   ]
 
 
-defaultShapes : List Dots.Shape
+defaultShapes : List Dot.Shape
 defaultShapes =
-  [ Dots.circle
-  , Dots.circle
-  , Dots.circle
+  [ Dot.circle
+  , Dot.circle
+  , Dot.circle
   ]
 
 

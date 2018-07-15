@@ -36,25 +36,27 @@ module Chart.Dots exposing
 import Html
 import Svg
 
-import ScatterChart.Junk as Junk
-import ScatterChart.Axis as Axis
-import ScatterChart.Axis.Unit as Unit
-import ScatterChart.Junk as Junk
-import ScatterChart.Dot as Dots
-import ScatterChart.Grid as Grid
-import ScatterChart.Dot as Dots
-import ScatterChart.Trend as Trend
-import ScatterChart.Group as Group
-import ScatterChart.Colors as Colors
-import ScatterChart.Events as Events
-import ScatterChart.Legends as Legends
-import ScatterChart.Outliers as Outliers
-import ScatterChart.Container as Container
-import ScatterChart.Axis.Intersection as Intersection
+import Chart.Junk as Junk
+import Chart.Axis as Axis
+import Chart.Axis.Unit as Unit
+import Chart.Junk as Junk
+import Chart.Dot as Dots
+import Chart.Grid as Grid
+import Chart.Dot as Dots
+import Chart.Trend as Trend
+import Chart.Group as Group
+import Chart.Element as Element
+import Chart.Colors as Colors
+import Chart.Events as Events
+import Chart.Legends as Legends
+import Chart.Outliers as Outliers
+import Chart.Container as Container
+import Chart.Axis.Intersection as Intersection
 
 import Internal.Axis
 import Internal.Junk
 import Internal.Dot
+import Internal.Element
 import Internal.Chart
 import Internal.Group
 import Internal.Events
@@ -343,13 +345,13 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 
 -}
 type alias Config data msg =
-  { x : Axis.Config data msg
-  , y : Axis.Config data msg
+  { x : Axis.Config Float data msg
+  , y : Axis.Config Float data msg
   , container : Container.Config msg
   , intersection : Intersection.Config
   , outliers : Outliers.Config data
   , legends : Legends.Config msg
-  , events : Events.Config data msg
+  , events : Events.Config Element.Dot data msg
   , trend : Trend.Config data
   , grid : Grid.Config
   , line : Group.Config data
@@ -421,32 +423,6 @@ viewCustom config lines =
     system =
       toSystem config dataAll
 
-    -- Junk
-    hoverMany (Internal.Events.Found first) all =
-      { line = Svg.verticalGrid [] first.coordinates.x
-      , position = { x = Just first.coordinates.x, y = Nothing }
-      , offset = { x = 15, y = 0 }
-      , title = Internal.Axis.title config.x ++ ": " ++ Internal.Axis.unit config.x first.coordinates.x
-      , values =
-          let value (Internal.Events.Found datum) =
-                ( datum.color
-                , datum.label
-                , Internal.Axis.unit config.y datum.coordinates.y
-                )
-          in List.map value all
-      }
-
-    hoverOne (Internal.Events.Found datum) =
-      { position = { x = Just datum.coordinates.x, y = Just datum.coordinates.y }
-      , offset = { x = 15, y = 0 }
-      , color = datum.color
-      , title = datum.label
-      , values =
-          [ ( Internal.Axis.title config.x, Internal.Axis.unit config.x datum.coordinates.x  )
-          , ( Internal.Axis.title config.y, Internal.Axis.unit config.y datum.coordinates.y )
-          ]
-      }
-
     -- View
     viewLines =
       Internal.Group.view
@@ -459,6 +435,7 @@ viewCustom config lines =
     viewLegends =
       { system = system
       , config = config.legends
+      , defaults = { width = 30, offsetY = 10 }
       , legends = \width ->
           let legend serie data =
               { sample = Internal.Group.viewSample config.dots config.line system serie data width
@@ -478,7 +455,16 @@ viewCustom config lines =
     , verticalAxis = config.y
     , legends = viewLegends
     , trends = Internal.Trend.view system config.trend config.line lines data
-    , junk = Internal.Junk.getLayers { hoverMany = hoverMany, hoverOne = hoverOne } config.junk
+    , junk =
+        Internal.Junk.getLayers
+          { orientation = Internal.Orientation.Vertical
+          , independent = Internal.Axis.title config.x
+          , dependent = Internal.Axis.title config.y
+          , offsetOne = 15
+          , offsetMany = 15
+          }
+          system
+          config.junk
     , orientation = Internal.Orientation.Vertical
     }
     dataAll
@@ -489,7 +475,7 @@ viewCustom config lines =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> List (Group data) -> List (List (Data.ScatterChart data))
+toDataPoints : Config data msg -> List (Group data) -> List (List (Point.Point Element.Dot data))
 toDataPoints config groups =
   let
     x = Internal.Axis.variable config.x
@@ -505,18 +491,22 @@ toDataPoints config groups =
       List.map (addPoint seriesIndex group isOutlier) data
 
     addPoint seriesIndex group isOutlier datum =
-      { user = datum
-      , point = Data.Point (x datum) (y datum)
-      , label = Internal.Group.label group
-      , color = Internal.Group.colorBase group
-      , isOutlier = isOutlier datum
-      , seriesIndex = seriesIndex
+      { source = datum
+      , coordinates = Coordinate.Point (x datum) (y datum)
+      , element =
+          { element = Internal.Element.dot (isOutlier datum)
+          , label = Internal.Group.label group
+          , color = Internal.Group.colorBase group
+          , independent = Internal.Axis.unit config.x (x datum)
+          , dependent = Internal.Axis.unit config.y (y datum)
+          , seriesIndex = seriesIndex
+          }
       }
   in
   data
 
 
-toSystem : Config data msg -> List (Data.ScatterChart data) -> Coordinate.System
+toSystem : Config data msg -> List (Point.Point Element.Dot data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container

@@ -21,6 +21,7 @@ import Internal.Point as Point
 import Internal.Dot as Dots
 import Internal.Interpolation as Interpolation
 import Internal.Path as Path
+import Internal.Element as Element
 import Internal.Utils as Utils
 import Internal.Outliers as Outliers
 import Color
@@ -199,18 +200,18 @@ viewStacked area ( areas, lines, dots ) =
 
 
 viewSingle : Arguments data -> Series data -> List (Point.Point Element.LineDot data) -> ( Svg.Svg msg, Svg.Svg msg, Svg.Svg msg )
-viewSingle arguments line point =
+viewSingle arguments line points =
   let
     -- Parting
     sections =
-      Utils.part Element.isReal point [] []
+      Utils.part (.element >> Element.isReal) points [] []
 
     parts =
       List.map Tuple.first sections
 
     -- Style
     style =
-      arguments.lineConfig |> \(Config look) -> look (List.map .source point)
+      arguments.lineConfig |> \(Config look) -> look (List.map .source points)
 
     -- Dots
     viewDots =
@@ -229,13 +230,13 @@ viewSingle arguments line point =
         [ Attributes.class "chart__interpolation__area" ] <|
         List.map (viewArea arguments line style) commands
 
-    viewSeriess =
+    viewSeries_ =
       Svg.g
         [ Attributes.class "chart__interpolation__line" ] <|
         List.map2 (viewSeries arguments line style) commands parts
   in
   ( Utils.viewIf (Area.hasArea arguments.area) viewAreas
-  , viewSeriess
+  , viewSeries_
   , viewDots
   )
 
@@ -288,7 +289,7 @@ viewArea : Arguments data -> Series data -> Style -> List Path.Command -> Svg.Sv
 viewArea { system, lineConfig, area } line style interpolation =
   let
     ground point =
-      Data.Point point.x (Utils.towardsZero system.y)
+      Coordinate.Point point.x (Utils.towardsZero system.y)
 
     attributes =
       Junk.withinChartArea system
@@ -320,7 +321,7 @@ viewSample : Dots.Config data -> Config data -> Area.Config -> Coordinate.System
 viewSample dotsConfig lineConfig area system line data sampleWidth =
   let
     dotPosition =
-      Data.Point (sampleWidth / 2) 0
+      Coordinate.Point (sampleWidth / 2) 0
         |> Coordinate.toData system
 
     color_ =

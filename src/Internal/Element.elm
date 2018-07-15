@@ -1,4 +1,4 @@
-module Internal.Element exposing (Element, Block, block, Dot, dot, isOutlier, LineDot, lineDot, isReal)
+module Internal.Element exposing (Element, Block, block, Dot, dot, isOutlier, LineDot, lineDot, isReal, makeFake)
 
 
 import Color
@@ -72,3 +72,8 @@ isReal : Element LineDot -> Bool
 isReal element =
   let (LineDot { isReal }) = element.element in isReal
 
+
+{-| -}
+makeFake : Element LineDot -> Element LineDot
+makeFake element =
+  { element | element = LineDot { isReal = False } }

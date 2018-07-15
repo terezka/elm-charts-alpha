@@ -123,7 +123,7 @@ view config bars data =
           }
 
     system = toSystem config horizontalAxis verticalAxis countOfData bars data
-    dataPoints = toDataPoints config system countOfSeries countOfData width config.independentAxis config.dependentAxis bars data
+    dataPoints = toDataPoints config system countOfSeries countOfData width bars data
     dataPointsAll = List.concat dataPoints
 
     -- Axes
@@ -147,6 +147,7 @@ view config bars data =
     viewLegends =
       { system = system
       , config = config.legends
+      , defaults = { width = 10, offsetY = 0 }
       , legends = \width ->
           let legend bar =
                 { sample = Svg.square width (Internal.Block.borderRadius config.bars) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
@@ -190,8 +191,8 @@ view config bars data =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> AxisIndependent.Config data msg -> AxisDependent.Config msg -> List (Series data) -> List data -> List (List (Point.Point Element.Block data))
-toDataPoints config system countOfSeries countOfData width independentAxis dependentAxis seriesAll data =
+toDataPoints : Config data msg -> Coordinate.System -> Float -> Float -> Float -> List (Series data) -> List data -> List (List (Point.Point Element.Block data))
+toDataPoints config system countOfSeries countOfData width seriesAll data =
   let
     coordinates =
       Internal.Orientation.chooses config.orientation
@@ -213,8 +214,8 @@ toDataPoints config system countOfSeries countOfData width independentAxis depen
           , seriesIndex = seriesIndex
           , label = label
           , color = color
-          , independent = Internal.Axis.Independent.label independentAxis datum
-          , dependent = Internal.Axis.Dependent.unit dependentAxis dependent
+          , independent = Internal.Axis.Independent.label config.independentAxis datum
+          , dependent = Internal.Axis.Dependent.unit config.dependentAxis dependent
           }
       , source = datum
       }

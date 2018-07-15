@@ -43,7 +43,7 @@ type alias Config msg
 -}
 default : Config msg
 default =
-  Legends.default 30 10
+  Legends.default
 
 
 
@@ -86,7 +86,7 @@ _See the full example [here](https://github.com/terezka/line-charts/blob/master/
 -}
 grouped : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config msg
 grouped =
-  Legends.grouped 30
+  Legends.grouped
 
 
 {-| Stuff that's helpful when you're drawing your legends.

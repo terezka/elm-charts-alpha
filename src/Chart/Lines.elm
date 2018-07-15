@@ -46,6 +46,7 @@ import Chart.Grid as Grid
 import Chart.Line as Line
 import Chart.Colors as Colors
 import Chart.Events as Events
+import Chart.Element as Element
 import Chart.Legends as Legends
 import Chart.Container as Container
 import Chart.Interpolation as Interpolation
@@ -56,6 +57,7 @@ import Internal.Area
 import Internal.Axis
 import Internal.Junk
 import Internal.Line
+import Internal.Element
 import Internal.Events
 import Internal.Container
 import Internal.Axis.Range
@@ -395,12 +397,12 @@ type alias Config data msg =
   , intersection : Intersection.Config
   , interpolation : Interpolation.Config
   , legends : Legends.Config msg
-  , events : Events.Config (Data.LineChart data) data msg
+  , events : Events.Config Element.LineDot data msg
   , area : Area.Config
   , grid : Grid.Config
   , line : Line.Config data
   , dots : Dots.Config data
-  , junk : Junk.Config (Data.LineChart data) (Junk.Continuous (Data.LineChart data) data msg) data msg
+  , junk : Junk.Config Element.LineDot msg
   }
 
 
@@ -462,42 +464,10 @@ viewCustom config series =
   let
     -- Data / System
     data = toDataPoints config series
-    dataSafe = List.map (List.filter .isReal) data
+    dataSafe = List.map (List.filter (Internal.Element.isReal << .element)) data
     dataAll = List.concat data
     dataAllSafe = List.concat dataSafe
     system = toSystem config dataAllSafe
-
-    -- Junk
-    hoverMany (Internal.Events.Found first) all =
-      { line = Svg.verticalGrid [] first.coordinates.x
-      , position = { x = Just first.coordinates.x, y = Nothing }
-      , offset = { x = 15, y = 0 }
-      , title = Internal.Axis.title config.x ++ ": " ++ Internal.Axis.unit config.x first.coordinates.x
-      , values =
-          let value (Internal.Events.Found datum) =
-                ( datum.color
-                , datum.label
-                , Internal.Axis.unit config.y datum.coordinates.y
-                )
-          in List.map value all
-      }
-
-    hoverOne (Internal.Events.Found datum) =
-      { position = { x = Just datum.coordinates.x, y = Just datum.coordinates.y }
-      , offset = { x = 15, y = 0 }
-      , color = datum.color
-      , title = datum.label
-      , values =
-          [ ( Internal.Axis.title config.x, Internal.Axis.unit config.x datum.coordinates.x  )
-          , ( Internal.Axis.title config.y, Internal.Axis.unit config.y datum.coordinates.y )
-          ]
-      }
-
-    junkDefaults =
-      { hoverOne = hoverOne 
-      , custom = Internal.Junk.Continuous { hoverMany = hoverMany }
-      }
-
 
     -- View
     viewLines =
@@ -512,6 +482,7 @@ viewCustom config series =
     viewLegends =
       { system = system
       , config = config.legends
+      , defaults = { width = 30, offsetY = 10 }
       , legends = \width ->
           let legend serie data =
                 { sample = Internal.Line.viewSample config.dots config.line config.area system serie data width
@@ -531,7 +502,16 @@ viewCustom config series =
     , verticalAxis = config.y
     , legends = viewLegends
     , trends = Svg.text ""
-    , junk = Internal.Junk.getLayers junkDefaults config.junk
+    , junk =
+        Internal.Junk.getLayers
+          { orientation = Internal.Orientation.Vertical
+          , independent = Internal.Axis.title config.x
+          , dependent = Internal.Axis.title config.y
+          , offsetOne = 15
+          , offsetMany = 15
+          }
+          system
+          config.junk
     , orientation = Internal.Orientation.Vertical
     }
     dataAll
@@ -542,7 +522,7 @@ viewCustom config series =
 -- INTERNAL
 
 
-toDataPoints : Config data msg -> List (Series data) -> List (List (Data.LineChart data))
+toDataPoints : Config data msg -> List (Series data) -> List (List (Point.Point Element.LineDot data))
 toDataPoints config series =
   let
     x = Internal.Axis.variable config.x
@@ -557,31 +537,39 @@ toDataPoints config series =
     eachDatum seriesIndex serie datum =
       case ( x datum, y datum ) of
         ( x, Just y ) ->
-          { user = datum
-          , point = Data.Point x y
-          , isReal = True
-          , label = Internal.Line.label serie
-          , color = Internal.Line.colorBase serie
-          , seriesIndex = seriesIndex
+          { source = datum
+          , coordinates = Coordinate.Point x y
+          , element =
+              { element = Internal.Element.lineDot True
+              , label = Internal.Line.label serie
+              , color = Internal.Line.colorBase serie
+              , independent = Internal.Axis.unit config.x x
+              , dependent = Internal.Axis.unit config.y y
+              , seriesIndex = seriesIndex
+              }
           }
 
         ( x, Nothing ) ->
-          { user = datum
-          , point = Data.Point x 0
-          , isReal = False
-          , label = Internal.Line.label serie
-          , color = Internal.Line.colorBase serie
-          , seriesIndex = seriesIndex
+          { source = datum
+          , coordinates = Coordinate.Point x 0
+          , element =
+              { element = Internal.Element.lineDot False
+              , label = Internal.Line.label serie
+              , color = Internal.Line.colorBase serie
+              , independent = Internal.Axis.unit config.x x
+              , dependent = "-"
+              , seriesIndex = seriesIndex
+              }
           }
   in
   case config.area of
     Internal.Area.None         -> data
     Internal.Area.Normal _     -> data
     Internal.Area.Stacked _    -> stack data
-    Internal.Area.Percentage _ -> normalize (stack data) -- TODO Not used
+    Internal.Area.Percentage _ -> data -- TODO Not used
 
 
-stack : List (List (Data.LineChart data)) -> List (List (Data.LineChart data))
+stack : List (List (Point.Point Element.LineDot data)) -> List (List (Point.Point Element.LineDot data))
 stack dataset =
   let
     stackBelows dataset result =
@@ -596,7 +584,7 @@ stack dataset =
   List.reverse (stackBelows dataset [])
 
 
-addBelows : List (Data.LineChart data) -> List (Data.LineChart data) -> List (Data.LineChart data)
+addBelows : List (Point.Point Element.LineDot data) -> List (Point.Point Element.LineDot data) -> List (Point.Point Element.LineDot data)
 addBelows data dataBelow =
   let
     iterate datum0 data dataBelow result =
@@ -605,10 +593,10 @@ addBelows data dataBelow =
           -- if the data point is after the point below, add it
           if datum1.coordinates.x > datumBelow.coordinates.x
             then
-              if datumBelow.isReal then
+              if Internal.Element.isReal datumBelow.element then
                 iterate datum0 (datum1 :: data) dataBelow (add datumBelow datum0 :: result)
               else
-                let breakdata = { datum0 | isReal = False } in
+                let breakdata = makeFake datum0 in
                 iterate datum0 (datum1 :: data) dataBelow (add datumBelow datum0 :: result)
             -- if not, try the next
             else iterate datum1 data (datumBelow :: dataBelow) result
@@ -633,26 +621,17 @@ addBelows data dataBelow =
     iterate first rest dataBelow []
 
 
-normalize : List (List (Data.LineChart data)) -> List (List (Data.LineChart data))
-normalize datasets =
-  case datasets of
-    highest :: belows ->
-      let
-        toPercentage highest datum =
-          setY datum (100 * datum.coordinates.y / highest.coordinates.y)
-      in
-      List.map (List.map2 toPercentage highest) (highest :: belows)
-
-    [] ->
-      datasets
-
-
-setY : Data.LineChart data -> Float -> Data.LineChart data
+setY : Point.Point Element.LineDot data -> Float -> Point.Point Element.LineDot data
 setY datum y =
-  { datum | point = Data.Point datum.coordinates.x y, isReal = False }
+  makeFake { datum | coordinates = Coordinate.Point datum.coordinates.x y }
 
 
-toSystem : Config data msg -> List (Data.LineChart data) -> Coordinate.System
+makeFake : Point.Point Element.LineDot data -> Point.Point Element.LineDot data
+makeFake point =
+  { point | element = Internal.Element.makeFake point.element }
+
+
+toSystem : Config data msg -> List (Point.Point Element.LineDot data) -> Coordinate.System
 toSystem config data =
   let
     container = Internal.Container.properties identity config.container
@@ -679,6 +658,7 @@ toSystem config data =
   | x = Internal.Axis.Range.applyX (Internal.Axis.range config.x) system
   , y = Internal.Axis.Range.applyY (Internal.Axis.range config.y) system
   }
+
 
 
 -- INTERNAL / DEFAULTS

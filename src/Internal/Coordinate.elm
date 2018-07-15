@@ -9,6 +9,7 @@ module Internal.Coordinate exposing
   , scaleSvgX, scaleSvgY
   , scaleDataX, scaleDataY
   , horizontalPoint, verticalPoint
+  , isWithinRange
   )
 
 

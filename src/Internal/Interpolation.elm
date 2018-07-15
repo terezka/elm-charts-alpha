@@ -3,7 +3,9 @@ module Internal.Interpolation exposing (Config(..), toCommands)
 {-| -}
 
 import Internal.Path as Path exposing (..)
-import Internal.Point as Point exposing (..)
+import Internal.Coordinate exposing (..)
+import Internal.Point as Point
+import Internal.Element as Element
 
 
 
