@@ -6,6 +6,12 @@ module Chart.Lines exposing
 
 {-|
 
+
+* WARNING! THIS IS A ALPHA VERSION. *
+* IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION. *
+* IT HAS BUGS AND AWKWARDNESS. *
+* USE AT OWN RISK. *
+
 ## Table of contents
 
 ### Quick start
