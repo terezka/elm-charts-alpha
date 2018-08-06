@@ -5,7 +5,8 @@
 
 *IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
 *IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
+**USE AT OWN RISK.**
+
 
 A library for plotting lines charts in SVG. Written in all Elm.
 
