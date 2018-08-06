@@ -2,6 +2,12 @@ module Chart.Axis.Intersection exposing (Config, default, atOrigin, at, custom)
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 ## Where is the intersection?
 
 The intersection is where your two axis lines meet. By default this is at

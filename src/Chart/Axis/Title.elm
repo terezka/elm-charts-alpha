@@ -6,6 +6,12 @@ module Chart.Axis.Title exposing
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 @docs Config, default, atAxisMax, atDataMax, atPosition, custom
 
 @docs Anchor, start, middle, end
@@ -126,7 +132,7 @@ SVG title. Arguments:
 _See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._
 
 -}
-custom : (Coordinate.Range -> Coordinate.Range -> Float) -> Float -> Float -> Anchor -> Svg msg -> Config msg
+custom : (Coordinate.Range -> Coordinate.Range -> Float) -> Float -> Float -> Anchor -> String -> (String -> Svg msg) -> Config msg
 custom position x y anchor =
   Title.custom position x y (Just anchor)
 

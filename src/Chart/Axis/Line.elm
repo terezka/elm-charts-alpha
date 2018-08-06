@@ -5,6 +5,12 @@ module Chart.Axis.Line exposing
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 _If you're confused as to what "axis range" and "data range" means,
 check out `Axis.Range` for an explanation!_
 

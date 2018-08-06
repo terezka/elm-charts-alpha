@@ -10,6 +10,12 @@ module Chart.Coordinate exposing
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 **Data-space and SVG-space**
 
 Data-space is the regular cartesian coordinate system, the coordinate system you

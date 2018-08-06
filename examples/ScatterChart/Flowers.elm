@@ -1,10 +1,9 @@
-module Lines exposing (main)
-
+module Examples.ScatterChart.Lines exposing (main)
 
 import Svg
 import Html
 import Html.Attributes exposing (class)
-import Chart.Dots
+import Dots
 import Chart.Dot as Dot
 import Chart.Colors as Colors
 import Chart.Junk as Junk
@@ -107,11 +106,11 @@ chart model =
     ]
 
 
-viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Chart.Dots.Series Info) -> Html.Html Msg
+viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Dots.Series Info) -> Html.Html Msg
 viewChart model toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
-    [ Chart.Dots.viewCustom
+    [ Dots.viewCustom
         { y = Axis.default "y" Unit.none toY
         , x = Axis.default "x" Unit.none toX
         , container =
@@ -170,9 +169,9 @@ toSeries info series =
       else ( info.species, [ info ] ) :: ( name, data ) :: rest
 
 
-toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Chart.Dots.Series Info
+toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Dots.Series Info
 toChartSeries color dot ( name, data ) =
-  Chart.Dots.series color dot name data
+  Dots.series color dot name data
 
 
 defaultColors : List Color.Color

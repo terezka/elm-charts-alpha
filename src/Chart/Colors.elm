@@ -6,6 +6,12 @@ module Chart.Colors exposing
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 <img alt="Colors!" width="610" src="https://github.com/terezka/line-charts/blob/master/images/colors.png?raw=true"></src>
 
 @docs pink, blue, gold, red, green, cyan, teal, purple, rust, strongBlue

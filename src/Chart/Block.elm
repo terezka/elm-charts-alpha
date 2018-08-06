@@ -1,6 +1,14 @@
 module Chart.Block exposing (Config, default, custom)
 
-{-| This configured general traits of all your blocks.
+{-| 
+
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
+This configured general traits of all your blocks.
 
 @docs Config, default, custom 
 

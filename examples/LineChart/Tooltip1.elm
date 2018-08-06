@@ -1,9 +1,9 @@
-module Tooltip1 exposing (main)
+module Examples.LineChart.Tooltip1 exposing (main)
 
 import Html exposing (Html, div, h1, node, p, text)
 import Html.Attributes exposing (class)
 import Svg exposing (Attribute, Svg, g, text_, tspan)
-import Chart.Lines
+import Lines
 import Chart.Junk as Junk exposing (..)
 import Chart.Dot as Dot
 import Chart.Container as Container
@@ -73,7 +73,7 @@ view model =
 
 chart : Model -> Html.Html Msg
 chart model =
-  Chart.Lines.viewCustom
+  Lines.viewCustom
     { y = Axis.default "Weight" Unit.kilograms (Just << .weight)
     , x = Axis.default "Age" Unit.years .age
     , container = Container.styled "line-chart-1" 700 450 [ ( "font-family", "monospace" ) ]
@@ -87,9 +87,9 @@ chart model =
     , line = Line.default
     , dots = Dot.hoverOne (Maybe.map Events.data model.hovered)
     }
-    [ Chart.Lines.line Color.orange Dot.triangle "Chuck" chuck
-    , Chart.Lines.line Color.yellow Dot.circle "Bobby" bobby
-    , Chart.Lines.line Color.purple Dot.diamond "Alice" alice
+    [ Lines.line Color.orange Dot.triangle "Chuck" chuck
+    , Lines.line Color.yellow Dot.circle "Bobby" bobby
+    , Lines.line Color.purple Dot.diamond "Alice" alice
     ]
 
 

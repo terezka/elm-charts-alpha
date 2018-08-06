@@ -2,6 +2,12 @@ module Chart.Axis.Values exposing (Amount, around, exactly, int, time, float, cu
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 Use in `Ticks.custom` for creating "nice" values.
 
     ticksConfig : Ticks.Config msg

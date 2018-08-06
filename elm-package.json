@@ -4,10 +4,12 @@
     "repository": "https://github.com/terezka/line-charts.git",
     "license": "BSD3",
     "source-directories": [
-      "./src",
-      "./docs/src"
+      "./src"
     ],
     "exposed-modules": [
+        "Dots",
+        "Blocks",
+        "Lines",
         "Chart.Axis",
         "Chart.Axis.Independent",
         "Chart.Axis.Dependent",
@@ -29,14 +31,9 @@
         "Chart.Interpolation",
         "Chart.Junk",
         "Chart.Legends",
-        "Chart.Lines",
         "Chart.Line",
         "Chart.Area",
-        "Chart.Dots",
-        "Chart.Group",
         "Chart.Trend",
-        "Chart.Outliers",
-        "Chart.Blocks",
         "Chart.Block",
         "Chart.Pattern"
     ],

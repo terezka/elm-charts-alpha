@@ -1,7 +1,16 @@
 module Chart.Pattern exposing (Config, default, custom)
 
 
-{-| This configures the striped pattern of the block, if patterned.
+{-| 
+
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
+
+This configures the striped pattern of the block, if patterned.
 _See `Chart.Blocks.series` on how to make a block patterned._
 
 @docs Config, default, custom

@@ -10,6 +10,12 @@ module Chart.Junk exposing
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 Junk is a way to draw whatever you like in the chart. The name comes from
 [Edward Tufte's concept of "chart junk"](https://en.wikipedia.org/wiki/Chartjunk).
 If you want to add tooltips, sections for emphasis, or kittens on your chart,

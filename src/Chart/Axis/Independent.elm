@@ -2,6 +2,12 @@ module Chart.Axis.Independent exposing (Config, default, custom)
 
 {-| 
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 This is the configuration for the independent axis of a blocks chart.
 It is _not_ used for the dots or line charts.
 

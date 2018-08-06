@@ -2,6 +2,12 @@ module Chart.Area exposing (Config, default, normal, stacked)
 
 {-|
 
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
 @docs Config, default, normal, stacked
 
 -}

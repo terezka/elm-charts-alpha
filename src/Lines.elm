@@ -1,4 +1,4 @@
-module Chart.Lines exposing
+module Lines exposing
   ( view1, view2, view3
   , view, Series, line, plain, dashed
   , viewCustom, Config
@@ -7,11 +7,12 @@ module Chart.Lines exposing
 {-|
 
 
-* WARNING! THIS IS A ALPHA VERSION. *
-* IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION. *
-* IT HAS BUGS AND AWKWARDNESS. *
-* USE AT OWN RISK. *
+# WARNING! THIS IS AN ALPHA VERSION
 
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+  
 ## Table of contents
 
 ### Quick start

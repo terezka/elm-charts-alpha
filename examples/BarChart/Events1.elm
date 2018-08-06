@@ -1,4 +1,4 @@
-module Events1 exposing (main)
+module Examples.BarChart.Events1 exposing (main)
 
 import Html
 import Html.Attributes
@@ -15,7 +15,7 @@ import Chart.Block
 import Chart.Junk
 import Chart.Pattern
 import Chart.Colors as Colors
-import Chart.Blocks
+import Blocks
 import Chart.Element as Element
 import Color
 
@@ -88,43 +88,43 @@ view model =
 
 chart : Model -> Html.Html Msg
 chart model =
-  Chart.Blocks.view .label [ denmark, norway, sweden, iceland ] data
+  Blocks.view .label [ denmark, norway, sweden, iceland ] data
     
 
-denmark : Chart.Blocks.Series Data
+denmark : Blocks.Series Data
 denmark =
-  Chart.Blocks.series
+  Blocks.series
     { title = "Denmark"
-    , style = Chart.Blocks.bordered Colors.pinkLight Colors.pink
+    , style = Blocks.bordered Colors.pinkLight Colors.pink
     , variable = .denmark
     , pattern = False
     }
 
-norway : Chart.Blocks.Series Data
+norway : Blocks.Series Data
 norway =
-  Chart.Blocks.series
+  Blocks.series
     { title = "Norway"
-    , style = Chart.Blocks.bordered Colors.blueLight Colors.blue 
+    , style = Blocks.bordered Colors.blueLight Colors.blue 
     , variable = .norway
     , pattern = False
     }
 
 
-sweden : Chart.Blocks.Series Data
+sweden : Blocks.Series Data
 sweden =
-  Chart.Blocks.series
+  Blocks.series
     { title = "Sweden"
-    , style = Chart.Blocks.bordered Colors.cyanLight Colors.cyan
+    , style = Blocks.bordered Colors.cyanLight Colors.cyan
     , variable = .sweden
     , pattern = False
     }
 
 
-iceland : Chart.Blocks.Series Data
+iceland : Blocks.Series Data
 iceland =
-  Chart.Blocks.series
+  Blocks.series
     { title = "Iceland"
-    , style = Chart.Blocks.bordered Colors.goldLight Colors.gold
+    , style = Blocks.bordered Colors.goldLight Colors.gold
     , variable = .iceland
     , pattern = False
     }
