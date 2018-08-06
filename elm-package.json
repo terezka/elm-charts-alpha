@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "summary": "A opinionated library for plotting lines charts in SVG.",
-    "repository": "https://github.com/terezka/line-charts.git",
+    "summary": "A library for plotting charts in SVG.",
+    "repository": "https://github.com/terezka/elm-charts.git",
     "license": "BSD3",
     "source-directories": [
       "./src",

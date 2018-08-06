@@ -1,6 +1,13 @@
 # Line Charts
 
-A opinionated library for plotting lines charts in SVG. Written in all Elm. See [demo.](https://terezka.github.io/line-charts/)
+
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
+A library for plotting lines charts in SVG. Written in all Elm.
 
 
 ## Documentation
