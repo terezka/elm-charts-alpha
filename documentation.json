@@ -287,6 +287,63 @@
     "generated-with-elm-version": "0.18.0"
   },
   {
+    "name": "Chart.Axis.Dependent",
+    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nThis is the configuration for the dependent axis of a blocks chart.\nIt is _not_ used for the dots or line charts.\n\n@docs Config, default, custom\n\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " ",
+        "args": [
+          "msg"
+        ],
+        "type": "Internal.Axis.Dependent.Config msg"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " Customize your dependent axis. The properties are:\n\n  - title: The title of your axis. See the `Chart.Axis.Title` module.\n  - unit: The unit of your axis. See the `Chart.Axis.Unit` module.\n  - range: The range of your axis. See the `Chart.Axis.Range` module.\n  - line: The line of your axis. See the `Chart.Axis.Line` module.\n  - ticks: The ticks on your axis. See the `Chart.Axis.Ticks` module.\n\n",
+        "type": "Chart.Axis.Dependent.Properties msg -> Chart.Axis.Dependent.Config msg"
+      },
+      {
+        "name": "default",
+        "comment": " The default configuration. Pass the title and\nthe unit of the axis.\n\n    Chart.Blocks.viewCustom\n      { ...\n      , dependentAxis = Chart.Axis.Dependent.default \"Income\" Chart.Axis.Unit.dollars\n      , ...\n      }\n\n",
+        "type": "String -> Internal.Unit.Config -> Chart.Axis.Dependent.Config msg"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Independent",
+    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nThis is the configuration for the independent axis of a blocks chart.\nIt is _not_ used for the dots or line charts.\n\n## What are independent and dependent values?\nThe values of an independent variable are chosen and often controlled by \nthe investigator, who then observes the effect of each independent variable \non a dependent variable. The dependent variable takes different values in \nresponse to the values of the independent variable that are chosen by the \ninvestigator. \n\n## Their role in blocks charts\nBlocks charts are for data where the independent variable is a discrete\nvariable. Imagine you have a chart where you plot countries against\ntheir GDP. In this case the countries are the discrete values.\n\nIn a blocks chart where the blocks are vertical (a column chart),\nthe independent axis is the x-axis. In a horizontal blocks chart \n(a bar chart), the independent axis is the y-axis.\n\n\n@docs Config, default, custom\n\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " The default configuration. Pass the title and\nthe unit of the axis.\n\n    Chart.Blocks.viewCustom\n      { ...\n      , independentAxis = Chart.Axis.Independent.default \"Country\" .country\n      , ...\n      }\n\n",
+        "args": [
+          "data",
+          "msg"
+        ],
+        "type": "Internal.Axis.Independent.Config data msg"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " ",
+        "type": "Chart.Axis.Independent.Properties data msg -> Chart.Axis.Independent.Config data msg"
+      },
+      {
+        "name": "default",
+        "comment": " ",
+        "type": "String -> (data -> String) -> Chart.Axis.Independent.Config data msg"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
     "name": "Chart.Junk",
     "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nJunk is a way to draw whatever you like in the chart. The name comes from\n[Edward Tufte's concept of \"chart junk\"](https://en.wikipedia.org/wiki/Chartjunk).\nIf you want to add tooltips, sections for emphasis, or kittens on your chart,\nthis is where it's at.\n\n<img alt=\"Legends\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/junk.png?raw=true\"></src>\n\n@docs Config, default, none, above, below, html, hoverBlock, hoverBlocks, hoverDot, hoverDots\n\n# Helpers\n\n## On chart area\n\nA good thing to know before reading this section is what I mean by \"chart area\".\nIt is basically the rectangle which covers your entire x and y axis-range.\nBelow is an illustration.\n\n_What is an axis-range? See the `Axis.Range` module._\n\n<img alt=\"Legends\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/chartarea.png?raw=true\"></src>\n\n@docs withinChartArea\n\n## Lines\n@docs vertical, horizontal, verticalCustom, horizontalCustom\n\n## Shapes\n@docs rectangle, circle\n\n## Label\n@docs label, labelAt\n\n## Placing\n@docs placed, Transfrom, transform, move, offset\n\n## Hover views\nThis is just regular html views! Nothing fancy - you can also make your own!\nNotice that you can override all the styles.\n\n@docs hoverCustom\n\n\n",
     "aliases": [
@@ -427,6 +484,60 @@
     "generated-with-elm-version": "0.18.0"
   },
   {
+    "name": "Chart.Trend",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, single, singleCustom, individual, individualCustom\n\n@docs Function, linear\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " ",
+        "args": [
+          "data"
+        ],
+        "type": "Internal.Trend.Config data"
+      },
+      {
+        "name": "Function",
+        "comment": " ",
+        "args": [],
+        "type": "List ( Float, Float ) -> Float -> Float"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "default",
+        "comment": " ",
+        "type": "Chart.Trend.Config data"
+      },
+      {
+        "name": "individual",
+        "comment": " ",
+        "type": "Chart.Trend.Config data"
+      },
+      {
+        "name": "individualCustom",
+        "comment": " ",
+        "type": "{ color : Color.Color -> Color.Color , width : List data -> Float , function : Chart.Trend.Function } -> Chart.Trend.Config data"
+      },
+      {
+        "name": "linear",
+        "comment": " ",
+        "type": "Chart.Trend.Function"
+      },
+      {
+        "name": "single",
+        "comment": " ",
+        "type": "Color.Color -> Chart.Trend.Config data"
+      },
+      {
+        "name": "singleCustom",
+        "comment": " ",
+        "type": "{ color : Color.Color , width : List data -> Float , function : Chart.Trend.Function } -> Chart.Trend.Config data"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
     "name": "Chart.Axis",
     "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n_If you're confused as to what \"axis range\" and \"data range\" means,\ncheck out `Axis.Range` for an explanation!_\n\n@docs Config, default, full, time, picky, custom\n\n",
     "aliases": [
@@ -472,111 +583,73 @@
     "generated-with-elm-version": "0.18.0"
   },
   {
-    "name": "Chart.Axis.Values",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nUse in `Ticks.custom` for creating \"nice\" values.\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.custom <| \\dataRange axisRange ->\n        List.map Tick.int (valuesWithin dataRange)\n\n    valuesWithin : Coordinate.Range -> List Int\n    valuesWithin =\n      Values.int (Values.around 3)\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example1.elm)._\n\n** What are \"nice\" numbers/integers/datetimes? **\n\nWhen I say \"nice\", I just mean that I try to calculate intervals which begin\nwith 10, 5, 3, 2, 1 (adjusted to magnitude, of course!). For dates, I try to\nhit whole days, weeks, months or hours, minutes, and seconds.\n\n# Nice numbers\n@docs int, float, Amount, around, exactly\n\n# Nice times\n@docs time\n\n# Custom numbers\n@docs custom\n\n",
+    "name": "Chart.Grid",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, none, dots, lines\n\n# How do I change where the grid lines/dots are placed?\n\nBy default there is a grid by every tick. If you want to change\nthe position of the grid or remove it all together, alter your tick\nconfiguration of your axis.\n\nThe path to the tick in the configuration does through the `x` or `y`\nproperty for vertical and horizontal grids respectivily and then in the\n`axis` property.\n\nSee `Chart.Axis` -> `Chart.Axis.Ticks` -> `Chart.Axis.Tick`.\n\n",
     "aliases": [
       {
-        "name": "Amount",
-        "comment": " ",
+        "name": "Config",
+        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , grid = Grid.default\n      , ...\n      }\n\n",
         "args": [],
-        "type": "Internal.Axis.Values.Amount"
+        "type": "Internal.Grid.Config"
       }
     ],
     "types": [],
     "values": [
       {
-        "name": "around",
-        "comment": " Will get you around the amount of numbers you pass it, although it will\nprioritize getting \"nice\" numbers.\n",
-        "type": "Int -> Chart.Axis.Values.Amount"
+        "name": "default",
+        "comment": " Gets you some vague gray grid lines.\n",
+        "type": "Chart.Grid.Config"
       },
       {
-        "name": "custom",
-        "comment": " Makes evenly spaced floats.\n\nArguments:\n\n  1. A number which must be in your resulting numbers (commonly 0).\n  2. The interval between your numbers.\n  3. The range which your numbers must be between.\n\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.custom <| \\dataRange axisRange ->\n        List.map Tick.float (Values.custom 45 10 dataRange) ++\n        -- ^ Makes [ 25, 45, 55, 65, 75, 85, 95 ]\n\n        List.map Tick.long (Values.custom 30 20 dataRange)\n        -- ^ Makes [ 30, 50, 70, 90 ]\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example3.elm)._\n\n",
-        "type": "Float -> Float -> Chart.Coordinate.Range -> List Float"
+        "name": "dots",
+        "comment": " Gets you a grid dots of a given radius and color.\n",
+        "type": "Float -> Color.Color -> Chart.Grid.Config"
       },
       {
-        "name": "exactly",
-        "comment": " Will get you _closer_ to the amount of numbers you pass it,\nalthough not actually _exactly_, since you still want decently \"nice\" numbers.\n\nP.S. If you have a better name for this function, please contact me.\n",
-        "type": "Int -> Chart.Axis.Values.Amount"
+        "name": "lines",
+        "comment": " Gets you grid lines of a given width and color.\n",
+        "type": "Float -> Color.Color -> Chart.Grid.Config"
       },
       {
-        "name": "float",
-        "comment": " Makes nice floats.\n\n    valuesWithin : Coordinate.Range -> List Float\n    valuesWithin =\n      -- something like [ 1, 1.5, 2, 2.5 ]\n      Values.float (Values.exactly 4)\n\n\n",
-        "type": "Chart.Axis.Values.Amount -> Chart.Coordinate.Range -> List Float"
-      },
-      {
-        "name": "int",
-        "comment": " Makes nice integers.\n\n    valuesWithin : Coordinate.Range -> List Int\n    valuesWithin =\n      Values.int (Values.around 3)\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example1.elm)._\n\n",
-        "type": "Chart.Axis.Values.Amount -> Chart.Coordinate.Range -> List Int"
-      },
-      {
-        "name": "time",
-        "comment": " Makes nice times.\n\n    valuesWithin : Coordinate.Range -> List Float\n    valuesWithin =\n      Values.time 5\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example2.elm)._\n\n",
-        "type": "Int -> Chart.Coordinate.Range -> List Chart.Axis.Tick.Time"
+        "name": "none",
+        "comment": " No grid! (Ok, fine, it's there, but it's transparent!) ",
+        "type": "Chart.Grid.Config"
       }
     ],
     "generated-with-elm-version": "0.18.0"
   },
   {
-    "name": "Chart.Axis.Title",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, atAxisMax, atDataMax, atPosition, custom\n\n@docs Anchor, start, middle, end\n\n",
+    "name": "Chart.Interpolation",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nInterpolation is the the kind of line which is drawn between your data points.\nIt's meant to be a guide to where your data point would actually be if you had\nmore data. It's not just for looks!\n\n@docs Config, default, linear, monotone, stepped\n\n",
     "aliases": [
       {
-        "name": "Anchor",
-        "comment": " ",
-        "args": [],
-        "type": "Internal.Axis.Title.Anchor"
-      },
-      {
         "name": "Config",
-        "comment": " Part of the configuration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { title = Title.default\n        , ...\n        }\n\n",
-        "args": [
-          "msg"
-        ],
-        "type": "Internal.Axis.Title.Config msg"
+        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , interpolation = Interpolation.default\n      , ...\n      }\n\n",
+        "args": [],
+        "type": "Internal.Interpolation.Config"
       }
     ],
     "types": [],
     "values": [
       {
-        "name": "atAxisMax",
-        "comment": " Place the title at the maxima of your axis range. Arguments:\n\n  1. The x offset in SVG-space.\n  2. The y offset in SVG-space.\n  3. The title.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      Title.atAxisMax 0 10 \"Age\"\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
-        "type": "Float -> Float -> String -> Chart.Axis.Title.Config msg"
-      },
-      {
-        "name": "atDataMax",
-        "comment": " Place the title at the maxima of your data range. Arguments:\n\n  1. The x offset in SVG-space.\n  2. The y offset in SVG-space.\n  3. The title.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      Title.atDataMax 0 10 \"Age\"\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
-        "type": "Float -> Float -> String -> Chart.Axis.Title.Config msg"
-      },
-      {
-        "name": "atPosition",
-        "comment": " Place your title in any spot along your axis. Arguments:\n\n  1. Given the data range and axis range, provide a position.\n  2. The x offset in SVG-space.\n  3. The y offset in SVG-space.\n  4. The title.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      let position dataRange axisRange = 80 in\n      Title.atPosition position -15 30 \"Weight\"\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
-        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range -> Float) -> Float -> Float -> String -> Chart.Axis.Title.Config msg"
-      },
-      {
-        "name": "custom",
-        "comment": " Almost the same as `atPosition` except instead of a string title, you pass a\nSVG title. Arguments:\n\n  1. Given the data range and axis range, provide a position.\n  2. The x offset in SVG-space.\n  3. The y offset in SVG-space.\n  4. The title view.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      let position dataRange axisRange = middle axisRange in\n      Title.custom position -10 35 <|\n        Svg.g\n          [ Svg.Attributes.style \"text-anchor: middle;\" ]\n          [ Junk.label Colors.pink \"Weight\" ]\n\n    middle : Coordinate.Range -> Float\n    middle { min, max } =\n      min + (max - min) / 2\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
-        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range -> Float) -> Float -> Float -> Chart.Axis.Title.Anchor -> String -> (String -> Svg.Svg msg) -> Chart.Axis.Title.Config msg"
-      },
-      {
         "name": "default",
-        "comment": " Place the title at the maxima of your axis range.\n",
-        "type": "String -> Chart.Axis.Title.Config msg"
+        "comment": " The vanilla of interpolations: linear.\n",
+        "type": "Chart.Interpolation.Config"
       },
       {
-        "name": "end",
-        "comment": " ",
-        "type": "Chart.Axis.Title.Anchor"
+        "name": "linear",
+        "comment": " A linear interpolation.\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/interpolation3.png?raw=true\"></src>\n\n",
+        "type": "Chart.Interpolation.Config"
       },
       {
-        "name": "middle",
-        "comment": " ",
-        "type": "Chart.Axis.Title.Anchor"
+        "name": "monotone",
+        "comment": " A monotone-x interpolation.\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/interpolation2.png?raw=true\"></src>\n\n",
+        "type": "Chart.Interpolation.Config"
       },
       {
-        "name": "start",
-        "comment": " ",
-        "type": "Chart.Axis.Title.Anchor"
+        "name": "stepped",
+        "comment": " A stepped interpolation where the step comes after the dot.\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/interpolation4.png?raw=true\"></src>\n\n",
+        "type": "Chart.Interpolation.Config"
       }
     ],
     "generated-with-elm-version": "0.18.0"
@@ -782,439 +855,6 @@
     "generated-with-elm-version": "0.18.0"
   },
   {
-    "name": "Chart.Legends",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, none\n\n## Grouped legends -- TODO rename\nWhere the titles are gathered in one spot.\n\n<img alt=\"Legends\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/legends5.png?raw=true\"></src>\n\n@docs grouped, groupedCustom, Legend\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , legends = Legends.default\n      , ...\n      }\n\n",
-        "args": [
-          "msg"
-        ],
-        "type": "Internal.Legends.Config msg"
-      },
-      {
-        "name": "Legend",
-        "comment": " Stuff that's helpful when you're drawing your legends.\nA sample of your line as well your line's label.\n",
-        "args": [
-          "msg"
-        ],
-        "type": "{ sample : Svg.Svg msg, label : String }"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "default",
-        "comment": " Produces legends in the top right corner.\n",
-        "type": "Chart.Legends.Config msg"
-      },
-      {
-        "name": "grouped",
-        "comment": " Draws some legends. You desicde where. Arguments:\n\n  1. Given the x-axis range, you produce the x-coordinate in data-space of the legends.\n  2. Given the y-axis range, you produce the y-coordinate of data-space the legends.\n  3. Move the legends horizontally in SVG-space.\n  4. Move the legends vertically in SVG-space.\n\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , legends = Legends.grouped .max .min 0 -60 -- Bottom right corner\n      , ...\n      }\n\n\nMakes this:\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/legends3.png?raw=true\"></src>\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example2.elm)._\n\n",
-        "type": "(Chart.Coordinate.Range -> Float) -> (Chart.Coordinate.Range -> Float) -> Float -> Float -> Chart.Legends.Config msg"
-      },
-      {
-        "name": "groupedCustom",
-        "comment": " Customize your grouped legends. Arguments:\n\n  1. The width of the line samples.\n  2. Your view function for the legends.\n\n\n    legends : Legends data msg\n    legends =\n      Legends.groupedCustom 30 viewLegends\n\n\n    viewLegends : Coordinate.System -> List (Legends.Legend msg) -> Svg.Svg msg\n    viewLegends system legends =\n      Svg.g\n        [ Junk.transform\n            [ Junk.move system system.x.min system.y.min\n            , Junk.offset 20 20\n            ]\n        ]\n        (List.indexedMap viewLegend legends)\n\n\n    viewLegend : Int -> Legends.Legend msg -> Svg.Svg msg\n    viewLegend index { sample, label } =\n       Svg.g\n        [ Junk.transform [ Junk.offset (toFloat index * 100) 20 ] ]\n        [ sample, viewLabel label ]\n\n\n    viewLabel : String -> Svg.Svg msg\n    viewLabel label =\n      Svg.g\n        [ Junk.transform [ Junk.offset 40 4 ] ]\n        [ Junk.label Colors.black label ]\n\n\nMakes this:\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/legends4.png?raw=true\"></src>\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example3.elm)._\n\n\n",
-        "type": "Float -> (Chart.Coordinate.System -> List (Chart.Legends.Legend msg) -> Svg.Svg msg) -> Chart.Legends.Config msg"
-      },
-      {
-        "name": "none",
-        "comment": " Removes the legends.\n",
-        "type": "Chart.Legends.Config msg"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Intersection",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n## Where is the intersection?\n\nThe intersection is where your two axis lines meet. By default this is at\nthe smallest coordinate possible (the downmost left corner), but it need\nnot be as illustated below.\n\n<img alt=\"Ranges explained\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/intersection1.png?raw=true\"></src>\n\n@docs Config, default, atOrigin, at, custom\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , intersection = Intersection.default\n      , ...\n      }\n\n",
-        "args": [],
-        "type": "Internal.Axis.Intersection.Config"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "at",
-        "comment": " Sets the intersection to your chosen x and y respectivily.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.at 0 3\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n",
-        "type": "Float -> Float -> Chart.Axis.Intersection.Config"
-      },
-      {
-        "name": "atOrigin",
-        "comment": " Sets the intersection as close to the origin as your range and domain allows.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.atOrigin\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n\n",
-        "type": "Chart.Axis.Intersection.Config"
-      },
-      {
-        "name": "custom",
-        "comment": " Sets the intersection to your chosen x and y, given the range and domain\nrespectivily.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.custom .min middle\n\n    middle : Coordinate.Range -> Float\n    middle { min, max } =\n      min + (max - min) / 2\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n",
-        "type": "(Chart.Coordinate.Range -> Float) -> (Chart.Coordinate.Range -> Float) -> Chart.Axis.Intersection.Config"
-      },
-      {
-        "name": "default",
-        "comment": " Sets the intersection at the minimum on both the range and domain.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.default\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n",
-        "type": "Chart.Axis.Intersection.Config"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Line",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n_If you're confused as to what \"axis range\" and \"data range\" means,\ncheck out `Axis.Range` for an explanation!_\n\n@docs Config, default, full, rangeFrame, none, custom, Properties\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " This configuration is part of the\nconfiguration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { ..\n        , range = AxisLine.default\n        , ...\n        }\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
-        "args": [
-          "msg"
-        ],
-        "type": "Internal.Axis.Line.Config msg"
-      },
-      {
-        "name": "Properties",
-        "comment": " ",
-        "args": [
-          "msg"
-        ],
-        "type": "{ color : Color.Color , width : Float , events : List (Svg.Attribute msg) , start : Float , end : Float }"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " Given your data range and axis range respectivily, define your own\naxis line configuration.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.custom <| \\dataRange axisRange ->\n        { color = Colors.gray\n        , width = 2\n        , events = []\n        , start = dataRange.min\n        , end = 5\n        }\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n\n",
-        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range -> Chart.Axis.Line.Properties msg) -> Chart.Axis.Line.Config msg"
-      },
-      {
-        "name": "default",
-        "comment": " Draws the full length of your axis range.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.default\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
-        "type": "Chart.Axis.Line.Config msg"
-      },
-      {
-        "name": "full",
-        "comment": " Same as the default, except you get to pick the color.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.full Color.red\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
-        "type": "Color.Color -> Chart.Axis.Line.Config msg"
-      },
-      {
-        "name": "none",
-        "comment": " Removes the axis line entirely.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.none\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
-        "type": "Chart.Axis.Line.Config msg"
-      },
-      {
-        "name": "rangeFrame",
-        "comment": " Draws the full length of your data range in your given color.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.rangeFrame Color.red\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
-        "type": "Color.Color -> Chart.Axis.Line.Config msg"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Range",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n## Axis ranges and data ranges\n\nConsidering the following data:\n\n    data =\n      [ { x = -1, y = -2 }\n      , { x = 5, y = 6 }\n      ]\n\nFrom this we can see that the smallest x is -1 and the largest x is 5. We\ncall this the x-data range. By default, the axis range is the same as your\ndata range, but we can make it far more complicated than that.\n\nOpposite your data range which is only calculated from  from your data,\n**your axis range can be edited** with this module. For example, you can make\nit larger than your data range, as illustrated below.\n\n<img alt=\"Ranges explained\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges.png?raw=true\"></src>\n\n_Notice how the data range begins and ends where the pink line begins and ends._\n\nThis is cool because it looks good. You can also make the axis range\nsmaller than the data range, and the result will we a \"zoomed in\" view of\none section of the data, which can also be useful.\n\nTake a look at some of these functions if these effects interests you.\n\n@docs Config, default, window, padded, custom\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " First of all, this configuration is part of the\nconfiguration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { ..\n        , range = Range.default\n        , ...\n        }\n\n",
-        "args": [],
-        "type": "Internal.Axis.Range.Config"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " Given your data range, produce your desired axis range.\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.custom specialRange\n\n    specialRange : Coordinate.Range -> Coordinate.Range\n    specialRange { min, max } =\n      { min = min - 1, max = max + 2 }\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges4.png?raw=true\"></src>\n\n",
-        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range) -> Chart.Axis.Range.Config"
-      },
-      {
-        "name": "default",
-        "comment": " Set the axis range to the full length of your data range.\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.default\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges3.png?raw=true\"></src>\n\n",
-        "type": "Chart.Axis.Range.Config"
-      },
-      {
-        "name": "padded",
-        "comment": " Add a given amount of pixels to the minimum and maximum of your axis range,\nrespectivily.\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.padded 40 40\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges.png?raw=true\"></src>\n\n",
-        "type": "Float -> Float -> Chart.Axis.Range.Config"
-      },
-      {
-        "name": "window",
-        "comment": " Straight up set your axis range by specifying the minimum and maximum,\nrespectivily.\n\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.window -0.5 4.5\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges2.png?raw=true\"></src>\n\n",
-        "type": "Float -> Float -> Chart.Axis.Range.Config"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Ticks",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default\n\n# Custom amount\n\nChoose the approximate amount of ticks on your axis!\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.int 7   -- makes ca. 7 ticks at nice integers\n      -- or\n      Ticks.time 7  -- makes ca. 7 ticks at nice datetimes\n      -- or\n      Ticks.float 7 -- makes ca. 7 ticks at nice float\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Ticks/Example1.elm)._\n\n@docs int, time, float\n\n# Custom tick\n\nNow you get to decide how the ticks should look. Remember that all formatting of\nthe value in the label is done in `Axis.Tick`!\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.intCustom 7 customTick\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Ticks/Example1.elm)._\n\n@docs intCustom, timeCustom, floatCustom\n\n# Custom positions\n@docs custom\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " Part of the configuration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { ..\n        , ticks = Ticks.default\n        , ...\n        }\n\n",
-        "args": [
-          "msg"
-        ],
-        "type": "Internal.Axis.Ticks.Config msg"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " Make your own combination of ticks.\n\n    ticksConfig : Maybe Info -> Ticks.Config msg\n    ticksConfig maybeHovered =\n      let\n        hoverOne =\n          case maybeHovered of\n            Just hovered -> [ Tick.float hovered.age ]\n            Nothing -> []\n\n        framing range =\n          List.map Tick.float [ range.min, range.max ]\n      in\n      Ticks.custom <| \\dataRange axisRange ->\n        framing dataRange ++ hoverOne\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Ticks/Example2.elm)._\n\n** What if I still want nice values?**\n\nYou can use `Axis.Values` to produce \"nice\" values within a given range.\n\n",
-        "type": "(Int -> Chart.Coordinate.Range -> Chart.Coordinate.Range -> List (Chart.Axis.Ticks.Set msg)) -> Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "default",
-        "comment": " Makes around five ticks at \"nice\" numbers.\n\n** What are \"nice\" numbers/integers/datetimes? **\n\n\"Nice\" numbers are intervals which begin with 10, 5, 3, 2, 1\n(adjusted to magnitude, of course!). For dates, it means whole days, weeks,\nmonths or hours, minutes, and seconds.\n\n",
-        "type": "Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "float",
-        "comment": " ",
-        "type": "Int -> Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "floatCustom",
-        "comment": " ",
-        "type": "Chart.Axis.Tick.Config msg -> Int -> Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "int",
-        "comment": " ",
-        "type": "Int -> Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "intCustom",
-        "comment": " ",
-        "type": "Chart.Axis.Tick.Config msg -> Int -> Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "time",
-        "comment": " ",
-        "type": "Int -> Chart.Axis.Ticks.Config msg"
-      },
-      {
-        "name": "timeCustom",
-        "comment": " ",
-        "type": "Chart.Axis.Tick.Config msg -> Int -> Chart.Axis.Ticks.Config msg"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Coordinate",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n**Data-space and SVG-space**\n\nData-space is the regular cartesian coordinate system, the coordinate system you\nprobably learned about in school. The x axis goes horizontally and the numbers\ngrow larger as we progress to the right. The y axis goes vertically and the numbers\ngrow larger as we progress upwards.\n\nSVG-space is different because here, the y axis numbers grow larger as we\nprogress _downwards_, and there coordinates are relative to the pixel height and\nwidth of the chart, not your data.\n\n<img alt=\"Space\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/space.png?raw=true\"></src>\n\nSince SVG only understand SVG-space coordinates, when we have data-space coordinates\nwe need to translate them in order the use them for drawing. For this we need some\ninfo which I calculate for you and is stored in the `System` type. With the `System` we\ncan use the translating functions contained in this module.\n\nFurthermore, the `System` holds your axis range minimum and maximum, as well as\nthat off your data range. This can be useful info when moving stuff in `Junk`!\n\n**Note:** Most of the functions in `Junk` takes data-space coordinates, so it's\nonly when you do you're own crazy junk in pure SVG that you have to worry about\nthis module!\n\n\n# System\n\n@docs System, Frame, Size, Range\n\n# Translation\n\n## Point\n@docs Point, toSvg, toData\n\n## Single value\n@docs toSvgX, toSvgY, toDataX, toDataY\n\n# Scaling\n\nScaling is different from translating in that it does not take a position as\nit's input, but a _distance_. Translating a position takes the frame into\naccount, scaling doesn't.\n\n    system : System\n    system =\n      { frame = Frame (Margin 10 10 10 10) (Size 100 100)\n      , x = Range 0 10\n      , y = Range 0 10\n      }\n\n    data : Point\n    data =\n      Point 2 3\n\n    dataXinSvg : Float\n    dataXinSvg =\n      toSvgX system data.x    -- 30 (margin.left + 2 * 100 / 10)\n\n    dataXinSvg : Float\n    dataXinSvg =\n      scaleSvgX system data.x -- 20 (2 * 100 / 10)\n\n@docs scaleSvgX, scaleSvgY, scaleDataX, scaleDataY\n\n",
-    "aliases": [
-      {
-        "name": "Frame",
-        "comment": " Specifies the size and margins of your chart.\n",
-        "args": [],
-        "type": "{ margin : Chart.Container.Margin, size : Chart.Coordinate.Size }"
-      },
-      {
-        "name": "Point",
-        "comment": " ",
-        "args": [],
-        "type": "{ x : Float, y : Float }"
-      },
-      {
-        "name": "Range",
-        "comment": " These are minimum and maximum values that make up a range.\n",
-        "args": [],
-        "type": "{ min : Float, max : Float }"
-      },
-      {
-        "name": "Size",
-        "comment": " The size (px) of your chart.\n",
-        "args": [],
-        "type": "{ width : Float, height : Float }"
-      },
-      {
-        "name": "System",
-        "comment": " The system holds informations about the dimensions of your chart.\n\n  - **frame** is information about the size and margins of your chart.\n  - **x** is the minimum and maximum of your axis range.\n  - **y** is the minimum and maximum of your axis domain.\n  - **xData** is the minimum and maximum of your data range.\n  - **yData** is the minimum and maximum of your data domain.\n  - **id** is the id of your chart.\n\nThis is all the information we need for translating your data coordinates into\nSVG coordinates.\n\n_If you're confused as to what \"axis range\" and \"data range\" means,\ncheck out `Axis.Range` for an explanation!_\n\n",
-        "args": [],
-        "type": "{ frame : Chart.Coordinate.Frame , x : Chart.Coordinate.Range , y : Chart.Coordinate.Range , xData : Chart.Coordinate.Range , yData : Chart.Coordinate.Range , id : String }"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "scaleDataX",
-        "comment": " Scale a x-value from SVG-space to data-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "scaleDataY",
-        "comment": " Scale a y-value from SVG-space to data-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "scaleSvgX",
-        "comment": " Scale a x-value from data-space to SVG-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "scaleSvgY",
-        "comment": " Scale a y-value from data-space to SVG-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "toData",
-        "comment": " Translates a SVG-space point to a data-space point.\n",
-        "type": "Chart.Coordinate.System -> Chart.Coordinate.Point -> Chart.Coordinate.Point"
-      },
-      {
-        "name": "toDataX",
-        "comment": " Translate a x-coordinate from SVG-space to data-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "toDataY",
-        "comment": " Translate a y-coordinate from SVG-space to data-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "toSvg",
-        "comment": " Translates a data-space point to a SVG-space point.\n",
-        "type": "Chart.Coordinate.System -> Chart.Coordinate.Point -> Chart.Coordinate.Point"
-      },
-      {
-        "name": "toSvgX",
-        "comment": " Translate a x-coordinate from data-space to SVG-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      },
-      {
-        "name": "toSvgY",
-        "comment": " Translate a y-coordinate from data-space to SVG-space.\n",
-        "type": "Chart.Coordinate.System -> Float -> Float"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Trend",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, single, singleCustom, individual, individualCustom\n\n@docs Function, linear\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " ",
-        "args": [
-          "data"
-        ],
-        "type": "Internal.Trend.Config data"
-      },
-      {
-        "name": "Function",
-        "comment": " ",
-        "args": [],
-        "type": "List ( Float, Float ) -> Float -> Float"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "default",
-        "comment": " ",
-        "type": "Chart.Trend.Config data"
-      },
-      {
-        "name": "individual",
-        "comment": " ",
-        "type": "Chart.Trend.Config data"
-      },
-      {
-        "name": "individualCustom",
-        "comment": " ",
-        "type": "{ color : Color.Color -> Color.Color , width : List data -> Float , function : Chart.Trend.Function } -> Chart.Trend.Config data"
-      },
-      {
-        "name": "linear",
-        "comment": " ",
-        "type": "Chart.Trend.Function"
-      },
-      {
-        "name": "single",
-        "comment": " ",
-        "type": "Color.Color -> Chart.Trend.Config data"
-      },
-      {
-        "name": "singleCustom",
-        "comment": " ",
-        "type": "{ color : Color.Color , width : List data -> Float , function : Chart.Trend.Function } -> Chart.Trend.Config data"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Pattern",
-    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n\nThis configures the striped pattern of the block, if patterned.\n_See `Chart.Blocks.series` on how to make a block patterned._\n\n@docs Config, default, custom\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " Use in the `Chart.Blocks.Config` passed to `Chart.Blocks.viewCustom`.\n\n    chartConfig : Chart.Config value data msg\n    chartConfig =\n      { ...\n      , pattern = Chart.Pattern.default\n      , ...\n      }\n\n",
-        "args": [],
-        "type": "Internal.Pattern.Config"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " Edit the stripes. Pass the width of the colored part, then\nthe width of the white part.\n\n    patternConfig : Chart.Pattern.Config\n    patternConfig =\n      Chart.Pattern.custom 5 2\n\n\n",
-        "type": "Int -> Int -> Chart.Pattern.Config"
-      },
-      {
-        "name": "default",
-        "comment": " The default configuration.\n\n    patternConfig : Chart.Pattern.Config\n    patternConfig =\n      Chart.Pattern.default\n\n",
-        "type": "Chart.Pattern.Config"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Interpolation",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nInterpolation is the the kind of line which is drawn between your data points.\nIt's meant to be a guide to where your data point would actually be if you had\nmore data. It's not just for looks!\n\n@docs Config, default, linear, monotone, stepped\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , interpolation = Interpolation.default\n      , ...\n      }\n\n",
-        "args": [],
-        "type": "Internal.Interpolation.Config"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "default",
-        "comment": " The vanilla of interpolations: linear.\n",
-        "type": "Chart.Interpolation.Config"
-      },
-      {
-        "name": "linear",
-        "comment": " A linear interpolation.\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/interpolation3.png?raw=true\"></src>\n\n",
-        "type": "Chart.Interpolation.Config"
-      },
-      {
-        "name": "monotone",
-        "comment": " A monotone-x interpolation.\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/interpolation2.png?raw=true\"></src>\n\n",
-        "type": "Chart.Interpolation.Config"
-      },
-      {
-        "name": "stepped",
-        "comment": " A stepped interpolation where the step comes after the dot.\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/interpolation4.png?raw=true\"></src>\n\n",
-        "type": "Chart.Interpolation.Config"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
     "name": "Chart.Dot",
     "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n# Shapes\n@docs Shape\n\n## Selection\nHopefully, these are self-explanatory.\n<img alt=\"Legends\" width=\"610\" style=\"margin-top: 10px; margin-left: -10px\" src=\"https://github.com/terezka/line-charts/blob/master/images/shapes.png?raw=true\"></src>\n\n@docs circle, triangle, square, diamond, plus, cross\n\n# Styles\n@docs Config, default\n\n## Hover styles\n@docs hoverOne, hoverMany\n\n## Customization\n@docs custom, customAny\n\n### Selection\n@docs Style, full, empty, disconnected, aura\n\n\n",
     "aliases": [
@@ -1315,6 +955,283 @@
         "name": "triangle",
         "comment": " ",
         "type": "Chart.Dot.Shape"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Intersection",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n## Where is the intersection?\n\nThe intersection is where your two axis lines meet. By default this is at\nthe smallest coordinate possible (the downmost left corner), but it need\nnot be as illustated below.\n\n<img alt=\"Ranges explained\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/intersection1.png?raw=true\"></src>\n\n@docs Config, default, atOrigin, at, custom\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , intersection = Intersection.default\n      , ...\n      }\n\n",
+        "args": [],
+        "type": "Internal.Axis.Intersection.Config"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "at",
+        "comment": " Sets the intersection to your chosen x and y respectivily.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.at 0 3\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n",
+        "type": "Float -> Float -> Chart.Axis.Intersection.Config"
+      },
+      {
+        "name": "atOrigin",
+        "comment": " Sets the intersection as close to the origin as your range and domain allows.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.atOrigin\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n\n",
+        "type": "Chart.Axis.Intersection.Config"
+      },
+      {
+        "name": "custom",
+        "comment": " Sets the intersection to your chosen x and y, given the range and domain\nrespectivily.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.custom .min middle\n\n    middle : Coordinate.Range -> Float\n    middle { min, max } =\n      min + (max - min) / 2\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n",
+        "type": "(Chart.Coordinate.Range -> Float) -> (Chart.Coordinate.Range -> Float) -> Chart.Axis.Intersection.Config"
+      },
+      {
+        "name": "default",
+        "comment": " Sets the intersection at the minimum on both the range and domain.\n\n    intersectionConfig : Intersection.Config\n    intersectionConfig =\n      Intersection.default\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Intersection/Example1.elm)._\n\n",
+        "type": "Chart.Axis.Intersection.Config"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Ticks",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default\n\n# Custom amount\n\nChoose the approximate amount of ticks on your axis!\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.int 7   -- makes ca. 7 ticks at nice integers\n      -- or\n      Ticks.time 7  -- makes ca. 7 ticks at nice datetimes\n      -- or\n      Ticks.float 7 -- makes ca. 7 ticks at nice float\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Ticks/Example1.elm)._\n\n@docs int, time, float\n\n# Custom tick\n\nNow you get to decide how the ticks should look. Remember that all formatting of\nthe value in the label is done in `Axis.Tick`!\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.intCustom 7 customTick\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Ticks/Example1.elm)._\n\n@docs intCustom, timeCustom, floatCustom\n\n# Custom positions\n@docs custom\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " Part of the configuration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { ..\n        , ticks = Ticks.default\n        , ...\n        }\n\n",
+        "args": [
+          "msg"
+        ],
+        "type": "Internal.Axis.Ticks.Config msg"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " Make your own combination of ticks.\n\n    ticksConfig : Maybe Info -> Ticks.Config msg\n    ticksConfig maybeHovered =\n      let\n        hoverOne =\n          case maybeHovered of\n            Just hovered -> [ Tick.float hovered.age ]\n            Nothing -> []\n\n        framing range =\n          List.map Tick.float [ range.min, range.max ]\n      in\n      Ticks.custom <| \\dataRange axisRange ->\n        framing dataRange ++ hoverOne\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Ticks/Example2.elm)._\n\n** What if I still want nice values?**\n\nYou can use `Axis.Values` to produce \"nice\" values within a given range.\n\n",
+        "type": "(Int -> Chart.Coordinate.Range -> Chart.Coordinate.Range -> List (Chart.Axis.Ticks.Set msg)) -> Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "default",
+        "comment": " Makes around five ticks at \"nice\" numbers.\n\n** What are \"nice\" numbers/integers/datetimes? **\n\n\"Nice\" numbers are intervals which begin with 10, 5, 3, 2, 1\n(adjusted to magnitude, of course!). For dates, it means whole days, weeks,\nmonths or hours, minutes, and seconds.\n\n",
+        "type": "Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "float",
+        "comment": " ",
+        "type": "Int -> Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "floatCustom",
+        "comment": " ",
+        "type": "Chart.Axis.Tick.Config msg -> Int -> Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "int",
+        "comment": " ",
+        "type": "Int -> Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "intCustom",
+        "comment": " ",
+        "type": "Chart.Axis.Tick.Config msg -> Int -> Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "time",
+        "comment": " ",
+        "type": "Int -> Chart.Axis.Ticks.Config msg"
+      },
+      {
+        "name": "timeCustom",
+        "comment": " ",
+        "type": "Chart.Axis.Tick.Config msg -> Int -> Chart.Axis.Ticks.Config msg"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Values",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nUse in `Ticks.custom` for creating \"nice\" values.\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.custom <| \\dataRange axisRange ->\n        List.map Tick.int (valuesWithin dataRange)\n\n    valuesWithin : Coordinate.Range -> List Int\n    valuesWithin =\n      Values.int (Values.around 3)\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example1.elm)._\n\n** What are \"nice\" numbers/integers/datetimes? **\n\nWhen I say \"nice\", I just mean that I try to calculate intervals which begin\nwith 10, 5, 3, 2, 1 (adjusted to magnitude, of course!). For dates, I try to\nhit whole days, weeks, months or hours, minutes, and seconds.\n\n# Nice numbers\n@docs int, float, Amount, around, exactly\n\n# Nice times\n@docs time\n\n# Custom numbers\n@docs custom\n\n",
+    "aliases": [
+      {
+        "name": "Amount",
+        "comment": " ",
+        "args": [],
+        "type": "Internal.Axis.Values.Amount"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "around",
+        "comment": " Will get you around the amount of numbers you pass it, although it will\nprioritize getting \"nice\" numbers.\n",
+        "type": "Int -> Chart.Axis.Values.Amount"
+      },
+      {
+        "name": "custom",
+        "comment": " Makes evenly spaced floats.\n\nArguments:\n\n  1. A number which must be in your resulting numbers (commonly 0).\n  2. The interval between your numbers.\n  3. The range which your numbers must be between.\n\n\n    ticksConfig : Ticks.Config msg\n    ticksConfig =\n      Ticks.custom <| \\dataRange axisRange ->\n        List.map Tick.float (Values.custom 45 10 dataRange) ++\n        -- ^ Makes [ 25, 45, 55, 65, 75, 85, 95 ]\n\n        List.map Tick.long (Values.custom 30 20 dataRange)\n        -- ^ Makes [ 30, 50, 70, 90 ]\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example3.elm)._\n\n",
+        "type": "Float -> Float -> Chart.Coordinate.Range -> List Float"
+      },
+      {
+        "name": "exactly",
+        "comment": " Will get you _closer_ to the amount of numbers you pass it,\nalthough not actually _exactly_, since you still want decently \"nice\" numbers.\n\nP.S. If you have a better name for this function, please contact me.\n",
+        "type": "Int -> Chart.Axis.Values.Amount"
+      },
+      {
+        "name": "float",
+        "comment": " Makes nice floats.\n\n    valuesWithin : Coordinate.Range -> List Float\n    valuesWithin =\n      -- something like [ 1, 1.5, 2, 2.5 ]\n      Values.float (Values.exactly 4)\n\n\n",
+        "type": "Chart.Axis.Values.Amount -> Chart.Coordinate.Range -> List Float"
+      },
+      {
+        "name": "int",
+        "comment": " Makes nice integers.\n\n    valuesWithin : Coordinate.Range -> List Int\n    valuesWithin =\n      Values.int (Values.around 3)\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example1.elm)._\n\n",
+        "type": "Chart.Axis.Values.Amount -> Chart.Coordinate.Range -> List Int"
+      },
+      {
+        "name": "time",
+        "comment": " Makes nice times.\n\n    valuesWithin : Coordinate.Range -> List Float\n    valuesWithin =\n      Values.time 5\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example2.elm)._\n\n",
+        "type": "Int -> Chart.Coordinate.Range -> List Chart.Axis.Tick.Time"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Element",
+    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nThese are types denoting things `Chart.Events` can find\ndepending on what kind of chart you're using.\n\n@docs Dot, LineDot, Block\n\n",
+    "aliases": [
+      {
+        "name": "Block",
+        "comment": " ",
+        "args": [],
+        "type": "Internal.Element.Block"
+      },
+      {
+        "name": "Dot",
+        "comment": " ",
+        "args": [],
+        "type": "Internal.Element.Dot"
+      },
+      {
+        "name": "LineDot",
+        "comment": " ",
+        "args": [],
+        "type": "Internal.Element.LineDot"
+      }
+    ],
+    "types": [],
+    "values": [],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Legends",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, none\n\n## Grouped legends -- TODO rename\nWhere the titles are gathered in one spot.\n\n<img alt=\"Legends\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/legends5.png?raw=true\"></src>\n\n@docs grouped, groupedCustom, Legend\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , legends = Legends.default\n      , ...\n      }\n\n",
+        "args": [
+          "msg"
+        ],
+        "type": "Internal.Legends.Config msg"
+      },
+      {
+        "name": "Legend",
+        "comment": " Stuff that's helpful when you're drawing your legends.\nA sample of your line as well your line's label.\n",
+        "args": [
+          "msg"
+        ],
+        "type": "{ sample : Svg.Svg msg, label : String }"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "default",
+        "comment": " Produces legends in the top right corner.\n",
+        "type": "Chart.Legends.Config msg"
+      },
+      {
+        "name": "grouped",
+        "comment": " Draws some legends. You desicde where. Arguments:\n\n  1. Given the x-axis range, you produce the x-coordinate in data-space of the legends.\n  2. Given the y-axis range, you produce the y-coordinate of data-space the legends.\n  3. Move the legends horizontally in SVG-space.\n  4. Move the legends vertically in SVG-space.\n\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , legends = Legends.grouped .max .min 0 -60 -- Bottom right corner\n      , ...\n      }\n\n\nMakes this:\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/legends3.png?raw=true\"></src>\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example2.elm)._\n\n",
+        "type": "(Chart.Coordinate.Range -> Float) -> (Chart.Coordinate.Range -> Float) -> Float -> Float -> Chart.Legends.Config msg"
+      },
+      {
+        "name": "groupedCustom",
+        "comment": " Customize your grouped legends. Arguments:\n\n  1. The width of the line samples.\n  2. Your view function for the legends.\n\n\n    legends : Legends data msg\n    legends =\n      Legends.groupedCustom 30 viewLegends\n\n\n    viewLegends : Coordinate.System -> List (Legends.Legend msg) -> Svg.Svg msg\n    viewLegends system legends =\n      Svg.g\n        [ Junk.transform\n            [ Junk.move system system.x.min system.y.min\n            , Junk.offset 20 20\n            ]\n        ]\n        (List.indexedMap viewLegend legends)\n\n\n    viewLegend : Int -> Legends.Legend msg -> Svg.Svg msg\n    viewLegend index { sample, label } =\n       Svg.g\n        [ Junk.transform [ Junk.offset (toFloat index * 100) 20 ] ]\n        [ sample, viewLabel label ]\n\n\n    viewLabel : String -> Svg.Svg msg\n    viewLabel label =\n      Svg.g\n        [ Junk.transform [ Junk.offset 40 4 ] ]\n        [ Junk.label Colors.black label ]\n\n\nMakes this:\n\n<img alt=\"Legends\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/legends4.png?raw=true\"></src>\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Legends/Example3.elm)._\n\n\n",
+        "type": "Float -> (Chart.Coordinate.System -> List (Chart.Legends.Legend msg) -> Svg.Svg msg) -> Chart.Legends.Config msg"
+      },
+      {
+        "name": "none",
+        "comment": " Removes the legends.\n",
+        "type": "Chart.Legends.Config msg"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Title",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, atAxisMax, atDataMax, atPosition, custom\n\n@docs Anchor, start, middle, end\n\n",
+    "aliases": [
+      {
+        "name": "Anchor",
+        "comment": " ",
+        "args": [],
+        "type": "Internal.Axis.Title.Anchor"
+      },
+      {
+        "name": "Config",
+        "comment": " Part of the configuration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { title = Title.default\n        , ...\n        }\n\n",
+        "args": [
+          "msg"
+        ],
+        "type": "Internal.Axis.Title.Config msg"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "atAxisMax",
+        "comment": " Place the title at the maxima of your axis range. Arguments:\n\n  1. The x offset in SVG-space.\n  2. The y offset in SVG-space.\n  3. The title.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      Title.atAxisMax 0 10 \"Age\"\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
+        "type": "Float -> Float -> String -> Chart.Axis.Title.Config msg"
+      },
+      {
+        "name": "atDataMax",
+        "comment": " Place the title at the maxima of your data range. Arguments:\n\n  1. The x offset in SVG-space.\n  2. The y offset in SVG-space.\n  3. The title.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      Title.atDataMax 0 10 \"Age\"\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
+        "type": "Float -> Float -> String -> Chart.Axis.Title.Config msg"
+      },
+      {
+        "name": "atPosition",
+        "comment": " Place your title in any spot along your axis. Arguments:\n\n  1. Given the data range and axis range, provide a position.\n  2. The x offset in SVG-space.\n  3. The y offset in SVG-space.\n  4. The title.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      let position dataRange axisRange = 80 in\n      Title.atPosition position -15 30 \"Weight\"\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
+        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range -> Float) -> Float -> Float -> String -> Chart.Axis.Title.Config msg"
+      },
+      {
+        "name": "custom",
+        "comment": " Almost the same as `atPosition` except instead of a string title, you pass a\nSVG title. Arguments:\n\n  1. Given the data range and axis range, provide a position.\n  2. The x offset in SVG-space.\n  3. The y offset in SVG-space.\n  4. The title view.\n\n\n    titleConfig : Title.Config msg\n    titleConfig =\n      let position dataRange axisRange = middle axisRange in\n      Title.custom position -10 35 <|\n        Svg.g\n          [ Svg.Attributes.style \"text-anchor: middle;\" ]\n          [ Junk.label Colors.pink \"Weight\" ]\n\n    middle : Coordinate.Range -> Float\n    middle { min, max } =\n      min + (max - min) / 2\n\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Title/Example1.elm)._\n\n",
+        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range -> Float) -> Float -> Float -> Chart.Axis.Title.Anchor -> String -> (String -> Svg.Svg msg) -> Chart.Axis.Title.Config msg"
+      },
+      {
+        "name": "default",
+        "comment": " Place the title at the maxima of your axis range.\n",
+        "type": "String -> Chart.Axis.Title.Config msg"
+      },
+      {
+        "name": "end",
+        "comment": " ",
+        "type": "Chart.Axis.Title.Anchor"
+      },
+      {
+        "name": "middle",
+        "comment": " ",
+        "type": "Chart.Axis.Title.Anchor"
+      },
+      {
+        "name": "start",
+        "comment": " ",
+        "type": "Chart.Axis.Title.Anchor"
       }
     ],
     "generated-with-elm-version": "0.18.0"
@@ -1459,6 +1376,183 @@
     "generated-with-elm-version": "0.18.0"
   },
   {
+    "name": "Chart.Axis.Line",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n_If you're confused as to what \"axis range\" and \"data range\" means,\ncheck out `Axis.Range` for an explanation!_\n\n@docs Config, default, full, rangeFrame, none, custom, Properties\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " This configuration is part of the\nconfiguration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { ..\n        , range = AxisLine.default\n        , ...\n        }\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
+        "args": [
+          "msg"
+        ],
+        "type": "Internal.Axis.Line.Config msg"
+      },
+      {
+        "name": "Properties",
+        "comment": " ",
+        "args": [
+          "msg"
+        ],
+        "type": "{ color : Color.Color , width : Float , events : List (Svg.Attribute msg) , start : Float , end : Float }"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " Given your data range and axis range respectivily, define your own\naxis line configuration.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.custom <| \\dataRange axisRange ->\n        { color = Colors.gray\n        , width = 2\n        , events = []\n        , start = dataRange.min\n        , end = 5\n        }\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n\n",
+        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range -> Chart.Axis.Line.Properties msg) -> Chart.Axis.Line.Config msg"
+      },
+      {
+        "name": "default",
+        "comment": " Draws the full length of your axis range.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.default\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
+        "type": "Chart.Axis.Line.Config msg"
+      },
+      {
+        "name": "full",
+        "comment": " Same as the default, except you get to pick the color.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.full Color.red\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
+        "type": "Color.Color -> Chart.Axis.Line.Config msg"
+      },
+      {
+        "name": "none",
+        "comment": " Removes the axis line entirely.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.none\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
+        "type": "Chart.Axis.Line.Config msg"
+      },
+      {
+        "name": "rangeFrame",
+        "comment": " Draws the full length of your data range in your given color.\n\n    lineConfig : AxisLine.Config msg\n    lineConfig =\n      AxisLine.rangeFrame Color.red\n\n_See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/AxisLine/Example1.elm)._\n\n",
+        "type": "Color.Color -> Chart.Axis.Line.Config msg"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Range",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n## Axis ranges and data ranges\n\nConsidering the following data:\n\n    data =\n      [ { x = -1, y = -2 }\n      , { x = 5, y = 6 }\n      ]\n\nFrom this we can see that the smallest x is -1 and the largest x is 5. We\ncall this the x-data range. By default, the axis range is the same as your\ndata range, but we can make it far more complicated than that.\n\nOpposite your data range which is only calculated from  from your data,\n**your axis range can be edited** with this module. For example, you can make\nit larger than your data range, as illustrated below.\n\n<img alt=\"Ranges explained\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges.png?raw=true\"></src>\n\n_Notice how the data range begins and ends where the pink line begins and ends._\n\nThis is cool because it looks good. You can also make the axis range\nsmaller than the data range, and the result will we a \"zoomed in\" view of\none section of the data, which can also be useful.\n\nTake a look at some of these functions if these effects interests you.\n\n@docs Config, default, window, padded, custom\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " First of all, this configuration is part of the\nconfiguration in `Axis.custom`.\n\n    axisConfig : Axis.Config Data msg\n    axisConfig =\n      Axis.custom\n        { ..\n        , range = Range.default\n        , ...\n        }\n\n",
+        "args": [],
+        "type": "Internal.Axis.Range.Config"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " Given your data range, produce your desired axis range.\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.custom specialRange\n\n    specialRange : Coordinate.Range -> Coordinate.Range\n    specialRange { min, max } =\n      { min = min - 1, max = max + 2 }\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges4.png?raw=true\"></src>\n\n",
+        "type": "(Chart.Coordinate.Range -> Chart.Coordinate.Range) -> Chart.Axis.Range.Config"
+      },
+      {
+        "name": "default",
+        "comment": " Set the axis range to the full length of your data range.\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.default\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges3.png?raw=true\"></src>\n\n",
+        "type": "Chart.Axis.Range.Config"
+      },
+      {
+        "name": "padded",
+        "comment": " Add a given amount of pixels to the minimum and maximum of your axis range,\nrespectivily.\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.padded 40 40\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges.png?raw=true\"></src>\n\n",
+        "type": "Float -> Float -> Chart.Axis.Range.Config"
+      },
+      {
+        "name": "window",
+        "comment": " Straight up set your axis range by specifying the minimum and maximum,\nrespectivily.\n\n\n    rangeConfig : Range.Config\n    rangeConfig =\n      Range.window -0.5 4.5\n\n\n_See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Range/Example1.elm)._\n\n<img alt=\"Ranges explained\" width=\"540\" src=\"https://github.com/terezka/line-charts/blob/master/images/ranges2.png?raw=true\"></src>\n\n",
+        "type": "Float -> Float -> Chart.Axis.Range.Config"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Coordinate",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n**Data-space and SVG-space**\n\nData-space is the regular cartesian coordinate system, the coordinate system you\nprobably learned about in school. The x axis goes horizontally and the numbers\ngrow larger as we progress to the right. The y axis goes vertically and the numbers\ngrow larger as we progress upwards.\n\nSVG-space is different because here, the y axis numbers grow larger as we\nprogress _downwards_, and there coordinates are relative to the pixel height and\nwidth of the chart, not your data.\n\n<img alt=\"Space\" width=\"610\" src=\"https://github.com/terezka/line-charts/blob/master/images/space.png?raw=true\"></src>\n\nSince SVG only understand SVG-space coordinates, when we have data-space coordinates\nwe need to translate them in order the use them for drawing. For this we need some\ninfo which I calculate for you and is stored in the `System` type. With the `System` we\ncan use the translating functions contained in this module.\n\nFurthermore, the `System` holds your axis range minimum and maximum, as well as\nthat off your data range. This can be useful info when moving stuff in `Junk`!\n\n**Note:** Most of the functions in `Junk` takes data-space coordinates, so it's\nonly when you do you're own crazy junk in pure SVG that you have to worry about\nthis module!\n\n\n# System\n\n@docs System, Frame, Size, Range\n\n# Translation\n\n## Point\n@docs Point, toSvg, toData\n\n## Single value\n@docs toSvgX, toSvgY, toDataX, toDataY\n\n# Scaling\n\nScaling is different from translating in that it does not take a position as\nit's input, but a _distance_. Translating a position takes the frame into\naccount, scaling doesn't.\n\n    system : System\n    system =\n      { frame = Frame (Margin 10 10 10 10) (Size 100 100)\n      , x = Range 0 10\n      , y = Range 0 10\n      }\n\n    data : Point\n    data =\n      Point 2 3\n\n    dataXinSvg : Float\n    dataXinSvg =\n      toSvgX system data.x    -- 30 (margin.left + 2 * 100 / 10)\n\n    dataXinSvg : Float\n    dataXinSvg =\n      scaleSvgX system data.x -- 20 (2 * 100 / 10)\n\n@docs scaleSvgX, scaleSvgY, scaleDataX, scaleDataY\n\n",
+    "aliases": [
+      {
+        "name": "Frame",
+        "comment": " Specifies the size and margins of your chart.\n",
+        "args": [],
+        "type": "{ margin : Chart.Container.Margin, size : Chart.Coordinate.Size }"
+      },
+      {
+        "name": "Point",
+        "comment": " ",
+        "args": [],
+        "type": "{ x : Float, y : Float }"
+      },
+      {
+        "name": "Range",
+        "comment": " These are minimum and maximum values that make up a range.\n",
+        "args": [],
+        "type": "{ min : Float, max : Float }"
+      },
+      {
+        "name": "Size",
+        "comment": " The size (px) of your chart.\n",
+        "args": [],
+        "type": "{ width : Float, height : Float }"
+      },
+      {
+        "name": "System",
+        "comment": " The system holds informations about the dimensions of your chart.\n\n  - **frame** is information about the size and margins of your chart.\n  - **x** is the minimum and maximum of your axis range.\n  - **y** is the minimum and maximum of your axis domain.\n  - **xData** is the minimum and maximum of your data range.\n  - **yData** is the minimum and maximum of your data domain.\n  - **id** is the id of your chart.\n\nThis is all the information we need for translating your data coordinates into\nSVG coordinates.\n\n_If you're confused as to what \"axis range\" and \"data range\" means,\ncheck out `Axis.Range` for an explanation!_\n\n",
+        "args": [],
+        "type": "{ frame : Chart.Coordinate.Frame , x : Chart.Coordinate.Range , y : Chart.Coordinate.Range , xData : Chart.Coordinate.Range , yData : Chart.Coordinate.Range , id : String }"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "scaleDataX",
+        "comment": " Scale a x-value from SVG-space to data-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "scaleDataY",
+        "comment": " Scale a y-value from SVG-space to data-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "scaleSvgX",
+        "comment": " Scale a x-value from data-space to SVG-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "scaleSvgY",
+        "comment": " Scale a y-value from data-space to SVG-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "toData",
+        "comment": " Translates a SVG-space point to a data-space point.\n",
+        "type": "Chart.Coordinate.System -> Chart.Coordinate.Point -> Chart.Coordinate.Point"
+      },
+      {
+        "name": "toDataX",
+        "comment": " Translate a x-coordinate from SVG-space to data-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "toDataY",
+        "comment": " Translate a y-coordinate from SVG-space to data-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "toSvg",
+        "comment": " Translates a data-space point to a SVG-space point.\n",
+        "type": "Chart.Coordinate.System -> Chart.Coordinate.Point -> Chart.Coordinate.Point"
+      },
+      {
+        "name": "toSvgX",
+        "comment": " Translate a x-coordinate from data-space to SVG-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      },
+      {
+        "name": "toSvgY",
+        "comment": " Translate a y-coordinate from data-space to SVG-space.\n",
+        "type": "Chart.Coordinate.System -> Float -> Float"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
     "name": "Chart.Container",
     "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, spaced, styled, responsive\n\n# Customization\n@docs custom, Properties, Margin\n\n## Sizing\n@docs Size\n\n",
     "aliases": [
@@ -1517,193 +1611,6 @@
         "name": "styled",
         "comment": " The default container configuration, but you can add some extra styles.\n\nPass the id, the width and height and styles in form of tupels of strings.\n\n    customContainer : Container.Config msg\n    customContainer =\n      Container.styled \"line-chart-1\" [ ( \"font-family\", \"monospace\" ) ]\n\nOk, so we have `spaced` if we want to set the margins and `styled` if\nwe want to set the styles; but what if I want to set the margins AND the\nstyles? If so, use `custom`!\n\n",
         "type": "String -> Int -> Int -> List ( String, String ) -> Chart.Container.Config msg"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Dependent",
-    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nThis is the configuration for the dependent axis of a blocks chart.\nIt is _not_ used for the dots or line charts.\n\n@docs Config, default, custom\n\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " ",
-        "args": [
-          "msg"
-        ],
-        "type": "Internal.Axis.Dependent.Config msg"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " Customize your dependent axis. The properties are:\n\n  - title: The title of your axis. See the `Chart.Axis.Title` module.\n  - unit: The unit of your axis. See the `Chart.Axis.Unit` module.\n  - range: The range of your axis. See the `Chart.Axis.Range` module.\n  - line: The line of your axis. See the `Chart.Axis.Line` module.\n  - ticks: The ticks on your axis. See the `Chart.Axis.Ticks` module.\n\n",
-        "type": "Chart.Axis.Dependent.Properties msg -> Chart.Axis.Dependent.Config msg"
-      },
-      {
-        "name": "default",
-        "comment": " The default configuration. Pass the title and\nthe unit of the axis.\n\n    Chart.Blocks.viewCustom\n      { ...\n      , dependentAxis = Chart.Axis.Dependent.default \"Income\" Chart.Axis.Unit.dollars\n      , ...\n      }\n\n",
-        "type": "String -> Internal.Unit.Config -> Chart.Axis.Dependent.Config msg"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Element",
-    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nThese are types denoting things `Chart.Events` can find\ndepending on what kind of chart you're using.\n\n@docs Dot, LineDot, Block\n\n",
-    "aliases": [
-      {
-        "name": "Block",
-        "comment": " ",
-        "args": [],
-        "type": "Internal.Element.Block"
-      },
-      {
-        "name": "Dot",
-        "comment": " ",
-        "args": [],
-        "type": "Internal.Element.Dot"
-      },
-      {
-        "name": "LineDot",
-        "comment": " ",
-        "args": [],
-        "type": "Internal.Element.LineDot"
-      }
-    ],
-    "types": [],
-    "values": [],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Grid",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, default, none, dots, lines\n\n# How do I change where the grid lines/dots are placed?\n\nBy default there is a grid by every tick. If you want to change\nthe position of the grid or remove it all together, alter your tick\nconfiguration of your axis.\n\nThe path to the tick in the configuration does through the `x` or `y`\nproperty for vertical and horizontal grids respectivily and then in the\n`axis` property.\n\nSee `Chart.Axis` -> `Chart.Axis.Ticks` -> `Chart.Axis.Tick`.\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " Use in the `Chart.Config` passed to `Chart.viewCustom`.\n\n    chartConfig : Chart.Config Data msg\n    chartConfig =\n      { ...\n      , grid = Grid.default\n      , ...\n      }\n\n",
-        "args": [],
-        "type": "Internal.Grid.Config"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "default",
-        "comment": " Gets you some vague gray grid lines.\n",
-        "type": "Chart.Grid.Config"
-      },
-      {
-        "name": "dots",
-        "comment": " Gets you a grid dots of a given radius and color.\n",
-        "type": "Float -> Color.Color -> Chart.Grid.Config"
-      },
-      {
-        "name": "lines",
-        "comment": " Gets you grid lines of a given width and color.\n",
-        "type": "Float -> Color.Color -> Chart.Grid.Config"
-      },
-      {
-        "name": "none",
-        "comment": " No grid! (Ok, fine, it's there, but it's transparent!) ",
-        "type": "Chart.Grid.Config"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Independent",
-    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\nThis is the configuration for the independent axis of a blocks chart.\nIt is _not_ used for the dots or line charts.\n\n## What are independent and dependent values?\nThe values of an independent variable are chosen and often controlled by \nthe investigator, who then observes the effect of each independent variable \non a dependent variable. The dependent variable takes different values in \nresponse to the values of the independent variable that are chosen by the \ninvestigator. \n\n## Their role in blocks charts\nBlocks charts are for data where the independent variable is a discrete\nvariable. Imagine you have a chart where you plot countries against\ntheir GDP. In this case the countries are the discrete values.\n\nIn a blocks chart where the blocks are vertical (a column chart),\nthe independent axis is the x-axis. In a horizontal blocks chart \n(a bar chart), the independent axis is the y-axis.\n\n\n@docs Config, default, custom\n\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " The default configuration. Pass the title and\nthe unit of the axis.\n\n    Chart.Blocks.viewCustom\n      { ...\n      , independentAxis = Chart.Axis.Independent.default \"Country\" .country\n      , ...\n      }\n\n",
-        "args": [
-          "data",
-          "msg"
-        ],
-        "type": "Internal.Axis.Independent.Config data msg"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " ",
-        "type": "Chart.Axis.Independent.Properties data msg -> Chart.Axis.Independent.Config data msg"
-      },
-      {
-        "name": "default",
-        "comment": " ",
-        "type": "String -> (data -> String) -> Chart.Axis.Independent.Config data msg"
-      }
-    ],
-    "generated-with-elm-version": "0.18.0"
-  },
-  {
-    "name": "Chart.Axis.Unit",
-    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, Properties, none, years, dollars, millimeters, meters, kilometers, grams, kilograms, custom\n\n",
-    "aliases": [
-      {
-        "name": "Config",
-        "comment": " ",
-        "args": [],
-        "type": "Internal.Unit.Config"
-      },
-      {
-        "name": "Properties",
-        "comment": " ",
-        "args": [],
-        "type": "{ symbol : String, space : Bool, prefixed : Bool }"
-      }
-    ],
-    "types": [],
-    "values": [
-      {
-        "name": "custom",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Properties -> Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "dollars",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "grams",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "kilograms",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "kilometers",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "meters",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "millimeters",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "none",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
-      },
-      {
-        "name": "years",
-        "comment": " ",
-        "type": "Chart.Axis.Unit.Config"
       }
     ],
     "generated-with-elm-version": "0.18.0"
@@ -1859,6 +1766,99 @@
         "name": "stacked",
         "comment": " Stacks your values and colors the area in the line color. The color is\nalways the color of your line, but you can pass the opacity.\n\n_See example [here](https://github.com/terezka/line-charts/blob/master/examples/Area.elm)._\n\n**Warning:** Right now, this only works if all your lines have the\nsame set of x values and don't have missing data!\nIf not, the area will not stack properly.\nIt will be fixed sometime though!\n",
         "type": "Float -> Chart.Area.Config"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Axis.Unit",
+    "comment": "\n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n@docs Config, Properties, none, years, dollars, millimeters, meters, kilometers, grams, kilograms, custom\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " ",
+        "args": [],
+        "type": "Internal.Unit.Config"
+      },
+      {
+        "name": "Properties",
+        "comment": " ",
+        "args": [],
+        "type": "{ symbol : String, space : Bool, prefixed : Bool }"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Properties -> Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "dollars",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "grams",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "kilograms",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "kilometers",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "meters",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "millimeters",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "none",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      },
+      {
+        "name": "years",
+        "comment": " ",
+        "type": "Chart.Axis.Unit.Config"
+      }
+    ],
+    "generated-with-elm-version": "0.18.0"
+  },
+  {
+    "name": "Chart.Pattern",
+    "comment": " \n\n# WARNING! THIS IS AN ALPHA VERSION\n\n*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*\n*IT HAS BUGS AND AWKWARDNESS.*\n*USE AT OWN RISK.*\n\n\nThis configures the striped pattern of the block, if patterned.\n_See `Chart.Blocks.series` on how to make a block patterned._\n\n@docs Config, default, custom\n\n",
+    "aliases": [
+      {
+        "name": "Config",
+        "comment": " Use in the `Chart.Blocks.Config` passed to `Chart.Blocks.viewCustom`.\n\n    chartConfig : Chart.Config value data msg\n    chartConfig =\n      { ...\n      , pattern = Chart.Pattern.default\n      , ...\n      }\n\n",
+        "args": [],
+        "type": "Internal.Pattern.Config"
+      }
+    ],
+    "types": [],
+    "values": [
+      {
+        "name": "custom",
+        "comment": " Edit the stripes. Pass the width of the colored part, then\nthe width of the white part.\n\n    patternConfig : Chart.Pattern.Config\n    patternConfig =\n      Chart.Pattern.custom 5 2\n\n\n",
+        "type": "Int -> Int -> Chart.Pattern.Config"
+      },
+      {
+        "name": "default",
+        "comment": " The default configuration.\n\n    patternConfig : Chart.Pattern.Config\n    patternConfig =\n      Chart.Pattern.default\n\n",
+        "type": "Chart.Pattern.Config"
       }
     ],
     "generated-with-elm-version": "0.18.0"
