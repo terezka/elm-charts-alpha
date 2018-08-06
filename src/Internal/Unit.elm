@@ -13,8 +13,8 @@ module Internal.Unit
 
 
 {-| -}
-type Config =
-  Config Properties
+type Config 
+  = Config Properties
 
 
 {-| -}

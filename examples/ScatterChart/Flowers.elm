@@ -1,74 +1,116 @@
-module Lines exposing (main)
-
+module Examples.ScatterChart.Lines exposing (main)
 
 import Svg
 import Html
 import Html.Attributes exposing (class)
-import ScatterChart
-import ScatterChart.Dots as Dots
-import ScatterChart.Colors as Colors
-import ScatterChart.Junk as Junk
-import ScatterChart.Coordinate as Coordinate
-import ScatterChart.Container as Container
-import ScatterChart.Axis.Intersection as Intersection
-import ScatterChart.Axis as Axis
-import ScatterChart.Legends as Legends
-import ScatterChart.Group as Group
-import ScatterChart.Axis.Unit as Unit
-import ScatterChart.Events as Events
-import ScatterChart.Grid as Grid
-import ScatterChart.Trend as Trend
-import ScatterChart.Outliers as Outliers
+import Dots
+import Chart.Dot as Dot
+import Chart.Colors as Colors
+import Chart.Junk as Junk
+import Chart.Events
+import Chart.Element as Element
+import Chart.Coordinate as Coordinate
+import Chart.Container as Container
+import Chart.Axis.Intersection as Intersection
+import Chart.Axis as Axis
+import Chart.Legends as Legends
+import Chart.Axis.Unit as Unit
+import Chart.Events as Events
+import Chart.Grid as Grid
+import Chart.Trend as Trend
 import Color
 import Json.Decode
 import Color.Manipulate
 
 
-main : Html.Html msg
+
+main : Program Never Model Msg
 main =
+  Html.beginnerProgram
+    { model = init
+    , update = update
+    , view = view
+    }
+
+
+
+-- MODEL
+
+
+type alias Model =
+    { hovering : Maybe (Chart.Events.Found Element.Dot Info) }
+
+
+
+init : Model
+init =
+    { hovering = Nothing }
+
+
+
+-- UPDATE
+
+
+type Msg
+  = Hover (Maybe (Chart.Events.Found Element.Dot Info))
+
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    Hover hovering ->
+      { model | hovering = hovering }
+
+
+
+-- VIEW
+
+
+view : Model -> Html.Html Msg
+view model =
   Html.div
-    [ class "container" ]
-    [ chart ]
+    [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]
+    [ chart model ]
 
 
-chart : Html.Html msg
-chart =
+chart : Model -> Html.Html Msg
+chart model =
   let
     groups =
       data
         |> List.sortBy .species
-        |> List.foldl toSerie []
+        |> List.foldl toSeries []
         |> List.map3 toChartSeries defaultColors defaultShapes
   in
   Html.div []
     [ Html.div []
-        [ viewChart .sepalWidth .sepalLength groups
-        , viewChart .petalLength .sepalLength groups
-        , viewChart .petalWidth .sepalLength groups
+        [ viewChart model .sepalWidth .sepalLength groups
+        , viewChart model .petalLength .sepalLength groups
+        , viewChart model .petalWidth .sepalLength groups
         ]
     , Html.div []
-        [ viewChart .sepalLength .sepalWidth groups
-        , viewChart .petalLength .sepalWidth groups
-        , viewChart .petalWidth .sepalWidth groups
+        [ viewChart model .sepalLength .sepalWidth groups
+        , viewChart model .petalLength .sepalWidth groups
+        , viewChart model .petalWidth .sepalWidth groups
         ]
     , Html.div []
-        [ viewChart .sepalLength .petalLength groups
-        , viewChart .sepalWidth .petalLength groups
-        , viewChart .petalWidth .petalLength groups
+        [ viewChart model .sepalLength .petalLength groups
+        , viewChart model .sepalWidth .petalLength groups
+        , viewChart model .petalWidth .petalLength groups
         ]
     , Html.div []
-        [ viewChart .sepalLength .petalWidth groups
-        , viewChart .sepalWidth .petalWidth groups
-        , viewChart .petalLength .petalWidth groups
+        [ viewChart model .sepalLength .petalWidth groups
+        , viewChart model .sepalWidth .petalWidth groups
+        , viewChart model .petalLength .petalWidth groups
         ]
     ]
 
 
-viewChart : (Info -> Float) -> (Info -> Float) -> List (ScatterChart.Group Info) -> Html.Html msg
-viewChart toX toY groups =
+viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Dots.Series Info) -> Html.Html Msg
+viewChart model toX toY groups =
   Html.div
     [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
-    [ ScatterChart.viewCustom
+    [ Dots.viewCustom
         { y = Axis.default "y" Unit.none toY
         , x = Axis.default "x" Unit.none toX
         , container =
@@ -82,61 +124,54 @@ viewChart toX toY groups =
               }
         , intersection = Intersection.default
         , legends = Legends.none
-        , events = Events.default
-        , outliers =
-            Outliers.custom (\_ datum -> datum.sepalWidth < 2.5)
-              { shape = Dots.cross
-              , style = Dots.disconnected 4 1
-              , color = Color.Manipulate.lighten 0
-              }
+        , events = Events.hoverDot Hover
         , trend =
             Trend.individualCustom
               { color = identity
               , width = always 1
               , function = Trend.linear
-              , includeOutliers = False
               }
         , junk = Junk.default
         , grid = Grid.default
-        , line = Group.default
-        , dots = Dots.custom (Dots.empty 2 1)
+        , dots = hoverOne (Maybe.map Events.data model.hovering)
         }
         groups
     ]
 
 
-isOutlier : List Info -> Info -> Bool
-isOutlier data =
+hoverOne : Maybe Info -> Dot.Config Info
+hoverOne maybeHovered =
   let
-    xRange =
-      Outliers.range .sepalLength data
+    styleLegend _ =
+      Dot.empty 3 1
 
-    yRange =
-      Outliers.range .sepalLength data
-
-    limit =
-      data
+    styleIndividual datum =
+      if Just datum == maybeHovered
+        then Dot.aura 3 4 0.5
+        else Dot.empty 3 1
   in
-  \_ -> False
+  Dot.customAny
+    { legend = styleLegend
+    , individual = styleIndividual
+    }
 
 
 
-toSerie : Info -> List ( String, List Info ) -> List ( String, List Info )
-toSerie info series =
+toSeries : Info -> List ( String, List Info ) -> List ( String, List Info )
+toSeries info series =
   case series of
     [] ->
       [ ( info.species, [ info ] ) ]
 
     ( name, data ) :: rest ->
-      if info.species == name then
-        ( name, info :: data ) :: rest
-      else
-        ( info.species, [ info ] ) :: ( name, data ) :: rest
+      if info.species == name 
+      then ( name, info :: data ) :: rest
+      else ( info.species, [ info ] ) :: ( name, data ) :: rest
 
 
-toChartSeries : Color.Color -> Dots.Shape -> ( String, List Info ) -> ScatterChart.Group Info
+toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Dots.Series Info
 toChartSeries color dot ( name, data ) =
-  ScatterChart.group color dot name data
+  Dots.series color dot name data
 
 
 defaultColors : List Color.Color
@@ -147,11 +182,11 @@ defaultColors =
   ]
 
 
-defaultShapes : List Dots.Shape
+defaultShapes : List Dot.Shape
 defaultShapes =
-  [ Dots.circle
-  , Dots.circle
-  , Dots.circle
+  [ Dot.circle
+  , Dot.circle
+  , Dot.circle
   ]
 
 

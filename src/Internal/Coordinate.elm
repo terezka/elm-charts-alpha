@@ -9,6 +9,7 @@ module Internal.Coordinate exposing
   , scaleSvgX, scaleSvgY
   , scaleDataX, scaleDataY
   , horizontalPoint, verticalPoint
+  , isWithinRange
   )
 
 
@@ -273,3 +274,13 @@ verticalPoint : Float -> Float -> Point
 verticalPoint dependent independent =
     Point dependent independent
 
+
+
+-- SEARCH
+
+
+{-| -}
+isWithinRange : System -> Point -> Bool
+isWithinRange system point =
+  clamp system.x.min system.x.max point.x == point.x &&
+  clamp system.y.min system.y.max point.y == point.y

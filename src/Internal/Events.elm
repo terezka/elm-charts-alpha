@@ -1,8 +1,8 @@
 module Internal.Events exposing
     ( Config, default, custom
     , Event, onClick, onMouseMove, onMouseUp, onMouseDown, onMouseLeave, on, onWithOptions, Options
-    , Decoder, getSvg, getData, getNearest, getNearestIndependent, getWithin, getWithinIndependent
-    , Found(..), data, point, color, label, isExactly, isSeries, isDatum
+    , Decoder, getSvg, getData, getNearest, getNearestBlock, getWithin, getNearestBlocks, getBlockWithin, getNearestX, getWithinX
+    , Found(..), data, color, label, isExactly, isSeries, isDatum
     , map, map2, map3
     -- INTERNAL
     , toChartAttributes
@@ -16,7 +16,8 @@ import Svg
 import Svg.Events
 import Html.Events
 import Internal.Coordinate as Coordinate exposing (..)
-import Internal.Data as Data
+import Internal.Point as Point
+import Internal.Element as Element
 import Internal.Orientation as Orientation
 import Internal.Utils exposing (withFirst)
 import Json.Decode as Json
@@ -25,18 +26,18 @@ import Color
 
 
 {-| -}
-type Config chart data msg
-  = Config (List (Event chart data msg))
+type Config element data msg
+  = Config (List (Event element data msg))
 
 
 {-| -}
-default : Config chart data msg
+default : Config element data msg
 default =
   custom []
 
 
 {-| -}
-custom : List (Event chart data msg) -> Config chart data msg
+custom : List (Event element data msg) -> Config element data msg
 custom =
   Config
 
@@ -46,49 +47,49 @@ custom =
 
 
 {-| -}
-type Event chart data msg
-  = Event Bool (Orientation.Config -> List (Data.Data chart data) -> System -> Svg.Attribute msg)
+type Event element data msg
+  = Event Bool (Orientation.Config -> List (Point.Point element data) -> System -> Svg.Attribute msg)
 
 
-onClick : (a -> msg) -> Decoder chart data a -> Event chart data msg
+onClick : (a -> msg) -> Decoder element data a -> Event element data msg
 onClick =
   on "click"
 
 
 {-| -}
-onMouseMove : (a -> msg) -> Decoder chart data a -> Event chart data msg
+onMouseMove : (a -> msg) -> Decoder element data a -> Event element data msg
 onMouseMove =
   on "mousemove"
 
 
 {-| -}
-onMouseDown : (a -> msg) -> Decoder chart data a -> Event chart data msg
+onMouseDown : (a -> msg) -> Decoder element data a -> Event element data msg
 onMouseDown =
   on "mousedown"
 
 
 {-| -}
-onMouseUp : (a -> msg) -> Decoder chart data a -> Event chart data msg
+onMouseUp : (a -> msg) -> Decoder element data a -> Event element data msg
 onMouseUp =
   on "mouseup"
 
 
 {-| -}
-onMouseLeave : msg -> Event chart data msg
+onMouseLeave : msg -> Event element data msg
 onMouseLeave msg =
   Event False <| \_ _ _ ->
     Svg.Events.on "mouseleave" (Json.succeed msg)
 
 
 {-| -}
-on : String -> (a -> msg) -> Decoder chart data a -> Event chart data msg
+on : String -> (a -> msg) -> Decoder element data a -> Event element data msg
 on event toMsg decoder =
   Event False <| \orientation data system ->
     Svg.Events.on event (toJsonDecoder orientation data system (map toMsg decoder))
 
 
 {-| -}
-onWithOptions : String -> Options -> (a -> msg) -> Decoder chart data a -> Event chart data msg
+onWithOptions : String -> Options -> (a -> msg) -> Decoder element data a -> Event element data msg
 onWithOptions event options toMsg decoder =
   Event options.catchOutsideChart <| \orientation data system ->
     Html.Events.onWithOptions event
@@ -108,7 +109,7 @@ type alias Options =
 
 
 {-| -}
-toChartAttributes : Orientation.Config -> List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
+toChartAttributes : Orientation.Config -> List (Point.Point element data) -> System -> Config element data msg -> List (Svg.Attribute msg)
 toChartAttributes orientation data system (Config events) =
   let
     order (Event outside event) =
@@ -118,7 +119,7 @@ toChartAttributes orientation data system (Config events) =
 
 
 {-| -}
-toContainerAttributes : Orientation.Config -> List (Data.Data chart data) -> System -> Config chart data msg -> List (Svg.Attribute msg)
+toContainerAttributes : Orientation.Config -> List (Point.Point element data) -> System -> Config element data msg -> List (Svg.Attribute msg)
 toContainerAttributes orientation data system (Config events) =
   let
     order (Event outside event) =
@@ -132,46 +133,40 @@ toContainerAttributes orientation data system (Config events) =
 
 
 {-| -}
-type Decoder chart data msg =
-  Decoder (Orientation.Config -> List (Data.Data chart data) -> System -> Point -> msg)
+type Decoder element data msg =
+  Decoder (Orientation.Config -> List (Point.Point element data) -> System -> Point -> msg)
 
 
 {-| -}
-getSvg : Decoder chart data Point
+getSvg : Decoder element data Point
 getSvg =
-  Decoder <| \_ points system searched ->
+  Decoder <| \_ _ system searched ->
     searched
 
 
 {-| -}
-getData : Decoder chart data Point
+getData : Decoder element data Point
 getData =
-  Decoder <| \_ points system searchedSvg ->
+  Decoder <| \_ _ system searchedSvg ->
     Coordinate.toData system searchedSvg
 
 
 {-| -}
-getNearest : Decoder chart data (Maybe (Found chart data))
+getNearest : Decoder element data (Maybe (Found element data))
 getNearest =
   Decoder <| \_ points system searchedSvg ->
-    let
-      searched =
-        Coordinate.toData system searchedSvg
-    in
+    let searched = Coordinate.toData system searchedSvg in
     getNearestHelp points system searched
       |> Maybe.map Found
 
 
 {-| -}
-getWithin : Float -> Decoder chart data (Maybe (Found chart data))
+getWithin : Float -> Decoder element data (Maybe (Found element data))
 getWithin radius =
   Decoder <| \_ points system searchedSvg ->
-    let
-      searched =
-        Coordinate.toData system searchedSvg
-
-      keepIfEligible closest =
-          if withinRadius system radius searched closest.point
+    let searched = Coordinate.toData system searchedSvg
+        keepIfEligible closest =
+          if withinRadius system radius searched closest.coordinates
             then Just closest
             else Nothing
     in
@@ -181,30 +176,50 @@ getWithin radius =
 
 
 {-| -}
-getNearestIndependent : Decoder chart data (List (Found chart data))
-getNearestIndependent =
+getNearestX : Decoder element data (List (Found element data))
+getNearestX =
   Decoder <| \orientation points system searchedSvg ->
-    let
-      searched =
-        Coordinate.toData system searchedSvg
-    in
+    let searched = Coordinate.toData system searchedSvg in
     getNearestIndependentHelp orientation points system searched
       |> List.map Found
 
 
 {-| -}
-getWithinIndependent : Float -> Decoder chart data (List (Found chart data))
-getWithinIndependent radius =
+getNearestBlock : Decoder Element.Block data (Maybe (Found Element.Block data))
+getNearestBlock =
   Decoder <| \orientation points system searchedSvg ->
-    let
-      searched =
-        Coordinate.toData system searchedSvg
+    let searched = Coordinate.toData system searchedSvg in
+    getNearestIndependentHelp orientation points system searched
+      |> List.map Found
+      |> List.head
 
-      keepIfEligible =
-        Orientation.chooses orientation
-          { horizontal = withinRadiusY system radius searched << .point
-          , vertical = withinRadiusX system radius searched << .point
-          }
+
+{-| -}
+getNearestBlocks : Decoder Element.Block data (List (Found Element.Block data))
+getNearestBlocks =
+  Decoder <| \orientation points system searchedSvg ->
+    let searched = Coordinate.toData system searchedSvg 
+        isEqual = 
+          Orientation.chooses orientation
+            { horizontal = \point -> round point.coordinates.y == round searched.y
+            , vertical = \point -> round point.coordinates.x == round searched.x
+            }
+    in
+    points
+      |> List.filter isEqual 
+      |> List.map Found
+
+
+{-| -}
+getBlockWithin : Float -> Decoder Element.Block data (List (Found Element.Block data))
+getBlockWithin radius =
+  Decoder <| \orientation points system searchedSvg ->
+    let searched = Coordinate.toData system searchedSvg
+        keepIfEligible =
+          Orientation.chooses orientation
+            { horizontal = withinRadiusY system radius searched << .coordinates
+            , vertical = withinRadiusX system radius searched << .coordinates
+            }
     in
     getNearestIndependentHelp orientation points system searched
       |> List.filter keepIfEligible
@@ -212,55 +227,65 @@ getWithinIndependent radius =
 
 
 {-| -}
-type Found chart data =
-  Found (Data.Data chart data)
+getWithinX : Float -> Decoder chart data (List (Found chart data))
+getWithinX radius =
+  Decoder <| \orientation points system searchedSvg ->
+    let searched = Coordinate.toData system searchedSvg
+        keepIfEligible = withinRadiusX system radius searched << .coordinates
+    in
+    getNearestIndependentHelp orientation points system searched
+      |> List.filter keepIfEligible
+      |> List.map Found
+
+
+
+-- FOUND 
 
 
 {-| -}
-data : Found chart data -> data
-data (Found data) =
-  data.user
+type Found element data =
+  Found (Point.Point element data)
+
+
+{-| -} -- TODO rename to source
+data : Found element data -> data
+data (Found point) =
+  point.source
 
 
 {-| -}
-point : Found chart data -> Coordinate.Point
-point (Found data) =
-  data.point
+label : Found element data -> String
+label (Found point) =
+  point.element.label
 
 
 {-| -}
-label : Found chart data -> String
-label (Found data) =
-  data.label
+color : Found element data -> Color.Color
+color (Found point) =
+  point.element.color
 
 
 {-| -}
-color : Found chart data -> Color.Color
-color (Found data) =
-  data.color
-
-
-{-| -}
-isExactly : Maybe (Found chart data) -> Int -> data -> Bool
-isExactly found index datum =
+isExactly : Maybe (Found element data) -> Int -> data -> Bool
+isExactly found index compared =
   case found of
-    Just (Found data) -> data.seriesIndex == index && data.user == datum
+    Just (Found point) -> point.element.seriesIndex == index && compared == point.source
     Nothing -> False
 
 
 {-| -}
-isSeries : Maybe (Found chart data) -> Int -> data -> Bool
-isSeries found index datum =
+isSeries : Maybe (Found element data) -> Int -> data -> Bool
+isSeries found index _ =
   case found of
-    Just (Found data) -> data.seriesIndex == index
+    Just (Found point) -> point.element.seriesIndex == index
     Nothing -> False
 
 
 {-| -}
-isDatum : Maybe (Found chart data) -> Int -> data -> Bool
-isDatum found index datum =
+isDatum : Maybe (Found element data) -> Int -> data -> Bool
+isDatum found index compared =
   case found of
-    Just (Found data) -> data.user == datum
+    Just (Found point) -> compared == point.source
     Nothing -> False
 
 
@@ -269,19 +294,19 @@ isDatum found index datum =
 
 
 {-| -}
-map : (a -> msg) -> Decoder chart data a -> Decoder chart data msg
+map : (a -> msg) -> Decoder element data a -> Decoder element data msg
 map f (Decoder a) =
   Decoder <| \o ps s p -> f (a o ps s p)
 
 
 {-| -}
-map2 : (a -> b -> msg) -> Decoder chart data a -> Decoder chart data b -> Decoder chart data msg
+map2 : (a -> b -> msg) -> Decoder element data a -> Decoder element data b -> Decoder element data msg
 map2 f (Decoder a) (Decoder b) =
   Decoder <| \o ps s p -> f (a o ps s p) (b o ps s p)
 
 
 {-| -}
-map3 : (a -> b -> c -> msg) -> Decoder chart data a -> Decoder chart data b -> Decoder chart data c -> Decoder chart data msg
+map3 : (a -> b -> c -> msg) -> Decoder element data a -> Decoder element data b -> Decoder element data c -> Decoder element data msg
 map3 f (Decoder a) (Decoder b) (Decoder c) =
   Decoder <| \o ps s p -> f (a o ps s p) (b o ps s p) (c o ps s p)
 
@@ -290,21 +315,17 @@ map3 f (Decoder a) (Decoder b) (Decoder c) =
 -- HELPERS
 
 
-getNearestHelp : List (Data.Data chart data) -> System -> Point -> Maybe (Data.Data chart data)
+getNearestHelp : List (Point.Point element data) -> System -> Point -> Maybe (Point.Point element data)
 getNearestHelp points system searched =
-  let
-      distance_ =
-          distance system searched
-
+  let distance_ = distance system searched
       getClosest point closest =
-          if distance_ closest.point < distance_ point.point
-            then closest
-            else point
-  in
-  withFirst points (List.foldl getClosest)
+        if distance_ closest.coordinates < distance_ point.coordinates
+          then closest
+          else point
+  in withFirst points (List.foldl getClosest)
 
 
-getNearestIndependentHelp : Orientation.Config -> List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
+getNearestIndependentHelp : Orientation.Config -> List (Point.Point element data) -> System -> Point -> List (Point.Point element data)
 getNearestIndependentHelp orientation =
   Orientation.chooses orientation
     { horizontal = getNearestYHelp
@@ -312,48 +333,41 @@ getNearestIndependentHelp orientation =
     }
 
 
-getNearestXHelp : List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
+getNearestXHelp : List (Point.Point element data) -> System -> Point -> List (Point.Point element data)
 getNearestXHelp points system searched =
-  let
-      distanceX_ =
-          distanceX system searched
-
+  let distanceX_ = distanceX system searched
       getClosest point allClosest =
         case List.head allClosest of
           Just closest ->
-              if closest.point.x == point.point.x then point :: allClosest
-              else if distanceX_ closest.point > distanceX_ point.point then [ point ]
-              else allClosest
+            if closest.coordinates.x == point.coordinates.x then point :: allClosest
+            else if distanceX_ closest.coordinates > distanceX_ point.coordinates then [ point ]
+            else allClosest
 
           Nothing ->
             [ point ]
-  in
-  List.foldl getClosest [] points
+  in List.foldl getClosest [] points
 
 
-getNearestYHelp : List (Data.Data chart data) -> System -> Point -> List (Data.Data chart data)
+getNearestYHelp : List (Point.Point element data) -> System -> Point -> List (Point.Point element data)
 getNearestYHelp points system searched =
-  let
-      distanceY_ =
-          distanceY system searched
-
+  let distanceY_ = distanceY system searched
       getClosest point allClosest =
         case List.head allClosest of
           Just closest ->
-              if closest.point.y == point.point.y then point :: allClosest
-              else if distanceY_ closest.point > distanceY_ point.point then [ point ]
-              else allClosest
+            if closest.coordinates.y == point.coordinates.y then point :: allClosest
+            else if distanceY_ closest.coordinates > distanceY_ point.coordinates then [ point ]
+            else allClosest
 
           Nothing ->
             [ point ]
-  in
-  List.foldl getClosest [] points
+  in List.foldl getClosest [] points
 
 
 
 -- COORDINATE HELPERS
 
 
+-- TODO move to .Coordinate
 distanceX : System -> Point -> Point -> Float
 distanceX system searched dot =
     abs <| toSvgX system dot.x - toSvgX system searched.x
@@ -389,7 +403,7 @@ withinRadiusY system radius searched dot =
 
 
 {-| -}
-toJsonDecoder : Orientation.Config -> List (Data.Data chart data) -> System -> Decoder chart data msg -> Json.Decoder msg
+toJsonDecoder : Orientation.Config -> List (Point.Point element data) -> System -> Decoder element data msg -> Json.Decoder msg
 toJsonDecoder orientation data system (Decoder decoder) =
   let
     handle mouseX mouseY { left, top, height, width } =

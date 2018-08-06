@@ -22,8 +22,9 @@ import Internal.Colors as Colors
 import Internal.Coordinate as Coordinate
 import Internal.Svg as Svg
 import Internal.Path as Path
-import Internal.Data as Data
-import Internal.Group as Group
+import Internal.Point as Point
+import Internal.Element as Element
+import Internal.Dot as Dot
 import Internal.Utils as Utils
 
 
@@ -31,8 +32,8 @@ import Internal.Utils as Utils
 {-| -}
 type Config data
   = None
-  | Single Color.Color (Width data) Function Bool
-  | Individual (Color.Color -> Color.Color) (Width data) Function Bool
+  | Single Color.Color (Width data) Function
+  | Individual (Color.Color -> Color.Color) (Width data) Function
 
 
 type alias Width data =
@@ -48,11 +49,11 @@ default =
 {-| -}
 single : Color.Color -> Config data
 single color =
-  Single color (always 1) linear True
+  Single color (always 1) linear
 
 
 {-| -}
-singleCustom : Color.Color -> (List data -> Float) -> Function -> Bool -> Config data
+singleCustom : Color.Color -> (List data -> Float) -> Function -> Config data
 singleCustom =
   Single
 
@@ -60,11 +61,11 @@ singleCustom =
 {-| -}
 individual : Config data
 individual =
-  Individual identity (always 1) linear True
+  Individual identity (always 1) linear
 
 
 {-| -}
-individualCustom : (Color.Color -> Color.Color) -> (List data -> Float) -> Function -> Bool -> Config data
+individualCustom : (Color.Color -> Color.Color) -> (List data -> Float) -> Function -> Config data
 individualCustom =
   Individual
 
@@ -95,37 +96,32 @@ linear data x =
 
 
 {-| -}
-view : Coordinate.System -> Config data -> Group.Config data -> List (Group.Group data) -> List (List (Data.ScatterChart data)) -> Svg.Svg msg
-view system config groupConfig groups data =
+view : Coordinate.System -> Config data -> List (Dot.Series data) -> List (List (Point.Point Element.Dot data)) -> Svg.Svg msg
+view system config series data =
   case config of
     None ->
       Svg.text ""
 
-    Single color width function includeOutliers ->
-      viewSingle system color function width includeOutliers (List.concat data)
+    Single color width function ->
+      viewSingle system color function width (List.concat data)
 
-    Individual toColor width function includeOutliers ->
+    Individual toColor width function ->
       let
-        viewSingle_ group data =
-          let color = Group.color groupConfig group data in
-          viewSingle system (toColor color) function width includeOutliers data
+        viewSingle_ series_ data =
+          let color = Dot.color series_ in
+          viewSingle system (toColor color) function width data
 
         viewTrends =
-          List.map2 viewSingle_ groups data
+          List.map2 viewSingle_ series data
       in
       Svg.g [ Svg.Attributes.class "chart__trends" ] viewTrends
 
 
-viewSingle : Coordinate.System -> Color.Color -> Function -> Width data -> Bool -> List (Data.ScatterChart data) -> Svg.Svg msg
-viewSingle system color function editWidth includeOutliers dataRaw =
+viewSingle : Coordinate.System -> Color.Color -> Function -> Width data -> List (Point.Point Element.Dot data) -> Svg.Svg msg
+viewSingle system color function editWidth data =
   let
-    data =
-      if includeOutliers
-        then dataRaw
-        else List.filter (not << .isOutlier) dataRaw
-
-    dataTuples = List.map Data.asTuple data
-    dataUser = List.map .user data
+    dataTuples = List.map Point.asTuple data
+    dataUser = List.map .source data
 
     y = function dataTuples
     range = Coordinate.range Tuple.first dataTuples

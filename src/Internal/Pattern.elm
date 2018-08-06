@@ -62,10 +62,10 @@ toDefs (Config config) =
   , Svg.mask
       [ Svg.Attributes.id "mask-stripe" ]
       [ Svg.rect
-          [ Svg.Attributes.x "0"
-          , Svg.Attributes.y "0"
-          , Svg.Attributes.width "100%"
-          , Svg.Attributes.height "100%"
+          [ Svg.Attributes.x "-10%"
+          , Svg.Attributes.y "-10%"
+          , Svg.Attributes.width "110%"
+          , Svg.Attributes.height "110%"
           , Svg.Attributes.fill "url(#pattern-stripe)"
           ]
           []
