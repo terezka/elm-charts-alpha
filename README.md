@@ -12,7 +12,7 @@ A library for plotting lines charts in SVG. Written in all Elm.
 
 ## Documentation
 
-Find the documentation on [Elm's package website](http://package.elm-lang.org/packages/terezka/line-charts/latest).
+Find the documentation on [Elm's package website](http://package.elm-lang.org/packages/terezka/elm-charts/latest).
 
 ## Development
 

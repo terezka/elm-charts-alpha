@@ -1,7 +1,6 @@
 module Internal.Legends exposing
   ( Config, default, none
   , grouped, groupedCustom
-  , hover, hoverOne
   -- INTERNAL
   , Arguments, view
   )
@@ -21,12 +20,12 @@ import Internal.Svg as Svg
 {-| -}
 type Config msg
   = None
-  | Grouped Float (Container msg)
+  | Grouped (Float -> Float) (Container msg)
 
 
 {-| -}
 type alias Container msg =
-  Coordinate.System -> List (Legend msg) -> Svg msg
+  Float -> Float -> Coordinate.System -> List (Legend msg) -> Svg msg
 
 
 {-| -}
@@ -37,23 +36,9 @@ type alias Legend msg =
 
 
 {-| -}
-default : Float -> Float -> Config msg
-default width offsetY =
-  hover width offsetY []
-
-
-{-| -}
-hover : Float -> Float -> List data -> Config msg
-hover width offsetY data =
-  Grouped width (defaultLegends .max .max 0 offsetY width data)
-
-
-{-| -}
-hoverOne : Float -> Float -> Maybe data -> Config msg
-hoverOne width offsetY maybeOne =
-  case maybeOne of
-    Just data -> hover width offsetY [ data ]
-    Nothing   -> hover width offsetY []
+default : Config msg
+default =
+  Grouped identity (defaultLegends .max .max 0)
 
 
 {-| -}
@@ -63,15 +48,15 @@ none =
 
 
 {-| -}
-grouped : Float -> (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config msg
-grouped width toX toY offsetX offsetY =
-  Grouped width (defaultLegends toX toY offsetX offsetY width [])
+grouped : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Config msg
+grouped toX toY offsetX offsetY =
+  Grouped identity (\_ -> defaultLegends toX toY offsetX offsetY)
 
 
 {-| -}
 groupedCustom : Float -> (Coordinate.System -> List (Legend msg) -> Svg.Svg msg) -> Config msg
-groupedCustom =
-  Grouped
+groupedCustom width f =
+  Grouped (always width) (\_ _ -> f)
 
 
 
@@ -82,6 +67,7 @@ groupedCustom =
 type alias Arguments msg =
   { system : Coordinate.System
   , legends : Float -> List (Legend msg)
+  , defaults : { width : Float, offsetY : Float }
   , config : Config msg
   }
 
@@ -90,8 +76,9 @@ type alias Arguments msg =
 view : Arguments msg -> Svg.Svg msg
 view arguments =
   case arguments.config of
-    Grouped sampleWidth container ->
-      container arguments.system (arguments.legends sampleWidth)
+    Grouped toWidth container ->
+      let width = toWidth arguments.defaults.width in
+      container arguments.defaults.offsetY width arguments.system (arguments.legends width)
 
     None ->
       Svg.text ""
@@ -101,8 +88,8 @@ view arguments =
 -- DEFAULTS
 
 
-defaultLegends : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Float -> Float -> List data -> Container msg
-defaultLegends toX toY offsetX offsetY sampleWidth hovered system legends =
+defaultLegends : (Coordinate.Range -> Float) -> (Coordinate.Range -> Float) -> Float -> Container msg
+defaultLegends toX toY offsetX offsetY sampleWidth system legends =
   Svg.g
     [ Attributes.class "chart__legends"
     , Svg.transform

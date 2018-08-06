@@ -1,12 +1,18 @@
-module Internal.Colors exposing
+module Chart.Colors exposing
   ( pink, blue, gold, red, green, cyan, teal, purple, rust, strongBlue
   , pinkLight, blueLight, goldLight, redLight, greenLight, cyanLight, tealLight, purpleLight
   , black, gray, grayLight, grayLightest, transparent
-  , toString
-  , Style, attributes
   )
 
 {-|
+
+# WARNING! THIS IS AN ALPHA VERSION
+
+*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
+*IT HAS BUGS AND AWKWARDNESS.*
+*USE AT OWN RISK.*
+
+<img alt="Colors!" width="610" src="https://github.com/terezka/line-charts/blob/master/images/colors.png?raw=true"></src>
 
 @docs pink, blue, gold, red, green, cyan, teal, purple, rust, strongBlue
 
@@ -21,119 +27,117 @@ module Internal.Colors exposing
 
 -}
 
-import Svg
-import Svg.Attributes
 import Color
-import Color.Convert
+import Internal.Colors as Colors
 
 
 
 {-| -}
 pink : Color.Color
 pink =
-  Color.rgba 245 105 215 1
+ Colors.pink
 
 
 {-| -}
 pinkLight : Color.Color
 pinkLight =
-  Color.rgba 255 185 240 1
+ Colors.pinkLight
 
 
 {-| -}
 gold : Color.Color
 gold =
-  Color.rgba 205 145 60 1
+ Colors.gold
 
 
 {-| -}
 goldLight : Color.Color
 goldLight =
-  Color.rgba 255 204 128 1
+ Colors.goldLight
 
 
 {-| -}
 blue : Color.Color
 blue =
-  Color.rgba 3 169 244 1
+ Colors.blue
 
 
 {-| -}
 blueLight : Color.Color
 blueLight =
-  Color.rgba 156 224 255 1
+ Colors.blueLight
 
 
 {-| -}
 green : Color.Color
 green =
-  Color.rgba 67 160 71 1
+ Colors.green
 
 
 {-| -}
 greenLight : Color.Color
 greenLight =
-  Color.rgba 197 225 165 1
+ Colors.greenLight
 
 
 {-| -}
 red : Color.Color
 red =
-  Color.rgba 216 27 96 1
+ Colors.red
 
 
 {-| -}
 redLight : Color.Color
 redLight =
-  Color.rgba 239 154 154 1
+ Colors.redLight
 
 
 {-| -}
 rust : Color.Color
 rust =
-  Color.rgba 205 102 51 1
+ Colors.rust
 
 
 {-| -}
 purple : Color.Color
 purple =
-  Color.rgba 156 39 176 1
+ Colors.purple
 
 
 {-| -}
 purpleLight : Color.Color
 purpleLight =
-  Color.rgba 206 147 216 1
+ Colors.purpleLight
 
 
 {-| -}
 cyan : Color.Color
 cyan =
-  Color.rgba 0 229 255 1
+ Colors.cyan
 
 
 {-| -}
 cyanLight : Color.Color
 cyanLight =
-  Color.rgba 171 247 255 1
+ Colors.cyanLight
 
 
 {-| -}
 teal : Color.Color
 teal =
-  Color.rgba 29 233 182 1
+ Colors.teal
 
 
 {-| -}
 tealLight : Color.Color
 tealLight =
-  Color.rgba 128 203 196 1
+ Colors.tealLight
 
 
 {-| -}
 strongBlue : Color.Color
 strongBlue =
-  Color.rgba 89 51 204 1
+ Colors.strongBlue
 
 
 
@@ -143,52 +147,28 @@ strongBlue =
 {-| -}
 black : Color.Color
 black =
-  Color.rgb 0 0 0
+  Colors.black
 
 
 {-| -}
 gray : Color.Color
 gray =
-  Color.rgb 163 163 163
+  Colors.gray
 
 
 {-| -}
 grayLight : Color.Color
 grayLight =
-  Color.rgb 211 211 211
+  Colors.grayLight
 
 
 {-| -}
 grayLightest : Color.Color
 grayLightest =
-  Color.rgb 243 243 243
+  Colors.grayLightest
 
 
 {-| -}
 transparent : Color.Color
 transparent =
-  Color.rgba 0 0 0 0
-
-
--- INTERNAL
-
-
-{-| -}
-toString : Color.Color -> String
-toString =
-  Color.Convert.colorToCssRgba
-
-
-{-| -}
-type alias Style =
-  { fill : Color.Color
-  , border : Color.Color
-  }
-
-
-{-| -}
-attributes : Style -> List (Svg.Attribute msg)
-attributes style =
-  [ Svg.Attributes.fill (toString style.fill)
-  , Svg.Attributes.stroke (toString style.border)
-  ]
+ Colors.transparent

@@ -7,40 +7,50 @@ import Svg exposing (Svg)
 import Html exposing (Html)
 import Html.Attributes
 import Internal.Coordinate as Coordinate
+import Internal.Orientation as Orientation
 import Internal.Svg as Svg
 import Color.Convert
 
 
 {-| -}
-type Config chart msg =
-  Config (chart -> Layers msg)
+type Config element msg =
+  Config (Arguments -> Coordinate.System -> Layers msg)
+
+
+type alias Arguments =
+  { orientation : Orientation.Config
+  , independent : String
+  , dependent : String
+  , offsetOne : Float
+  , offsetMany : Float
+  }
 
 
 {-| -}
-none : Config chart msg
+none : Config element msg
 none =
-  Config (\_ -> Layers [] [] [])
+  Config (\_ _ -> Layers [] [] [])
 
 
 {-| -}
-below : List (Coordinate.System -> Svg msg) -> Config chart msg -> Config chart msg
+below : List (Coordinate.System -> Svg msg) -> Config element msg -> Config element msg
 below stuff (Config func) =
   let add stuff_ layers = { layers | below = layers.below ++ stuff_ } in
-  Config (func >> add stuff)
+  Config (\o s -> add stuff (func o s))
 
 
 {-| -}
-above : List (Coordinate.System -> Svg msg) -> Config chart msg -> Config chart msg
+above : List (Coordinate.System -> Svg msg) -> Config element msg -> Config element msg
 above stuff (Config func) =
   let add stuff_ layers = { layers | above = layers.above ++ stuff_ } in
-  Config (func >> add stuff)
+  Config (\o s -> add stuff (func o s))
 
 
 {-| -}
-html : List (Coordinate.System -> Html msg) -> Config chart msg -> Config chart msg
+html : List (Coordinate.System -> Html msg) -> Config element msg -> Config element msg
 html stuff (Config func) =
   let add stuff_ layers = { layers | html = layers.html ++ stuff_ } in
-  Config (func >> add stuff)
+  Config (\o s -> add stuff (func o s))
 
 
 
@@ -56,73 +66,34 @@ type alias Layers msg =
 
 
 {-| -}
-getLayers : chart -> Config chart msg -> Layers msg
-getLayers defaults (Config toLayers) =
-  toLayers defaults
+getLayers : Arguments -> Coordinate.System -> Config element msg -> Layers msg
+getLayers args system (Config toLayers) =
+  toLayers args system
 
 
 
--- HOVERS
+-- HOVER
 
 
-type alias HoverOne =
-  { position : { x : Maybe Float, y : Maybe Float }
-  , offset : { x : Float, y : Float }
-  , color : Color.Color
-  , title : String
-  , values : List ( String, String )
-  }
-
-
-hoverOne : HoverOne -> Layers msg
-hoverOne config =
-  let
-    viewHeaderOne =
-      viewHeader [ viewRow config.color config.title ]
-
-    viewValue ( label, value ) =
-      viewRow Color.black (label ++ ": " ++ value)
-  in
-  { below = []
-  , above = []
-  , html =
-      [ hoverCustom
-          { position = config.position
-          , offset = config.offset
-          , styles = []
-          , content = viewHeaderOne :: List.map viewValue config.values
-          }
-      ]
-  }
-
-
-
--- HOVER MANY
-
-
-type alias HoverMany msg =
-  { line : Coordinate.System -> Svg.Svg msg 
+type alias Frame =
+  { line : Bool 
   , position : { x : Maybe Float, y : Maybe Float }
   , offset : { x : Float, y : Float }
-  , title : String
+  , title : ( Color.Color, String )
   , values : List ( Color.Color, String, String )
   }
 
 
-hoverMany : HoverMany msg -> Layers msg
-hoverMany config =
-  let
-    viewValue ( color, label, value ) =
-      viewRow color (label ++ ": " ++ value)
-  in
-  { below = [ config.line ]
+hover : Frame ->Layers msg
+hover config =
+  { below = [] -- TODO add line
   , above = []
   , html =
       [ hoverCustom
           { position = config.position
           , offset = config.offset
           , styles = []
-          , content = viewHeader [ Html.text config.title ] :: List.map viewValue config.values
+          , content = viewHeader config.title :: List.map viewValue config.values
           }
       ]
   }
@@ -140,8 +111,8 @@ standardStyles =
   ]
 
 
-viewHeader : List (Html.Html msg) -> Html.Html msg
-viewHeader =
+viewHeader : ( Color.Color, String ) -> Html.Html msg
+viewHeader (color, title) =
   Html.p
     [ Html.Attributes.style
         [ ( "margin-top", "3px" )
@@ -150,17 +121,21 @@ viewHeader =
         , ( "border-bottom", "1px solid rgb(163, 163, 163)" )
         ]
     ]
+    [ Html.p
+        [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", Color.Convert.colorToCssRgba color ) ] ]
+        [ Html.text title ]
+    ]
 
 
-viewRow : Color.Color -> String -> Html.Html msg
-viewRow color label =
+viewValue : ( Color.Color,  String, String ) -> Html.Html msg
+viewValue (color, label, value) =
   Html.p
     [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", Color.Convert.colorToCssRgba color ) ] ]
-    [ Html.text label ]
+    [ Html.text (label ++ ": " ++ value) ]
 
 
 
--- HOVER GENERAL
+-- HOVER CUSTOM
 
 
 hoverCustom :
