@@ -1,4 +1,4 @@
-module Lines exposing
+module LineChart exposing
   ( view1, view2, view3
   , view, Series, line, plain, dashed
   , viewCustom, Config
@@ -6,27 +6,20 @@ module Lines exposing
 
 {-|
 
-
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
-  
 ## Table of contents
 
 ### Quick start
-> [view1](#view1) for visualizing a single data series.</br>
-> [view2](#view2) for visualizing two data series.</br>
-> [view3](#view3) for visualizing three data series.</br>
+- [view1](#view1) for visualizing a single data series.
+- [view2](#view2) for visualizing two data series.
+- [view3](#view3) for visualizing three data series.
 
 ### Customizing lines
-> [view](#view) for visualizing *any* amount of data series.</br>
-> [line](#line) for configuring color, dot etc. of a line representing a data series.</br>
-> [dash](#dash) for configuring color, dot etc. of a *dashed* line representing a data series.</br>
+- [view](#view) for visualizing *any* amount of data series.
+- [line](#line) for configuring color, dot etc. of a line representing a data series.
+- [dash](#dash) for configuring color, dot etc. of a *dashed* line representing a data series.
 
 ### Customizing everything
-> [viewCustom](#viewCustom) for configuring any other aspect of the chart (axis, area, etc.).</br>
+- [viewCustom](#viewCustom) for configuring any other aspect of the chart (axis, area, etc.).
 
 
 

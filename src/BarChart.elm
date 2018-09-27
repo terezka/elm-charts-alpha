@@ -1,28 +1,24 @@
-module Blocks exposing 
+module BarChart exposing
   ( view1, view2, view3
   , view, Series, SeriesConfig, series
   , Style, solid, bordered, alternate
   , viewCustom, Config
   )
 
-{-| 
-
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
+{-|
 
 ## Table of contents
 
 ### Quick start
-> [view1](#view1) for visualizing a single data series.</br>
-> [view2](#view2) for visualizing two data series.</br>
-> [view3](#view3) for visualizing three data series.</br>
-> [view](#view) for visualizing *any* amount of data series.</br>
+
+- [view1](#view1) for visualizing a single data series.
+- [view2](#view2) for visualizing two data series.
+- [view3](#view3) for visualizing three data series.
+- [view](#view) for visualizing *any* amount of data series.
 
 ### Customizing everything
-> [viewCustom](#viewCustom) for configuring any other aspect of the chart (axis, grid, etc.).</br>
+- [viewCustom](#viewCustom) for configuring any other aspect of the chart (axis, grid, etc.).</br>
+
 
 
 # Quick start
@@ -60,12 +56,10 @@ import Internal.Axis.Dependent
 import Internal.Axis.Independent
 import Internal.Axis.Intersection
 import Internal.Axis.Range
-import Internal.Axis.Title
 import Internal.Block
 import Internal.Chart
 import Internal.Container
 import Internal.Element
-import Internal.Events
 import Internal.Junk
 import Internal.Pattern
 import Internal.Orientation
@@ -121,7 +115,7 @@ view1 toInd toDep =
     chart : Html msg
     chart =
       Chart.Blocks.view1 .country .population .women
-        [ Facts "Denmark" 5.7 2.9 
+        [ Facts "Denmark" 5.7 2.9
         , Facts "Sweden" 10.1 5.0
         , Facts "Norway" 5.2 2.6
         ]
@@ -193,14 +187,14 @@ view3 toInd toDep1 toDep2 toDep3 =
 -- VIEW / ANY AMOUNT
 
 
-{-| 
+{-|
 
 ** Show any amount of lines **
 
     chart : Html msg
     chart =
       Chart.Blocks.view .label [ denmark, norway, sweden, iceland ] data
-        
+
     denmark : Chart.Blocks.Series Data
     denmark =
       Chart.Blocks.series
@@ -214,7 +208,7 @@ view3 toInd toDep1 toDep2 toDep3 =
     norway =
       Chart.Blocks.series
         { title = "Norway"
-        , style = Chart.Blocks.bordered Colors.blueLight Colors.blue 
+        , style = Chart.Blocks.bordered Colors.blueLight Colors.blue
         , variable = .norway
         , pattern = False
         }
@@ -310,7 +304,7 @@ bordered =
   Internal.Block.bordered
 
 
-{-| 
+{-|
 
 Change the style of the block based on the index and data.
 
@@ -329,7 +323,7 @@ Change the style of the block based on the index and data.
       datum == model.hovered
 
 
-This is nice to use with `Chart.Events.isSeries`, `Chart.Events.isDatum`, 
+This is nice to use with `Chart.Events.isSeries`, `Chart.Events.isDatum`,
 and `Chart.Events.isExactly` when working with events. See `Chart.Events`
 for more information and examples.
 
@@ -362,7 +356,7 @@ type alias Config data msg =
 
 
 
-{-| 
+{-|
 ** Available customizations **
 
 Use with `viewCustom`.
@@ -485,10 +479,10 @@ viewCustom config block data =
     , verticalAxis = verticalAxis
     , legends = viewLegends
     , trends = Svg.text ""
-    , junk = 
+    , junk =
         Internal.Junk.getLayers
           { orientation = config.orientation
-          , independent = Internal.Axis.Independent.title config.independentAxis 
+          , independent = Internal.Axis.Independent.title config.independentAxis
           , dependent = Internal.Axis.Dependent.title config.dependentAxis
           , offsetOne = width / 2
           , offsetMany = width * toFloat (List.length block) / 2
@@ -544,7 +538,7 @@ toSystem :  Config data msg -> Internal.Axis.Config Float data msg -> Internal.A
 toSystem config xAxis yAxis countOfData seriesAll data =
   let
     container = Internal.Container.properties identity config.container
-    frame = Coordinate.frame container.margin container.size.width container.size.height 
+    frame = Coordinate.frame container.margin container.size.width container.size.height
 
     value data = List.map (flip Internal.Block.variable data) seriesAll
     values = List.concatMap value data
