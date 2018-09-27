@@ -46,11 +46,10 @@ module Chart.Events exposing
 
 -}
 
-import Internal.Point as Point
 import Internal.Events as Events
 import Internal.Element as Element
 import Chart.Coordinate as Coordinate
-import Color 
+import Color
 
 
 
