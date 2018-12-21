@@ -1,21 +1,22 @@
 module Examples.BarChart.Events1 exposing (main)
 
+import Browser
 import Html
 import Html.Attributes
-import Chart.Axis.Independent
-import Chart.Axis.Dependent
-import Chart.Axis.Unit
-import Chart.Orientation
-import Chart.Legends
-import Chart.Events
-import Chart.Container
-import Chart.Events
-import Chart.Grid
-import Chart.Block
-import Chart.Junk
-import Chart.Pattern
+import BarChart
+import Chart.Axis.Independent as IndependentAxis
+import Chart.Axis.Dependent as DependentAxis
+import Chart.Orientation as Orientation
+import Chart.Legends as Legends
+import Chart.Events as Events
+import Chart.Container as Container
+import Chart.Grid as Grid
+import Chart.Block as Block
+import Chart.Junk as Junk
+import Chart.Pattern as Pattern
 import Chart.Colors as Colors
-import Blocks
+import Chart.Events
+import Chart.Axis.Unit
 import Chart.Element as Element
 import Color
 
@@ -37,10 +38,9 @@ import Color
 -- review outliers
 
 
-main : Program Never Model Msg
 main =
-  Html.beginnerProgram
-    { model = init
+  Browser.sandbox
+    { init = init
     , update = update
     , view = view
     }
@@ -82,49 +82,62 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
   Html.div
-    [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]
+    [ Html.Attributes.style "font-family" "monospace" ]
     [ chart model ]
 
 
 chart : Model -> Html.Html Msg
 chart model =
-  Blocks.view .label [ denmark, norway, sweden, iceland ] data
-    
+  BarChart.viewCustom -- TODO should pixels be defined elsewhere due to orientation switching?
+    { independentAxis = IndependentAxis.default "year" .label -- TODO customize label?
+    , dependentAxis = DependentAxis.default "GDP" Chart.Axis.Unit.dollars
+    , container = Container.default "bar-chart" 700 400
+    , orientation = Orientation.default
+    , legends = Legends.default
+    , events = Events.hoverBlocks Hover
+    , grid = Grid.default
+    , block = Block.default
+    , junk = Junk.hoverBlocks model.hovering
+    , pattern = Pattern.default
+    }
+    [ denmark, norway, sweden, iceland ]
+    data
 
-denmark : Blocks.Series Data
+
+denmark : BarChart.Series Data
 denmark =
-  Blocks.series
+  BarChart.series
     { title = "Denmark"
-    , style = Blocks.bordered Colors.pinkLight Colors.pink
+    , style = BarChart.bordered Colors.pinkLight Colors.pink
     , variable = .denmark
     , pattern = False
     }
 
-norway : Blocks.Series Data
+norway : BarChart.Series Data
 norway =
-  Blocks.series
+  BarChart.series
     { title = "Norway"
-    , style = Blocks.bordered Colors.blueLight Colors.blue 
+    , style = BarChart.bordered Colors.blueLight Colors.blue
     , variable = .norway
     , pattern = False
     }
 
 
-sweden : Blocks.Series Data
+sweden : BarChart.Series Data
 sweden =
-  Blocks.series
+  BarChart.series
     { title = "Sweden"
-    , style = Blocks.bordered Colors.cyanLight Colors.cyan
+    , style = BarChart.bordered Colors.cyanLight Colors.cyan
     , variable = .sweden
     , pattern = False
     }
 
 
-iceland : Blocks.Series Data
+iceland : BarChart.Series Data
 iceland =
-  Blocks.series
+  BarChart.series
     { title = "Iceland"
-    , style = Blocks.bordered Colors.goldLight Colors.gold
+    , style = BarChart.bordered Colors.goldLight Colors.gold
     , variable = .iceland
     , pattern = False
     }
@@ -145,8 +158,8 @@ type alias Data =
 
 data : List Data
 data =
-  [ Data 1 5 2 4 "1"
-  , Data 2 6 3 4 "2"
-  , Data 3 7 6 4 "3"
-  , Data 4 8 3 4 "4"
+  [ Data 1 5 2 4 "2016"
+  , Data 2 6 3 4 "2017"
+  , Data 3 7 6 4 "2018"
+  , Data 4 8 3 4 "2019"
   ]

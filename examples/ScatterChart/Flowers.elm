@@ -1,9 +1,10 @@
 module Examples.ScatterChart.Lines exposing (main)
 
+import Browser
 import Svg
 import Html
 import Html.Attributes exposing (class)
-import Dots
+import ScatterChart
 import Chart.Dot as Dot
 import Chart.Colors as Colors
 import Chart.Junk as Junk
@@ -24,10 +25,10 @@ import Color.Manipulate
 
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-  Html.beginnerProgram
-    { model = init
+  Browser.sandbox
+    { init = init
     , update = update
     , view = view
     }
@@ -69,7 +70,7 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
   Html.div
-    [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]
+    [ Html.Attributes.style "font-family" "monospace" ]
     [ chart model ]
 
 
@@ -106,16 +107,16 @@ chart model =
     ]
 
 
-viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (Dots.Series Info) -> Html.Html Msg
+viewChart : Model -> (Info -> Float) -> (Info -> Float) -> List (ScatterChart.Series Info) -> Html.Html Msg
 viewChart model toX toY groups =
   Html.div
-    [ Html.Attributes.style [ ( "display", "inline-block" ) ] ]
-    [ Dots.viewCustom
+    [ Html.Attributes.style "display" "inline-block" ]
+    [ ScatterChart.viewCustom
         { y = Axis.default "y" Unit.none toY
         , x = Axis.default "x" Unit.none toX
         , container =
             Container.custom
-              { attributesHtml = [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]
+              { attributesHtml = [ Html.Attributes.style "font-family" "monospace" ]
               , attributesSvg = []
               , responsive = False
               , size = Container.Size 280 280
@@ -163,15 +164,15 @@ toSeries info series =
     [] ->
       [ ( info.species, [ info ] ) ]
 
-    ( name, data ) :: rest ->
-      if info.species == name 
-      then ( name, info :: data ) :: rest
-      else ( info.species, [ info ] ) :: ( name, data ) :: rest
+    ( name, data_ ) :: rest ->
+      if info.species == name
+      then ( name, info :: data_ ) :: rest
+      else ( info.species, [ info ] ) :: ( name, data_ ) :: rest
 
 
-toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> Dots.Series Info
-toChartSeries color dot ( name, data ) =
-  Dots.series color dot name data
+toChartSeries : Color.Color -> Dot.Shape -> ( String, List Info ) -> ScatterChart.Series Info
+toChartSeries color dot ( name, data_ ) =
+  ScatterChart.series color dot name data_
 
 
 defaultColors : List Color.Color

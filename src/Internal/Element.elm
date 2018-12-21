@@ -57,14 +57,14 @@ type LineDot =
 
 {-| -}
 lineDot : Bool -> LineDot
-lineDot isReal =
-  LineDot { isReal = isReal }
+lineDot isReal_ =
+  LineDot { isReal = isReal_ }
 
 
 {-| -}
 isReal : Element LineDot -> Bool
 isReal element =
-  let (LineDot { isReal }) = element.element in isReal
+  let (LineDot dot_) = element.element in dot_.isReal
 
 
 {-| -}

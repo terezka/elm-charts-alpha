@@ -107,9 +107,9 @@ view system config series data =
 
     Individual toColor width function ->
       let
-        viewSingle_ series_ data =
+        viewSingle_ series_ data_ =
           let color = Dot.color series_ in
-          viewSingle system (toColor color) function width data
+          viewSingle system (toColor color) function width data_
 
         viewTrends =
           List.map2 viewSingle_ series data
@@ -131,7 +131,7 @@ viewSingle system color function editWidth data =
 
     attributes =
       [ Svg.Attributes.stroke (Color.Convert.colorToCssRgba color)
-      , Svg.Attributes.strokeWidth (toString width)
+      , Svg.Attributes.strokeWidth (String.fromFloat width)
       , Svg.Attributes.fill "transparent"
       , Svg.Attributes.class "chart__trend"
       , Svg.withinChartArea system

@@ -2,11 +2,6 @@ module Chart.Axis exposing (Config, default, full, time, custom, picky)
 
 {-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 _If you're confused as to what "axis range" and "data range" means,
 check out `Axis.Range` for an explanation!_
@@ -22,6 +17,7 @@ import Internal.Axis.Title as Title
 import Chart.Axis.Range as Range
 import Chart.Axis.Line as AxisLine
 import Chart.Axis.Ticks as Ticks
+import Time
 
 
 
@@ -89,7 +85,7 @@ Pass the length of your axis in pixels, the title and it's variable.
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Axis/Example3.elm)._
 
 -}
-time : String -> Unit.Config -> (data -> value) -> Config value data msg
+time : Time.Zone -> String -> Unit.Config -> (data -> value) -> Config value data msg
 time =
   Axis.time
 

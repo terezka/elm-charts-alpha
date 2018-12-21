@@ -44,10 +44,10 @@ view args data system =
 
       -- Chart sizing and positioning
       chartSizeAndPosition =
-        [ Svg.Attributes.x (toString system.frame.margin.left)
-        , Svg.Attributes.y (toString system.frame.margin.top)
-        , Svg.Attributes.width (toString (Internal.Coordinate.lengthX system))
-        , Svg.Attributes.height (toString (Internal.Coordinate.lengthY system))
+        [ Svg.Attributes.x (String.fromFloat system.frame.margin.left)
+        , Svg.Attributes.y (String.fromFloat system.frame.margin.top)
+        , Svg.Attributes.width (String.fromFloat (Internal.Coordinate.lengthX system))
+        , Svg.Attributes.height (String.fromFloat (Internal.Coordinate.lengthY system))
         ]
 
       -- Junk
@@ -66,7 +66,7 @@ view args data system =
       horizontalAxis = Internal.Axis.viewHorizontal system size.width args.intersection args.horizontalAxis
       verticalAxis = Internal.Axis.viewVertical system size.height args.intersection args.verticalAxis
       legends = Internal.Legends.view args.legends
-      
+
       grid =
         Internal.Grid.view
           { width = size.width
@@ -89,14 +89,14 @@ view args data system =
         let attributes =
               [ Internal.Container.properties .attributesSvg args.container
               , Internal.Events.toContainerAttributes args.orientation data system args.events
-              , [ Svg.Attributes.viewBox ("0 0 " ++ toString system.frame.size.width ++ " " ++ toString system.frame.size.height) ]
+              , [ Svg.Attributes.viewBox ("0 0 " ++ String.fromFloat system.frame.size.width ++ " " ++ String.fromFloat system.frame.size.height) ]
               ]
         in Svg.svg (List.concat attributes)
 
       container chart =
         let attributes =
               [ Internal.Container.properties .attributesHtml args.container
-              , [ Internal.Container.styles args.container system ]
+              , Internal.Container.styles args.container system
               ]
         in Html.div (List.concat attributes) (innerContainer chart :: withSystem args.junk.html)
   in

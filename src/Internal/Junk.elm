@@ -76,7 +76,7 @@ getLayers args system (Config toLayers) =
 
 
 type alias Frame =
-  { line : Bool 
+  { line : Bool
   , position : { x : Maybe Float, y : Maybe Float }
   , offset : { x : Float, y : Float }
   , title : ( Color.Color, String )
@@ -114,15 +114,15 @@ standardStyles =
 viewHeader : ( Color.Color, String ) -> Html.Html msg
 viewHeader (color, title) =
   Html.p
-    [ Html.Attributes.style
-        [ ( "margin-top", "3px" )
-        , ( "margin-bottom", "5px" )
-        , ( "padding", "3px" )
-        , ( "border-bottom", "1px solid rgb(163, 163, 163)" )
-        ]
+    [ Html.Attributes.style "margin-top" "3px"
+    , Html.Attributes.style "margin-bottom" "5px"
+    , Html.Attributes.style "padding" "3px"
+    , Html.Attributes.style "border-bottom" "1px solid rgb(163, 163, 163)"
     ]
     [ Html.p
-        [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", Color.Convert.colorToCssRgba color ) ] ]
+        [ Html.Attributes.style "margin" "3px"
+        , Html.Attributes.style "color" (Color.toCssString color)
+        ]
         [ Html.text title ]
     ]
 
@@ -130,7 +130,9 @@ viewHeader (color, title) =
 viewValue : ( Color.Color,  String, String ) -> Html.Html msg
 viewValue (color, label, value) =
   Html.p
-    [ Html.Attributes.style [ ( "margin", "3px" ), ( "color", Color.Convert.colorToCssRgba color ) ] ]
+    [ Html.Attributes.style "margin" "3px"
+    , Html.Attributes.style "color" (Color.toCssString color)
+    ]
     [ Html.text (label ++ ": " ++ value) ]
 
 
@@ -189,8 +191,8 @@ hoverCustom config system =
           ( "transform", "translate(0, 0)" )
 
     posititonStyles =
-      [ ( "left", toString xPercentage ++ "%" )
-      , ( "top", toString yPercentage ++ "%" )
+      [ ( "left", String.fromFloat xPercentage ++ "%" )
+      , ( "top", String.fromFloat yPercentage ++ "%" )
       , ( "margin-right", "-400px" )
       , ( "position", "absolute" )
       , transform
@@ -199,7 +201,7 @@ hoverCustom config system =
     containerStyles =
       standardStyles ++ posititonStyles ++ config.styles
   in
-  Html.div [ Html.Attributes.style containerStyles ] config.content
+  Html.div (List.map (\(p,v) -> Html.Attributes.style p v) containerStyles) config.content
 
 
 

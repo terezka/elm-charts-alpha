@@ -448,17 +448,17 @@ viewCustom config block data =
         }
 
     -- View
-    viewSeries data =
+    viewSeries data_ =
       Svg.g [ Svg.Attributes.class "chart__group" ] <|
-        List.map2 (Internal.Block.viewSeries system config.orientation config.block width) block data
+        List.map2 (Internal.Block.viewSeries system config.orientation config.block width) block data_
 
     viewLegends =
       { system = system
       , config = config.legends
       , defaults = { width = 10, offsetY = 0 }
-      , legends = \width ->
+      , legends = \width_ ->
           let legend bar =
-                { sample = Svg.square bar.pattern width (Internal.Block.borderRadius config.block) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
+                { sample = Svg.square bar.pattern width_ (Internal.Block.borderRadius config.block) (Internal.Block.fill bar.style) (Internal.Block.border bar.style)
                 , label = bar.title
                 }
           in List.map legend seriesProps
@@ -508,12 +508,12 @@ toDataPoints config system countOfSeries countOfData width seriesAll data =
         , vertical = Coordinate.verticalPoint
         }
 
-    eachBar dataIndex datum seriesIndex series =
+    eachBar dataIndex datum seriesIndex series_ =
       let offset = toFloat seriesIndex - countOfSeries / 2 + 0.5
           independent = toFloat dataIndex + 1 + offset * width
-          dependent = Internal.Block.variable series datum
-          color = Internal.Block.color series
-          label = Internal.Block.label series
+          dependent = Internal.Block.variable series_ datum
+          color = Internal.Block.color series_
+          label = Internal.Block.label series_
           coordinates_ = coordinates independent dependent
       in
       { coordinates = coordinates_
@@ -540,7 +540,7 @@ toSystem config xAxis yAxis countOfData seriesAll data =
     container = Internal.Container.properties identity config.container
     frame = Coordinate.frame container.margin container.size.width container.size.height
 
-    value data = List.map (flip Internal.Block.variable data) seriesAll
+    value data_ = List.map (\a -> Internal.Block.variable a data_) seriesAll
     values = List.concatMap value data
 
     dependentRange =

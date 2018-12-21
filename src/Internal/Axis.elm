@@ -20,6 +20,7 @@ import Internal.Axis.Intersection as Intersection
 import Internal.Axis.Title as Title
 import Internal.Svg as Svg
 import Color.Convert
+import Time
 
 
 {-| -}
@@ -40,11 +41,11 @@ type alias Properties value data msg =
 
 {-| -}
 default : String -> Unit.Config -> (data -> value) -> Config value data msg
-default title unit variable =
+default title_ unit_ variable_ =
   custom
-    { title = Title.atDataMax 0 0 title
-    , unit = unit
-    , variable = variable
+    { title = Title.atDataMax 0 0 title_
+    , unit = unit_
+    , variable = variable_
     , range = Range.padded 20 20
     , line = AxisLine.rangeFrame Colors.gray
     , ticks = Ticks.defaultFloat
@@ -54,11 +55,11 @@ default title unit variable =
 
 {-| -}
 full : String -> Unit.Config -> (data -> value) -> Config value data msg
-full title unit variable =
+full title_ unit_ variable_ =
   custom
-    { title = Title.atAxisMax 0 0 title
-    , unit = unit
-    , variable = variable
+    { title = Title.atAxisMax 0 0 title_
+    , unit = unit_
+    , variable = variable_
     , range = Range.padded 20 20
     , line = AxisLine.default
     , ticks = Ticks.full
@@ -66,30 +67,30 @@ full title unit variable =
 
 
 {-| -}
-time : String -> Unit.Config -> (data -> value) -> Config value data msg
-time title unit variable =
+time : Time.Zone -> String -> Unit.Config -> (data -> value) -> Config value data msg
+time zone title_ unit_ variable_ =
   custom
-    { title = Title.atDataMax 0 0 title
-    , unit = unit
-    , variable = variable
+    { title = Title.atDataMax 0 0 title_
+    , unit = unit_
+    , variable = variable_
     , range = Range.padded 20 20
     , line = AxisLine.rangeFrame Colors.gray
-    , ticks = Ticks.defaultTime
+    , ticks = Ticks.defaultTime zone
     }
 
 
 {-| -}
 picky :  String -> Unit.Config -> (data -> value) -> List Float -> Config value data msg
-picky title unit variable ticks =
+picky title_ unit_ variable_ ticks_ =
   custom
-    { title = Title.atAxisMax 0 0 title
-    , unit = unit
-    , variable = variable
+    { title = Title.atAxisMax 0 0 title_
+    , unit = unit_
+    , variable = variable_
     , range = Range.padded 20 20
     , line = AxisLine.default
-    , ticks = 
+    , ticks =
         Ticks.custom <| \_ _ _ ->
-         [ Ticks.set Tick.float toString identity ticks ]
+         [ Ticks.set Tick.float String.fromFloat identity ticks_ ]
     }
 
 
@@ -120,8 +121,8 @@ ticks (Config config) =
 {-| -}
 title : Config value data msg -> String
 title (Config config) =
-  let title = Title.config config.title in
-  title.text
+  let title_ = Title.config config.title in
+  title_.text
 
 
 {-| -}
@@ -183,7 +184,7 @@ viewVertical system pixels intersection (Config config) =
     in
     Svg.c "axis--vertical" []
       [ viewVerticalTitle at viewConfig system
-      , viewVerticalAxisLine viewConfig.intersection viewConfig.line system 
+      , viewVerticalAxisLine viewConfig.intersection viewConfig.line system
       , Svg.c "ticks" [] (List.map viewTick viewConfig.ticks)
       ]
 
@@ -193,27 +194,27 @@ viewVertical system pixels intersection (Config config) =
 
 
 viewHorizontalTitle : (Float -> Coordinate.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
-viewHorizontalTitle at { title } system =
-  let position = at (title.position system.xData system.x)
-      ( xOffset, yOffset ) = title.offset
+viewHorizontalTitle at config system =
+  let position = at (config.title.position system.xData system.x)
+      ( xOffset, yOffset ) = config.title.offset
   in
-  Svg.c "title" 
+  Svg.c "title"
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset (xOffset + 15) (yOffset + 5) ]
-    , Svg.anchor (Maybe.withDefault Svg.Start title.anchor)
+    , Svg.anchor (Maybe.withDefault Svg.Start config.title.anchor)
     ]
-    [ title.view title.text ]
+    [ config.title.view config.title.text ]
 
 
 viewVerticalTitle : (Float -> Coordinate.Point) -> ViewConfig msg -> Coordinate.System -> Svg.Svg msg
-viewVerticalTitle at { title } system =
-  let position = at (title.position system.yData system.y)
-      ( xOffset, yOffset ) = title.offset
+viewVerticalTitle at config system =
+  let position = at (config.title.position system.yData system.y)
+      ( xOffset, yOffset ) = config.title.offset
   in
   Svg.c "title"
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset (xOffset + 2) (yOffset - 10) ]
-    , Svg.anchor (Maybe.withDefault Svg.End title.anchor)
+    , Svg.anchor (Maybe.withDefault Svg.End config.title.anchor)
     ]
-    [ title.view title.text ]
+    [ config.title.view config.title.text ]
 
 
 
@@ -233,7 +234,7 @@ viewVerticalAxisLine axisPosition config system =
 attributesLine :AxisLine.Properties msg -> Coordinate.System -> List (Svg.Attribute msg)
 attributesLine { events, width, color } system =
   events ++
-    [ Svg.Attributes.strokeWidth (toString width)
+    [ Svg.Attributes.strokeWidth (String.fromFloat width)
     , Svg.Attributes.stroke (Color.Convert.colorToCssRgba color)
     , Svg.withinChartArea system
     ]
@@ -266,8 +267,8 @@ lengthOfTick { length, direction } =
 
 attributesTick : Tick.Properties msg -> List (Svg.Attribute msg)
 attributesTick { width, color } =
-  [ Svg.Attributes.strokeWidth (toString width)
-  , Svg.Attributes.stroke (Color.Convert.colorToCssRgba color) 
+  [ Svg.Attributes.strokeWidth (String.fromFloat width)
+  , Svg.Attributes.stroke (Color.Convert.colorToCssRgba color)
   ]
 
 
@@ -287,7 +288,7 @@ viewVerticalLabel { direction, length } position view system =
   let anchor = if Tick.isPositive direction then Svg.Start else Svg.End
       xOffset = if Tick.isPositive direction then 5 + length else -5 - length
   in
-  Svg.c "tick__label" 
+  Svg.c "tick__label"
     [ Svg.transform [ Svg.move position.x position.y system, Svg.offset xOffset 5 ]
     , Svg.anchor anchor
     ]

@@ -1,30 +1,33 @@
 module Events1 exposing (main)
 
+import Browser
 import Html exposing (Html, div, h1, node, p, text)
 import Html.Attributes exposing (class)
 import Svg exposing (Attribute, Svg, g, text_, tspan)
 import LineChart as LineChart
-import LineChart.Junk as Junk exposing (..)
-import LineChart.Dots as Dots
-import LineChart.Container as Container
-import LineChart.Interpolation as Interpolation
-import LineChart.Axis.Intersection as Intersection
-import LineChart.Axis as Axis
-import LineChart.Legends as Legends
-import LineChart.Line as Line
-import LineChart.Events as Events
-import LineChart.Grid as Grid
-import LineChart.Legends as Legends
-import LineChart.Area as Area
+import Chart.Junk as Junk exposing (..)
+import Chart.Dot as Dots
+import Chart.Container as Container
+import Chart.Interpolation as Interpolation
+import Chart.Axis.Intersection as Intersection
+import Chart.Axis as Axis
+import Chart.Legends as Legends
+import Chart.Line as Line
+import Chart.Events as Events
+import Chart.Axis.Unit as Unit
+import Chart.Grid as Grid
+import Chart.Legends as Legends
+import Chart.Area as Area
+import Chart.Element as Element
 import Color
 import Color.Manipulate
 
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-  Html.beginnerProgram
-    { model = init
+  Browser.sandbox
+    { init = init
     , update = update
     , view = view
     }
@@ -35,7 +38,7 @@ main =
 
 
 type alias Model =
-    { hovering : Maybe Info }
+    { hovering : Maybe (Events.Found Element.LineDot Info) }
 
 
 init : Model
@@ -48,7 +51,7 @@ init =
 
 
 type Msg
-  = Hover (Maybe Info)
+  = Hover (Maybe (Events.Found Element.LineDot Info))
 
 
 update : Msg -> Model -> Model
@@ -72,21 +75,23 @@ view model =
 chart : Model -> Html.Html Msg
 chart model =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" (Just << .weight)
-    , x = Axis.default 700 "Age" .age
-    , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
+    { y = Axis.default "Weight" Unit.kilograms (Just << .weight)
+    , x = Axis.default "Age"  Unit.none .age
+    , container = Container.styled "line-chart-1"  700 450 [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default
-    , events = Events.hoverOne Hover
+    , events = Events.hoverDot Hover
     , junk = Junk.default
     , grid = Grid.default
     , area = Area.default
     , line =
-        Line.hoverOne model.hovering
+        -- Line.default
+        Line.hoverOne (Maybe.map Events.data model.hovering)
         -- customLineConfig model.hovering
     , dots =
-        Dots.hoverOne model.hovering
+        -- Dots.default
+        Dots.hoverOne (Maybe.map Events.data model.hovering)
         -- customDotsConfig model.hovering
     }
     [ LineChart.line Color.orange Dots.triangle "Chuck" chuck

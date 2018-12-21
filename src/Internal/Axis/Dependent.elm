@@ -36,10 +36,10 @@ type alias Properties msg =
 
 {-| -}
 default : String -> Unit.Config -> Config msg
-default title unit =
+default title_ unit_ =
   custom
-    { title = Title.default title
-    , unit = unit
+    { title = Title.default title_
+    , unit = unit_
     , range = Range.default
     , line = AxisLine.default
     , ticks = Ticks.defaultFloat
@@ -65,8 +65,8 @@ unit (Config properties) =
 {-| -}
 title : Config msg -> String
 title (Config config) =
-  let title = Title.config config.title in
-  title.text
+  let title_ = Title.config config.title in
+  title_.text
 
 
 

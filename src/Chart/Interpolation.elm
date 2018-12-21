@@ -2,11 +2,6 @@ module Chart.Interpolation exposing (Config, default, linear, monotone, stepped)
 
 {-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 Interpolation is the the kind of line which is drawn between your data points.
 It's meant to be a guide to where your data point would actually be if you had

@@ -483,8 +483,8 @@ viewCustom config series =
       , config = config.legends
       , defaults = { width = 30, offsetY = 10 }
       , legends = \width ->
-          let legend serie data =
-                { sample = Internal.Line.viewSample config.dots config.line config.area system serie data width
+          let legend serie data_ =
+                { sample = Internal.Line.viewSample config.dots config.line config.area system serie data_ width
                 , label = Internal.Line.label serie
                 }
           in List.map2 legend series dataSafe
@@ -524,9 +524,6 @@ viewCustom config series =
 toDataPoints : Config data msg -> List (Series data) -> List (List (Point.Point Element.LineDot data))
 toDataPoints config series =
   let
-    x = Internal.Axis.variable config.x
-    y = Internal.Axis.variable config.y
-
     data =
       List.indexedMap eachSerie series
 
@@ -534,7 +531,7 @@ toDataPoints config series =
       List.map (eachDatum seriesIndex serie) (Internal.Line.data serie)
 
     eachDatum seriesIndex serie datum =
-      case ( x datum, y datum ) of
+      case ( Internal.Axis.variable config.x datum, Internal.Axis.variable config.y datum ) of
         ( x, Just y ) ->
           { source = datum
           , coordinates = Coordinate.Point x y
@@ -571,8 +568,8 @@ toDataPoints config series =
 stack : List (List (Point.Point Element.LineDot data)) -> List (List (Point.Point Element.LineDot data))
 stack dataset =
   let
-    stackBelows dataset result =
-      case dataset of
+    stackBelows dataset_ result =
+      case dataset_ of
         data :: belows ->
           stackBelows belows <|
             List.foldl addBelows data belows :: result
@@ -584,10 +581,10 @@ stack dataset =
 
 
 addBelows : List (Point.Point Element.LineDot data) -> List (Point.Point Element.LineDot data) -> List (Point.Point Element.LineDot data)
-addBelows data dataBelow =
+addBelows alldata dataBelowAll =
   let
-    iterate datum0 data dataBelow result =
-      case ( data, dataBelow ) of
+    iterate datum0 dataTop dataBelowTop result =
+      case ( dataTop, dataBelowTop ) of
         ( datum1 :: data, datumBelow :: dataBelow ) ->
           -- if the data point is after the point below, add it
           if datum1.coordinates.x > datumBelow.coordinates.x
@@ -616,8 +613,8 @@ addBelows data dataBelow =
     add below datum =
       setY below (below.coordinates.y + datum.coordinates.y)
   in
-  List.reverse <| Maybe.withDefault [] <| Utils.withFirst data <| \first rest ->
-    iterate first rest dataBelow []
+  List.reverse <| Maybe.withDefault [] <| Utils.withFirst alldata <| \first rest ->
+    iterate first rest dataBelowAll []
 
 
 setY : Point.Point Element.LineDot data -> Float -> Point.Point Element.LineDot data

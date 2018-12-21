@@ -8,28 +8,28 @@ import Internal.Coordinate as Coordinate
 
 
 {-| -}
-findIndex : v -> List v -> Maybe Int 
+findIndex : v -> List v -> Maybe Int
 findIndex searched data =
-  let isIndex ( i, v ) = 
-        if searched == v 
-          then Just i 
+  let isIndex ( i, v ) =
+        if searched == v
+          then Just i
           else Nothing
   in
   data
-    |> List.indexedMap (,) 
+    |> List.indexedMap Tuple.pair
     |> List.filterMap isIndex
-    |> List.head 
+    |> List.head
     |> Maybe.map (add 1)
 
 
 {-| -}
-add : number -> number -> number 
+add : number -> number -> number
 add a b =
   a + b
 
 
 {-| -}
-pair : String -> String -> String 
+pair : String -> String -> String
 pair p v =
   p ++ ": " ++ v
 
@@ -84,9 +84,9 @@ unzip3 pairs =
 indexedMap2 : (Int -> a -> b -> c) -> List a -> List b -> List c
 indexedMap2 f a b =
   let
-    collect a b i c =
-      case ( a, b ) of
-        ( a0 :: a, b0 :: b ) -> collect a b (i + 1) <| c ++ [ f i a0 b0 ]
+    collect a_ b_ i c =
+      case ( a_, b_ ) of
+        ( a0 :: a__, b0 :: b__ ) -> collect a__ b__ (i + 1) <| c ++ [ f i a0 b0 ]
         ( [], _ ) -> c
         ( _, [] ) -> c
   in

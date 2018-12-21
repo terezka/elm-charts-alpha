@@ -1,20 +1,12 @@
 module Chart.Axis.Values exposing (Amount, around, exactly, int, time, float, custom)
 
 {-|
-
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
-
 Use in `Ticks.custom` for creating "nice" values.
 
     ticksConfig : Ticks.Config msg
     ticksConfig =
       Ticks.custom <| \dataRange axisRange ->
         List.map Tick.int (valuesWithin dataRange)
-
     valuesWithin : Coordinate.Range -> List Int
     valuesWithin =
       Values.int (Values.around 3)
@@ -36,13 +28,12 @@ hit whole days, weeks, months or hours, minutes, and seconds.
 
 # Custom numbers
 @docs custom
-
 -}
 
-import Chart.Axis.Tick as Tick
-import Internal.Axis.Tick
+import LineChart.Axis.Tick as Tick
 import Internal.Axis.Values as Values
-import Chart.Coordinate as Coordinate
+import LineChart.Coordinate as Coordinate
+import Time
 
 
 
@@ -105,18 +96,15 @@ float =
 {-| Makes evenly spaced floats.
 
 Arguments:
-
   1. A number which must be in your resulting numbers (commonly 0).
   2. The interval between your numbers.
   3. The range which your numbers must be between.
-
 
     ticksConfig : Ticks.Config msg
     ticksConfig =
       Ticks.custom <| \dataRange axisRange ->
         List.map Tick.float (Values.custom 45 10 dataRange) ++
         -- ^ Makes [ 25, 45, 55, 65, 75, 85, 95 ]
-
         List.map Tick.long (Values.custom 30 20 dataRange)
         -- ^ Makes [ 30, 50, 70, 90 ]
 
@@ -139,38 +127,8 @@ custom =
     valuesWithin =
       Values.time 5
 
-
 _See full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Values/Example2.elm)._
-
 -}
-time : Int -> Coordinate.Range -> List Tick.Time
-time amount range =
-  Values.time amount range
-    |> List.map toStandardTime
-
-
-
--- UNIT CONVERSION
-
-
-toStandardTime : Internal.Axis.Tick.Time -> Tick.Time
-toStandardTime config =
-  { change = Maybe.map toStandardUnit config.change
-  , interval = Tick.Interval (toStandardUnit config.interval.unit) config.interval.multiple
-  , timestamp = config.timestamp
-  , isFirst = config.isFirst
-  }
-
-
-toStandardUnit : Internal.Axis.Tick.Unit -> Tick.Unit
-toStandardUnit unit =
-  case unit of
-    Internal.Axis.Tick.Millisecond -> Tick.Millisecond
-    Internal.Axis.Tick.Second      -> Tick.Second
-    Internal.Axis.Tick.Minute      -> Tick.Minute
-    Internal.Axis.Tick.Hour        -> Tick.Hour
-    Internal.Axis.Tick.Day         -> Tick.Day
-    Internal.Axis.Tick.Week        -> Tick.Week
-    Internal.Axis.Tick.Month       -> Tick.Month
-    Internal.Axis.Tick.Year        -> Tick.Year
-
+time : Time.Zone -> Int -> Coordinate.Range -> List Tick.Time
+time =
+  Values.time

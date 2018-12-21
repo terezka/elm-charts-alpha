@@ -13,7 +13,7 @@ module Internal.Unit
 
 
 {-| -}
-type Config 
+type Config
   = Config Properties
 
 
@@ -119,7 +119,7 @@ custom =
 view : Config -> Float -> String
 view (Config config) n =
   let space = if config.space then " " else ""
-      number = toString n
+      number = String.fromFloat n
   in
   if config.prefixed then
     config.symbol ++ space ++ number

@@ -6,11 +6,6 @@ module Chart.Axis.Ticks exposing
 
 {-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 @docs Config, default
 
@@ -55,6 +50,7 @@ import Internal.Axis.Ticks as Ticks
 import Internal.Axis.Values as Values
 import Internal.Axis.Tick
 import Chart.Axis.Tick as Tick
+import Time
 
 
 
@@ -103,7 +99,7 @@ int =
 
 
 {-| -}
-time : Int -> Config msg
+time : Time.Zone -> Int -> Config msg
 time =
   Ticks.time
 
@@ -127,10 +123,10 @@ floatCustom =
 
 
 {-| -}
-timeCustom : Tick.Config msg -> Int -> Config msg
-timeCustom tick n =
+timeCustom : Time.Zone -> Tick.Config msg -> Int -> Config msg
+timeCustom zone tick n =
   custom <| \pixels data axis ->
-    [ set tick Tick.format .timestamp (List.map toLocalTime (Values.time n axis)) ]
+    [ set tick Tick.format (.timestamp >> Time.toMillis zone >> toFloat) (Values.time zone n axis) ]
 
 
 {-| Make your own combination of ticks.
@@ -166,30 +162,4 @@ custom =
 set : Tick.Config msg -> (data -> String) -> (data -> Float) -> List data -> Set msg
 set =
   Ticks.set
-
-
-
--- INTERNAL / UNIT CONVERSION
-
-
-toLocalTime : Internal.Axis.Tick.Time -> Tick.Time
-toLocalTime config =
-  { change = Maybe.map toLocalUnit config.change
-  , interval = Tick.Interval (toLocalUnit config.interval.unit) config.interval.multiple
-  , timestamp = config.timestamp
-  , isFirst = config.isFirst
-  }
-
-
-toLocalUnit : Internal.Axis.Tick.Unit -> Tick.Unit
-toLocalUnit unit =
-  case unit of
-    Internal.Axis.Tick.Millisecond -> Tick.Millisecond
-    Internal.Axis.Tick.Second      -> Tick.Second
-    Internal.Axis.Tick.Minute      -> Tick.Minute
-    Internal.Axis.Tick.Hour        -> Tick.Hour
-    Internal.Axis.Tick.Day         -> Tick.Day
-    Internal.Axis.Tick.Week        -> Tick.Week
-    Internal.Axis.Tick.Month       -> Tick.Month
-    Internal.Axis.Tick.Year        -> Tick.Year
 

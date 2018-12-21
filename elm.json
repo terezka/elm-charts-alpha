@@ -1,11 +1,9 @@
 {
-    "version": "1.0.0",
+    "type": "package",
+    "name": "terezka/elm-charts",
     "summary": "A library for plotting charts in SVG.",
-    "repository": "https://github.com/terezka/elm-charts-alpha.git",
-    "license": "BSD3",
-    "source-directories": [
-      "./src"
-    ],
+    "license": "BSD-3-Clause",
+    "version": "1.0.0",
     "exposed-modules": [
         "Dots",
         "Blocks",
@@ -37,16 +35,22 @@
         "Chart.Block",
         "Chart.Pattern"
     ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {
-        "BrianHicks/elm-trend": "2.1.1 <= v < 3.0.0",
-        "debois/elm-dom": "1.2.3 <= v < 2.0.0",
-        "elm-lang/core": "5.1.1 <= v < 6.0.0",
-        "elm-lang/html": "2.0.0 <= v < 3.0.0",
-        "elm-lang/svg": "2.0.0 <= v < 3.0.0",
-        "eskimoblood/elm-color-extra": "5.0.0 <= v < 6.0.0",
-        "justinmimbs/elm-date-extra": "2.0.3 <= v < 3.0.0",
-        "mgold/elm-date-format": "1.4.2 <= v < 2.0.0",
-        "myrho/elm-round": "1.0.0 <= v < 2.0.0"
+        "BrianHicks/elm-trend": "2.1.2 <= v < 3.0.0",
+        "avh4/elm-color": "1.0.0 <= v < 2.0.0",
+        "debois/elm-dom": "1.3.0 <= v < 2.0.0",
+        "elm/browser": "1.0.0 <= v < 2.0.0",
+        "elm/core": "1.0.0 <= v < 2.0.0",
+        "elm/html": "1.0.0 <= v < 2.0.0",
+        "elm/json": "1.0.0 <= v < 2.0.0",
+        "elm/regex": "1.0.0 <= v < 2.0.0",
+        "elm/svg": "1.0.0 <= v < 2.0.0",
+        "elm/time": "1.0.0 <= v < 2.0.0",
+        "justinmimbs/time-extra": "1.1.0 <= v < 2.0.0",
+        "myrho/elm-round": "1.0.4 <= v < 2.0.0",
+        "noahzgordon/elm-color-extra": "1.0.1 <= v < 2.0.0",
+        "ryannhg/date-format": "2.3.0 <= v < 3.0.0"
     },
-    "elm-version": "0.18.0 <= v < 0.19.0"
+    "test-dependencies": {}
 }

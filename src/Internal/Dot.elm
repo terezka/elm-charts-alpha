@@ -38,10 +38,10 @@ default =
 
 {-| -}
 custom : Style -> Config data
-custom style =
+custom style_ =
   Config
-    { legend = \_ -> style
-    , individual = \_ -> style
+    { legend = \_ -> style_
+    , individual = \_ -> style_
     }
 
 
@@ -75,26 +75,26 @@ type alias SeriesConfig data =
 
 {-| -}
 series : Color.Color -> Shape -> String -> List data -> Series data
-series color shape label data =
-  Series (SeriesConfig color shape label data)
+series color_ shape label_ data_ =
+  Series (SeriesConfig color_ shape label_ data_)
 
 
 {-| -}
 label : Series data -> String
-label (Series series) =
-  series.label
+label (Series series_) =
+  series_.label
 
 
 {-| -}
 data : Series data -> List data
-data (Series series) =
-  series.data
+data (Series series_) =
+  series_.data
 
 
 {-| -}
 color : Series data -> Color.Color
-color (Series series) =
-  series.color
+color (Series series_) =
+  series_.color
 
 
 
@@ -154,8 +154,8 @@ disconnected radius border =
 
 {-| -}
 aura : Float -> Int -> Float -> Style
-aura radius aura opacity =
-  style radius (Aura aura opacity)
+aura radius aura_ opacity =
+  style radius (Aura aura_ opacity)
 
 
 {-| -}
@@ -184,10 +184,10 @@ viewForLines arguments point =
     (Config config) =
       arguments.dotsConfig
 
-    (Style style) =
+    (Style style_) =
       config.individual point.source
   in
-  viewShape arguments.system style arguments.shape arguments.color point.coordinates
+  viewShape arguments.system style_ arguments.shape arguments.color point.coordinates
 
 
 {-| -}
@@ -197,26 +197,26 @@ viewForScatter arguments point =
     (Config config) =
       arguments.dotsConfig
 
-    (Style style) =
+    (Style style_) =
       config.individual point.source -- TODO
 
     shape =
       arguments.shape
 
-    color =
+    color_ =
       arguments.color
   in
-  viewShape arguments.system style shape color point.coordinates
+  viewShape arguments.system style_ shape color_ point.coordinates
 
 
 {-| -}
 viewSample : Config data -> Maybe Shape -> Color.Color -> Coordinate.System -> List (Point.Point element data) -> Coordinate.Point -> Svg msg
-viewSample (Config config) shape color system data =
+viewSample (Config config) shape color_ system data_ =
   let
-    (Style style) =
-       config.legend (List.map .source data)
+    (Style style_) =
+       config.legend (List.map .source data_)
   in
-  viewShape system style shape color
+  viewShape system style_ shape color_
 
 
 
@@ -225,7 +225,7 @@ viewSample (Config config) shape color system data =
 
 {-| -}
 viewMany : Config data -> Coordinate.System -> List (Series data) -> List (List (Point.Point Element.Dot data)) -> Svg.Svg msg
-viewMany dotsConfig system series points =
+viewMany dotsConfig system series__ points =
   let
     view_ series_ points_ =
       let visible = List.filter (Coordinate.isWithinRange system << .coordinates) points_
@@ -239,13 +239,13 @@ viewMany dotsConfig system series points =
         , color = series_.color
         }
   in
-  Svg.g 
-    [ Attributes.class "chart__groups" ] 
-    (List.map2 view_ series points)
+  Svg.g
+    [ Attributes.class "chart__groups" ]
+    (List.map2 view_ series__ points)
 
 
 viewSampleForScatter : Config data -> Coordinate.System -> Series data -> List (Point.Point Element.Dot data) -> Float -> Svg.Svg msg
-viewSampleForScatter dotsConfig system (Series series) data sampleWidth =
+viewSampleForScatter dotsConfig system (Series series_) data_ sampleWidth =
   let
     dotPosition =
       Coordinate.Point (sampleWidth / 2) 0
@@ -253,7 +253,7 @@ viewSampleForScatter dotsConfig system (Series series) data sampleWidth =
   in
   Svg.g
     [ Attributes.class "chart__sample" ]
-    [ viewSample dotsConfig (Just series.shape) series.color system data dotPosition
+    [ viewSample dotsConfig (Just series_.shape) series_.color system data_ dotPosition
     ]
 
 
@@ -262,7 +262,7 @@ viewSampleForScatter dotsConfig system (Series series) data sampleWidth =
 
 
 viewShape : Coordinate.System -> StyleConfig -> Maybe Shape -> Color.Color -> Point -> Svg msg
-viewShape system { radius, variety } shape color point =
+viewShape system { radius, variety } shape color_ point =
   let size = 2 * pi * radius
       pointSvg = toSvg system point
       view shape_ =
@@ -276,80 +276,80 @@ viewShape system { radius, variety } shape color point =
   in
   case shape of
     Nothing  -> Svg.text ""
-    Just shape_ -> view shape_ [] variety color size pointSvg
+    Just shape_ -> view shape_ [] variety color_ size pointSvg
 
 
 viewCircle : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
-viewCircle events variety color area point =
+viewCircle events variety color_ area point =
   let
     radius = sqrt (area / pi)
     attributes =
-      [ Attributes.cx (toString point.x)
-      , Attributes.cy (toString point.y)
-      , Attributes.r (toString radius)
+      [ Attributes.cx (String.fromFloat point.x)
+      , Attributes.cy (String.fromFloat point.y)
+      , Attributes.r (String.fromFloat radius)
       ]
   in
-  Svg.circle (events ++ attributes ++ varietyAttributes color variety) []
+  Svg.circle (events ++ attributes ++ varietyAttributes color_ variety) []
 
 
 viewTriangle : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
-viewTriangle events variety color area point =
+viewTriangle events variety color_ area point =
   let
     attributes =
       [ Attributes.d (pathTriangle area point) ]
   in
-  Svg.path (events ++ attributes ++ varietyAttributes color variety) []
+  Svg.path (events ++ attributes ++ varietyAttributes color_ variety) []
 
 
 viewSquare : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
-viewSquare events variety color area point =
+viewSquare events variety color_ area point =
   let
     side = sqrt area
     attributes =
-      [ Attributes.x <| toString (point.x - side / 2)
-      , Attributes.y <| toString (point.y - side / 2)
-      , Attributes.width <| toString side
-      , Attributes.height <| toString side
+      [ Attributes.x <| String.fromFloat (point.x - side / 2)
+      , Attributes.y <| String.fromFloat (point.y - side / 2)
+      , Attributes.width <| String.fromFloat side
+      , Attributes.height <| String.fromFloat side
       ]
   in
-  Svg.rect (events ++ attributes ++ varietyAttributes color variety) []
+  Svg.rect (events ++ attributes ++ varietyAttributes color_ variety) []
 
 
 viewDiamond : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
-viewDiamond events variety color area point =
+viewDiamond events variety color_ area point =
   let
     side = sqrt area
-    rotation = "rotate(45 " ++ toString point.x ++ " " ++ toString point.y  ++ ")"
+    rotation = "rotate(45 " ++ String.fromFloat point.x ++ " " ++ String.fromFloat point.y  ++ ")"
     attributes =
-      [ Attributes.x <| toString (point.x - side / 2)
-      , Attributes.y <| toString (point.y - side / 2)
-      , Attributes.width <| toString side
-      , Attributes.height <| toString side
+      [ Attributes.x <| String.fromFloat (point.x - side / 2)
+      , Attributes.y <| String.fromFloat (point.y - side / 2)
+      , Attributes.width <| String.fromFloat side
+      , Attributes.height <| String.fromFloat side
       , Attributes.transform rotation
       ]
   in
-  Svg.rect (events ++ attributes ++ varietyAttributes color variety) []
+  Svg.rect (events ++ attributes ++ varietyAttributes color_ variety) []
 
 
 viewPlus : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
-viewPlus events variety color area point =
+viewPlus events variety color_ area point =
   let
     attributes =
       [ Attributes.d (pathPlus area point) ]
   in
-  Svg.path (events ++ attributes ++ varietyAttributes color variety) []
+  Svg.path (events ++ attributes ++ varietyAttributes color_ variety) []
 
 
 viewCross : List (Svg.Attribute msg) -> Variety -> Color.Color -> Float -> Coordinate.Point -> Svg msg
-viewCross events variety color area point =
+viewCross events variety color_ area point =
   let
-    rotation = "rotate(45 " ++ toString point.x ++ " " ++ toString point.y  ++ ")"
+    rotation = "rotate(45 " ++ String.fromFloat point.x ++ " " ++ String.fromFloat point.y  ++ ")"
     attributes =
       [ Attributes.d (pathPlus area point)
       , Attributes.transform rotation
       ]
   in
-  Svg.path (events ++ attributes ++ varietyAttributes color variety) []
+  Svg.path (events ++ attributes ++ varietyAttributes color_ variety) []
 
 
 
@@ -364,9 +364,9 @@ pathTriangle area point =
     fromMiddle = height - tan (degrees 30) * side / 2
 
     commands =
-      [ "M" ++ toString point.x ++ " " ++ toString (point.y - fromMiddle)
-      , "l" ++ toString (-side / 2) ++ " " ++ toString height
-      , "h" ++ toString side
+      [ "M" ++ String.fromFloat point.x ++ " " ++ String.fromFloat (point.y - fromMiddle)
+      , "l" ++ String.fromFloat (-side / 2) ++ " " ++ String.fromFloat height
+      , "h" ++ String.fromFloat side
       , "z"
       ]
   in
@@ -381,20 +381,20 @@ pathPlus area point =
     r6 = side / 2
 
     commands =
-      [ "M" ++ toString (point.x - r6) ++ " " ++ toString (point.y - r3 - r6)
-      , "v" ++ toString r3
-      , "h" ++ toString -r3
-      , "v" ++ toString r3
-      , "h" ++ toString r3
-      , "v" ++ toString r3
-      , "h" ++ toString r3
-      , "v" ++ toString -r3
-      , "h" ++ toString r3
-      , "v" ++ toString -r3
-      , "h" ++ toString -r3
-      , "v" ++ toString -r3
-      , "h" ++ toString -r3
-      , "v" ++ toString r3
+      [ "M" ++ String.fromFloat (point.x - r6) ++ " " ++ String.fromFloat (point.y - r3 - r6)
+      , "v" ++ String.fromFloat r3
+      , "h" ++ String.fromFloat -r3
+      , "v" ++ String.fromFloat r3
+      , "h" ++ String.fromFloat r3
+      , "v" ++ String.fromFloat r3
+      , "h" ++ String.fromFloat r3
+      , "v" ++ String.fromFloat -r3
+      , "h" ++ String.fromFloat r3
+      , "v" ++ String.fromFloat -r3
+      , "h" ++ String.fromFloat -r3
+      , "v" ++ String.fromFloat -r3
+      , "h" ++ String.fromFloat -r3
+      , "v" ++ String.fromFloat r3
       ]
   in
   String.join " " commands
@@ -405,26 +405,26 @@ pathPlus area point =
 
 
 varietyAttributes : Color.Color -> Variety -> List (Svg.Attribute msg)
-varietyAttributes color variety =
+varietyAttributes color_ variety =
   case variety of
     Empty width ->
-      [ Attributes.stroke (Color.Convert.colorToCssRgba color)
-      , Attributes.strokeWidth (toString width)
+      [ Attributes.stroke (Color.Convert.colorToCssRgba color_)
+      , Attributes.strokeWidth (String.fromInt width)
       , Attributes.fill "white"
       ]
 
     Aura width opacity ->
-      [ Attributes.stroke (Color.Convert.colorToCssRgba color)
-      , Attributes.strokeWidth (toString width)
-      , Attributes.strokeOpacity (toString opacity)
-      , Attributes.fill (Color.Convert.colorToCssRgba color)
+      [ Attributes.stroke (Color.Convert.colorToCssRgba color_)
+      , Attributes.strokeWidth (String.fromInt width)
+      , Attributes.strokeOpacity (String.fromFloat opacity)
+      , Attributes.fill (Color.Convert.colorToCssRgba color_)
       ]
 
     Disconnected width ->
       [ Attributes.stroke "white"
-      , Attributes.strokeWidth (toString width)
-      , Attributes.fill (Color.Convert.colorToCssRgba color)
+      , Attributes.strokeWidth (String.fromInt width)
+      , Attributes.fill (Color.Convert.colorToCssRgba color_)
       ]
 
     Full ->
-      [ Attributes.fill (Color.Convert.colorToCssRgba color) ]
+      [ Attributes.fill (Color.Convert.colorToCssRgba color_) ]

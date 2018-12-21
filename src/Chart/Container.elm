@@ -5,11 +5,6 @@ module Chart.Container exposing
 
 {-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 @docs Config, default, spaced, styled, responsive
 
@@ -132,7 +127,7 @@ type alias Margin =
   - **attributesHtml** are attributes which will go on it's internal `div` container.
   - **attributesSvg** are attributes which will go on it's internal `svg` container.
   - **size** is the width and height.
-  - **responsive** determines whether your chart scales to the size of the parent div. 
+  - **responsive** determines whether your chart scales to the size of the parent div.
   - **margin** adds margin around the chart.
   - **id** sets the id. It's important for this to be unique for every chart
     on your page.

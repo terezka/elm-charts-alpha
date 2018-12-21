@@ -1,4 +1,4 @@
-module BarsExample exposing (main)
+module BlockExample exposing (main)
 
 
 import Html
@@ -6,43 +6,54 @@ import Html.Attributes
 import Svg exposing (Svg, Attribute, g, text, text_)
 import Svg.Attributes exposing (style)
 import BarChart
-import BarChart.Axis.Independent as IndependentAxis
-import BarChart.Axis.Dependent as DependentAxis
-import BarChart.Orientation as Orientation
-import BarChart.Legends as Legends
-import BarChart.Events as Events
-import BarChart.Container as Container
-import BarChart.Grid as Grid
-import BarChart.Bars as Bars
-import BarChart.Junk as Junk
-import BarChart.Pattern as Pattern
-import BarChart.Colors as Colors
+import Chart.Axis.Independent as IndependentAxis
+import Chart.Axis.Dependent as DependentAxis
+import Chart.Orientation as Orientation
+import Chart.Legends as Legends
+import Chart.Events as Events
+import Chart.Container as Container
+import Chart.Grid as Grid
+import Chart.Block as Block
+import Chart.Junk as Junk
+import Chart.Pattern as Pattern
+import Chart.Colors as Colors
+import Chart.Axis.Unit
 import Color
 
 
 main : Html.Html msg
 main =
   Html.div
-    [ Html.Attributes.style [ ( "font-family", "monospace" ) ] ]
+    [ Html.Attributes.style "font-family" "monospace" ]
     [ chart ]
 
 
 chart : Html.Html msg
 chart =
-  BarChart.view -- TODO should pixels be defined elsewhere due to orientation switching?
-    { independentAxis = IndependentAxis.default 700 "gender" .label -- TODO customize label?
-    , dependentAxis = DependentAxis.default 400 "magnesium"
-    , container = Container.default "bar-chart"
+  BarChart.viewCustom -- TODO should pixels be defined elsewhere due to orientation switching?
+    { independentAxis = IndependentAxis.default "gender" .label -- TODO customize label?
+    , dependentAxis = DependentAxis.default  "magnesium" Chart.Axis.Unit.dollars
+    , container = Container.default "bar-chart" 700 400
     , orientation = Orientation.default
     , legends = Legends.default
     , events = Events.default
     , grid = Grid.default
-    , bars = Bars.default
+    , block = Block.default
     , junk = Junk.default
     , pattern = Pattern.default
     }
-    [ BarChart.barWithExpectation (always (Color.rgba 255 204 128 0.8)) [] .magnesium .expected
-    , BarChart.bar (always (Color.rgba 128 203 196 0.6)) [] .heartattacks
+    [ BarChart.series
+        { title = "Serie 1"
+        , style = BarChart.solid Colors.blue
+        , variable = .magnesium
+        , pattern = False
+        }
+    , BarChart.series
+        { title = "Serie 2"
+        , style = BarChart.solid Colors.pink
+        , variable = .heartattacks
+        , pattern = False
+        }
     ]
     data
 

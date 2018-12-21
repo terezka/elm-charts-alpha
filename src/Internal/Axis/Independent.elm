@@ -36,12 +36,12 @@ type alias Properties data msg =
 
 {-| -}
 default : String -> (data -> String) -> Config data msg
-default title label =
+default title_ label_ =
   custom
-    { title = Title.default title
+    { title = Title.default title_
     , range = Range.default
     , line = AxisLine.default
-    , label = label
+    , label = label_
     , tick = Tick.float
     }
 
@@ -59,8 +59,8 @@ custom =
 {-| -}
 title : Config data msg -> String
 title (Config config) =
-  let title = Title.config config.title in
-  title.text
+  let title_ = Title.config config.title in
+  title_.text
 
 
 {-| -}
@@ -82,10 +82,10 @@ toNormal (Config config) data =
       indexTicks =
         Ticks.custom <| \_ _ _ ->
           let position = Tuple.first >> Utils.add 1 >> toFloat
-              label = Tuple.second >> config.label
-              indexedData = List.indexedMap (,) data
+              label_ = Tuple.second >> config.label
+              indexedData = List.indexedMap Tuple.pair data
           in
-          [ Ticks.set config.tick label position indexedData ]
+          [ Ticks.set config.tick label_ position indexedData ]
   in
   Axis.custom
     { title = config.title

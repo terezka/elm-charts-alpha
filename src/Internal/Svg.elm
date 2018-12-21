@@ -42,17 +42,17 @@ withinChartArea { id } =
 square : Bool -> Float -> Int -> Color.Color -> Color.Color -> Svg msg
 square pattern width radius fill border =
   let
-    dependent = 
+    dependent =
       Utils.addIf pattern [ Attributes.mask "url(#mask-stripe)" ]
 
     default =
-      [ Attributes.y (toString (-width / 2))
-      , Attributes.width (toString width)
-      , Attributes.height (toString width)
+      [ Attributes.y (String.fromFloat (-width / 2))
+      , Attributes.width (String.fromFloat width)
+      , Attributes.height (String.fromFloat width)
       , Attributes.fill (Color.Convert.colorToCssRgba fill)
       , Attributes.stroke (Color.Convert.colorToCssRgba border)
-      , Attributes.rx (toString radius)
-      , Attributes.ry (toString radius)
+      , Attributes.rx (String.fromInt radius)
+      , Attributes.ry (String.fromInt radius)
       ]
 
     attributes =
@@ -69,9 +69,9 @@ square pattern width radius fill border =
 circle_ : Float -> Color.Color -> Point -> Svg msg
 circle_ radius color point =
   Svg.circle
-    [ Attributes.cx (toString point.x)
-    , Attributes.cy (toString point.y)
-    , Attributes.r (toString radius)
+    [ Attributes.cx (String.fromFloat point.x)
+    , Attributes.cy (String.fromFloat point.y)
+    , Attributes.r (String.fromFloat radius)
     , Attributes.fill (Color.Convert.colorToCssRgba color)
     ]
     []
@@ -170,10 +170,10 @@ xTick height userAttributes y x system =
       concat
         [ Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray) ]
         userAttributes
-        [ Attributes.x1 <| toString (toSvgX system x)
-        , Attributes.x2 <| toString (toSvgX system x)
-        , Attributes.y1 <| toString (toSvgY system y)
-        , Attributes.y2 <| toString (toSvgY system y + height)
+        [ Attributes.x1 <| String.fromFloat (toSvgX system x)
+        , Attributes.x2 <| String.fromFloat (toSvgX system x)
+        , Attributes.y1 <| String.fromFloat (toSvgY system y)
+        , Attributes.y2 <| String.fromFloat (toSvgY system y + height)
         ]
   in
     Svg.line attributes []
@@ -189,10 +189,10 @@ yTick width userAttributes x y system =
         , Attributes.stroke (Color.Convert.colorToCssRgba Colors.gray)
         ]
         userAttributes
-        [ Attributes.x1 <| toString (toSvgX system x)
-        , Attributes.x2 <| toString (toSvgX system x - width)
-        , Attributes.y1 <| toString (toSvgY system y)
-        , Attributes.y2 <| toString (toSvgY system y)
+        [ Attributes.x1 <| String.fromFloat (toSvgX system x)
+        , Attributes.x2 <| String.fromFloat (toSvgX system x - width)
+        , Attributes.y1 <| String.fromFloat (toSvgY system y)
+        , Attributes.y2 <| String.fromFloat (toSvgY system y)
         ]
   in
     Svg.line attributes []
@@ -225,9 +225,9 @@ type Anchor
 
 {-| -}
 anchor : Anchor -> Svg.Attribute msg
-anchor anchor =
+anchor anchor_ =
   let anchorString =
-        case anchor of
+        case anchor_ of
           Start -> "start"
           Middle -> "middle"
           End -> "end"
@@ -264,7 +264,7 @@ transform translations =
       toPosition translations
   in
   Attributes.transform <|
-    "translate(" ++ toString x ++ ", " ++ toString y ++ ")"
+    "translate(" ++ String.fromFloat x ++ ", " ++ String.fromFloat y ++ ")"
 
 
 toPosition : List Transfrom -> Transfrom
@@ -298,7 +298,7 @@ horizontalBarCommands system borderRadius width { x, y }  =
         ry = scaleDataY system b
     in
     if x < 0 then
-      
+
       [ Move <| Point 0 (y - w / 2)
       , Line <| Point (x + rx) (y - w / 2)
       , Arc b b -45 False True <| Point x (y - w / 2 + ry)
@@ -333,7 +333,7 @@ verticalBarCommands system borderRadius width { x, y }  =
         ry = scaleDataY system b
     in
     if y < 0 then
-      
+
       [ Move <| Point (x - w / 2) 0
       , Line <| Point (x - w / 2) (y + ry)
       , Arc b b -45 False False <| Point (x - w / 2 + rx) y

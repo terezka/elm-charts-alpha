@@ -6,9 +6,11 @@ module Internal.Axis.Ticks exposing
   )
 
 
-import Internal.Axis.Tick as Tick
+import Chart.Axis.Tick as Tick
+import Internal.Axis.Tick
 import Internal.Axis.Values as Values
 import Internal.Coordinate as Coordinate
+import Time
 
 
 
@@ -36,64 +38,64 @@ defaultFloat =
         amount = defaultNumberOfTicks pixels data range
         values = Values.float (Values.around amount) smallest
     in
-    [ set Tick.float toString identity values ]
+    [ set Tick.float String.fromFloat identity values ]
 
 
 {-| -}
-defaultTime : Config msg
-defaultTime =
+defaultTime : Time.Zone -> Config msg
+defaultTime zone =
   custom <| \pixels data range ->
     let smallest = Coordinate.smallestRange data range
         amount = defaultNumberOfTicks pixels data range
-        values = Values.time amount smallest
+        values = Values.time zone amount smallest
     in
-    [ set Tick.time Tick.format .timestamp values ]
+    [ set Tick.time Tick.format (.timestamp >> Time.toMillis zone >> toFloat) values ]
 
 
 {-| -}
-full : Config msg 
+full : Config msg
 full =
   custom <| \pixels data range ->
     let largest = Coordinate.largestRange data range
         amount = pixels // 90
         values = Values.float (Values.around amount) largest
     in
-    [ set Tick.float toString identity values ]
+    [ set Tick.float String.fromFloat identity values ]
 
 
 {-| -}
 int : Int -> Config msg
 int n =
   custom <| \pixels data axis ->
-    [ set Tick.int toString toFloat (Values.int (Values.around n) axis) ]
+    [ set Tick.int String.fromInt toFloat (Values.int (Values.around n) axis) ]
 
 
 {-| -}
-time : Int -> Config msg
-time n =
+time : Time.Zone -> Int -> Config msg
+time zone n =
    custom <| \pixels data axis ->
-    [ set Tick.time Tick.format .timestamp (Values.time n axis) ]
+    [ set Tick.time Tick.format (.timestamp >> Time.toMillis zone >> toFloat) (Values.time zone n axis) ]
 
 
 {-| -}
 float : Int -> Config msg
 float n =
    custom <| \pixels data axis ->
-    [ set Tick.float toString identity (Values.float (Values.around n) axis) ]
+    [ set Tick.float String.fromFloat identity (Values.float (Values.around n) axis) ]
 
 
 {-| -}
 intCustom : Tick.Config msg -> Int -> Config msg
 intCustom tick n =
   custom <| \pixels data axis ->
-    [ set tick toString identity (Values.float (Values.around n) axis) ]
+    [ set tick String.fromFloat identity (Values.float (Values.around n) axis) ]
 
 
 {-| -}
 floatCustom : Tick.Config msg -> Int -> Config msg
 floatCustom tick n =
   custom <| \pixels data axis ->
-    [ set tick toString identity (Values.float (Values.around n) axis) ]
+    [ set tick String.fromFloat identity (Values.float (Values.around n) axis) ]
 
 
 {-| -}
@@ -105,8 +107,8 @@ custom =
 {-| -}
 set : Tick.Config msg -> (data -> String) -> (data -> Float) -> List data -> Set msg
 set config format position data =
-  let ticks d = ( position d, format d ) in
-  Set config (List.map ticks data)
+  let ticks_ d = ( position d, format d ) in
+  Set config (List.map ticks_ data)
 
 
 
@@ -124,8 +126,8 @@ type alias Compiled msg =
 {-| -}
 ticks : Int -> Coordinate.Range -> Coordinate.Range -> Config msg -> List (Compiled msg)
 ticks pixels dataRange range (Config toSets) =
-  let eachTick config ( p, l ) = Compiled p l (Tick.properties config)
-      eachSet (Set config ticks) = List.map (eachTick config) ticks
+  let eachTick config ( p, l ) = Compiled p l (Internal.Axis.Tick.properties config)
+      eachSet (Set config ticks_) = List.map (eachTick config) ticks_
   in
   List.map eachSet (toSets pixels dataRange range)
     |> List.concat

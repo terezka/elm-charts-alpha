@@ -66,9 +66,9 @@ spaced id width height top right bottom left =
 
 {-| -}
 styled : String -> Int -> Int -> List ( String, String ) -> Config msg
-styled id width height styles =
+styled id width height styles_ =
   custom
-    { attributesHtml = [ Html.Attributes.style styles ]
+    { attributesHtml = List.map (\(p, v) -> Html.Attributes.style p v) styles_
     , attributesSvg = []
     , responsive = False
     , size = Size width height
@@ -102,19 +102,18 @@ custom =
 
 {-| -}
 properties : (Properties msg -> a) -> Config msg -> a
-properties f (Config properties) =
-  f properties
+properties f (Config properties_) =
+  f properties_
 
 
 {-| -}
-styles : Config msg -> Coordinate.System -> Html.Attribute msg
-styles (Config properties) system =
-  Html.Attributes.style <|
-    if properties.responsive then
-      [ ( "position", "relative" ) ]
+styles : Config msg -> Coordinate.System -> List (Html.Attribute msg)
+styles (Config properties_) system =
+    if properties_.responsive then
+      [ Html.Attributes.style "position" "relative" ]
     else
-      [ ( "position", "relative" )
-      , ( "width", toString system.frame.size.width ++ "px" )
-      , ( "height", toString system.frame.size.height ++ "px" )
+      [ Html.Attributes.style "position" "relative"
+      , Html.Attributes.style "width" (String.fromFloat system.frame.size.width ++ "px")
+      , Html.Attributes.style "height" (String.fromFloat system.frame.size.height ++ "px")
       ]
 

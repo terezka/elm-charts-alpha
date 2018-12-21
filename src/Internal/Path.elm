@@ -80,8 +80,8 @@ toString command =
     Move p       -> "M" ++ point p
     Move_ ps     -> "M" ++ points ps
     Line p       -> "L" ++ point p
-    Horizontal x -> "H" ++ Basics.toString x
-    Vertical y   -> "V" ++ Basics.toString y
+    Horizontal x -> "H" ++ String.fromFloat x
+    Vertical y   -> "V" ++ String.fromFloat y
 
     CubicBeziers c1 c2 p    -> "C" ++ points [ c1, c2, p ]
     CubicBeziersShort c1 p  -> "Q" ++ points [ c1, p ]
@@ -90,9 +90,9 @@ toString command =
 
     Arc rx ry xAxisRotation largeArcFlag sweepFlag p ->
       "A" ++ join
-        [ Basics.toString rx
-        , Basics.toString ry
-        , Basics.toString xAxisRotation
+        [ String.fromFloat rx
+        , String.fromFloat ry
+        , String.fromInt xAxisRotation
         , bool largeArcFlag
         , bool sweepFlag
         , point p
@@ -145,15 +145,15 @@ join commands =
 
 
 point : Point -> String
-point { x, y } =
-  Basics.toString x ++ " " ++ Basics.toString y
+point point_ =
+  String.fromFloat point_.x ++ " " ++ String.fromFloat point_.y
 
 
 points : List Point -> String
-points points =
-  String.join "," (List.map point points)
+points points_ =
+  String.join "," (List.map point points_)
 
 
 bool : Bool -> String
-bool bool =
-  if bool then "1" else "0"
+bool bool_ =
+  if bool_ then "1" else "0"

@@ -1,22 +1,17 @@
 module Chart.Axis.Independent exposing (Config, default, custom)
 
-{-| 
+{-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 This is the configuration for the independent axis of a blocks chart.
 It is _not_ used for the dots or line charts.
 
 ## What are independent and dependent values?
-The values of an independent variable are chosen and often controlled by 
-the investigator, who then observes the effect of each independent variable 
-on a dependent variable. The dependent variable takes different values in 
-response to the values of the independent variable that are chosen by the 
-investigator. 
+The values of an independent variable are chosen and often controlled by
+the investigator, who then observes the effect of each independent variable
+on a dependent variable. The dependent variable takes different values in
+response to the values of the independent variable that are chosen by the
+investigator.
 
 ## Their role in blocks charts
 Blocks charts are for data where the independent variable is a discrete
@@ -24,7 +19,7 @@ variable. Imagine you have a chart where you plot countries against
 their GDP. In this case the countries are the discrete values.
 
 In a blocks chart where the blocks are vertical (a column chart),
-the independent axis is the x-axis. In a horizontal blocks chart 
+the independent axis is the x-axis. In a horizontal blocks chart
 (a bar chart), the independent axis is the y-axis.
 
 

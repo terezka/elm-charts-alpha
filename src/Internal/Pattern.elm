@@ -47,13 +47,13 @@ toDefs (Config config) =
   [ Svg.pattern
     [ Svg.Attributes.id "pattern-stripe"
     , Svg.Attributes.patternUnits "userSpaceOnUse"
-    , Svg.Attributes.width (toString space)
-    , Svg.Attributes.height (toString space)
+    , Svg.Attributes.width (String.fromInt space)
+    , Svg.Attributes.height (String.fromInt space)
     , Svg.Attributes.patternTransform "rotate(45)"
     ]
     [ Svg.rect
-        [ Svg.Attributes.width (toString config.stroke)
-        , Svg.Attributes.height (toString space)
+        [ Svg.Attributes.width (String.fromInt config.stroke)
+        , Svg.Attributes.height (String.fromInt space)
         , Svg.Attributes.transform "translate(0,0)"
         , Svg.Attributes.fill "white"
         ]

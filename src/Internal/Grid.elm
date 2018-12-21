@@ -50,8 +50,8 @@ lines =
 
 
 type alias Arguments msg =
-  { width : Int 
-  , height : Int 
+  { width : Int
+  , height : Int
   , xTicks : Ticks.Config msg
   , yTicks : Ticks.Config msg
   }
@@ -81,23 +81,23 @@ view args config system =
 viewDots : Coordinate.System -> List Float -> List Float -> Float -> Color.Color -> List (Svg.Svg msg)
 viewDots system verticals horizontals radius color =
   let
-    dots =
-      List.concatMap dots_ verticals
+    dots_ =
+      List.concatMap dots__ verticals
 
-    dots_ g =
+    dots__ g =
       List.map (dot g) horizontals
 
     dot x y =
       Coordinate.toSvg system (Coordinate.Point x y)
   in
-  List.map (Svg.circle_ radius color) dots
+  List.map (Svg.circle_ radius color) dots_
 
 
 viewLines : Coordinate.System -> List Float -> List Float -> Float -> Color.Color -> List (Svg.Svg msg)
 viewLines system verticals horizontals width color =
   let
     attributes =
-      [ Attributes.strokeWidth (toString width), Attributes.stroke (Color.Convert.colorToCssRgba color) ]
+      [ Attributes.strokeWidth (String.fromFloat width), Attributes.stroke (Color.Convert.colorToCssRgba color) ]
   in
   List.map (Svg.horizontalGrid attributes >> Utils.apply system) horizontals ++
   List.map (Svg.verticalGrid attributes >> Utils.apply system) verticals

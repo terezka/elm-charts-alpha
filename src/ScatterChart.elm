@@ -334,10 +334,10 @@ trying to visualize, it's best to leave it out!
 
 -}
 viewCustom : Config data msg -> List (Series data) -> Html.Html msg
-viewCustom config series =
+viewCustom config series_ =
   let
     -- Data
-    data = toDataPoints config series
+    data = toDataPoints config series_
     dataAll = List.concat data
 
     -- System
@@ -353,11 +353,12 @@ viewCustom config series =
       , config = config.legends
       , defaults = { width = 30, offsetY = 10 }
       , legends = \width ->
-          let legend series_ data =
-              { sample = Internal.Dot.viewSampleForScatter config.dots system series_ data width
-              , label = Internal.Dot.label series_
+          let
+            legend series__ data_ =
+              { sample = Internal.Dot.viewSampleForScatter config.dots system series__ data_ width
+              , label = Internal.Dot.label series__
               }
-          in List.map2 legend series data
+          in List.map2 legend series_ data
       }
   in
   Internal.Chart.view
@@ -365,12 +366,12 @@ viewCustom config series =
     , events = config.events
     , defs = []
     , grid = config.grid
-    , series = viewDots series data
+    , series = viewDots series_ data
     , intersection = config.intersection
     , horizontalAxis = config.x
     , verticalAxis = config.y
     , legends = viewLegends
-    , trends = Internal.Trend.view system config.trend series data
+    , trends = Internal.Trend.view system config.trend series_ data
     , junk =
         Internal.Junk.getLayers
           { orientation = Internal.Orientation.Vertical
@@ -392,25 +393,25 @@ viewCustom config series =
 
 
 toDataPoints : Config data msg -> List (Series data) -> List (List (Point.Point Element.Dot data))
-toDataPoints config series =
+toDataPoints config series_ =
   let
     x = Internal.Axis.variable config.x
     y = Internal.Axis.variable config.y
 
     data =
-      List.indexedMap eachSeries series
+      List.indexedMap eachSeries series_
 
-    eachSeries seriesIndex series =
-      let data = Internal.Dot.data series in
-      List.map (addPoint seriesIndex series) data
+    eachSeries seriesIndex series__ =
+      let data_ = Internal.Dot.data series__ in
+      List.map (addPoint seriesIndex series__) data_
 
-    addPoint seriesIndex series datum =
+    addPoint seriesIndex series__ datum =
       { source = datum
       , coordinates = Coordinate.Point (x datum) (y datum)
       , element =
           { element = Internal.Element.dot
-          , label = Internal.Dot.label series
-          , color = Internal.Dot.color series
+          , label = Internal.Dot.label series__
+          , color = Internal.Dot.color series__
           , independent = Internal.Axis.unit config.x (x datum)
           , dependent = Internal.Axis.unit config.y (y datum)
           , seriesIndex = seriesIndex

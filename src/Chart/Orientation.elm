@@ -1,14 +1,9 @@
 module Chart.Orientation exposing (Config, default, vertical, horizontal)
 
-{-| 
+{-|
 
-# WARNING! THIS IS AN ALPHA VERSION
 
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
-
-@docs Config, default, vertical, horizontal 
+@docs Config, default, vertical, horizontal
 
 -}
 

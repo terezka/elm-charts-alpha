@@ -50,8 +50,8 @@ default =
 
 {-| -}
 custom : Int -> Float -> Config
-custom border width =
-  Config (ConfigProps border width)
+custom border_ width_ =
+  Config (ConfigProps border_ width_)
 
 
 {-| -}
@@ -133,19 +133,19 @@ type alias StyleProps data =
 
 {-| -}
 solid : Color.Color -> Style data
-solid color =
+solid color_ =
   Style
-    { base = Colors.Style color color
-    , alternate = \_ _ -> Colors.Style color color
+    { base = Colors.Style color_ color_
+    , alternate = \_ _ -> Colors.Style color_ color_
     }
 
 
 {-| -}
 bordered : Color.Color -> Color.Color -> Style data
-bordered fill border =
+bordered fill_ border_ =
   Style
-    { base = Colors.Style fill border
-    , alternate = \_ _ -> Colors.Style fill border
+    { base = Colors.Style fill_ border_
+    , alternate = \_ _ -> Colors.Style fill_ border_
     }
 
 
@@ -188,9 +188,9 @@ width length scale system (Config config) countOfSeries countOfData =
   let widthUser = config.width
       widthMaxOrg = length system / countOfData - 5
       widthInSvg = Basics.min widthMaxOrg widthUser / countOfSeries
-      width = scale system widthInSvg
+      width_ = scale system widthInSvg
   in
-  width
+  width_
 
 
 
@@ -199,22 +199,22 @@ width length scale system (Config config) countOfSeries countOfData =
 
 {-| -}
 viewSeries : Coordinate.System -> Orientation.Config -> Config -> Width -> Series data -> Point.Point Element.Block data -> Svg.Svg msg
-viewSeries system orientation (Config config) width (Series series) point =
+viewSeries system orientation (Config config) width_ (Series series_) point =
   let
     viewBarWith toCommands toPoint =
       let
         (Style style) =
-          series.style
+          series_.style
 
         attributes =
           List.concat
-            [ Utils.addIf series.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
+            [ Utils.addIf series_.pattern [ Svg.Attributes.mask "url(#mask-stripe)" ]
             , Colors.attributes (style.alternate point.element.seriesIndex point.source)
             ]
       in
       Svg.g
         [ Svg.Attributes.class "chart__bar", Svg.Attributes.style "pointer-events: none;" ]
-        [ Path.view system attributes (toCommands system config.borderRadius width point.coordinates)
+        [ Path.view system attributes (toCommands system config.borderRadius width_ point.coordinates)
         ]
   in
   Orientation.chooses orientation

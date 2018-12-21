@@ -7,44 +7,33 @@ module Chart.Axis.Tick exposing
   )
 
 {-|
-
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
-
 @docs Config, int, float, time
-
 ## Special styles
 You can also make your own with `custom`!
 @docs long, gridless, labelless, opposite
-
 # Customiztion
 @docs custom, Properties, Direction, negative, positive
-
 # Time formatting
 @docs format, Time, Interval, Unit
-
 -}
 
 import Svg exposing (Svg, Attribute)
 import Internal.Axis.Tick as Tick
 import Internal.Svg as Svg
+import Time
+import DateFormat
 import Color
 
 
 
 {-| Used in the configuration in the `ticks` property of the
 options passed to `Axis.custom`.
-
     xAxisConfig : Axis.Config Data msg
     xAxisConfig =
       Axis.custom
         { ...
         , ticks = ticksConfig
         }
-
     ticksConfig : Ticks.Config msg
     ticksConfig =
       Ticks.intCustom 7 Tick.int
@@ -56,9 +45,7 @@ options passed to `Axis.custom`.
       -- or
       Ticks.floatCustom 7 customTick
       -- or ... you get it
-
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Tick/Example1.elm)._
-
 -}
 type alias Config msg =
   Tick.Config msg
@@ -108,28 +95,7 @@ long =
 -- TIME
 
 
-{-| You can format your tick label differently based on it's unit. This is
-the default formatting. There are lots of different packages to help you out
-with this. I ended up using two different! Maybe one day I'll get around to
-sending a pull request for week formatting in `Date.Format`..
-
-    format : Unit -> Tick.Time -> String
-    format unit tick =
-      let time = tick.timestamp
-          date = Date.fromTime time
-          format1 = Date.Format.format
-          format2 = Date.Extra.toFormattedString
-      in
-      case unit of
-        Millisecond -> time |> toString
-        Second      -> date |> format1 "%S"
-        Minute      -> date |> format1 "%M"
-        Hour        -> date |> format1 "%l%P"
-        Day         -> date |> format1 "%e"
-        Week        -> date |> format2 "'Week' w"
-        Month       -> date |> format1 "%b"
-        Year        -> date |> format1 "%Y"
-
+{-| You can format your tick label differently based on it's unit.
 -}
 type Unit
   = Millisecond
@@ -137,14 +103,12 @@ type Unit
   | Minute
   | Hour
   | Day
-  | Week
   | Month
   | Year
 
 
 
 {-| Explanation:
-
   - ** timestamp ** is the position where the tick goes on the axis.
   - ** isFirst ** is whether this is the first tick or not.
   - ** interval ** is the interval at which all the ticks are spaced.
@@ -152,10 +116,10 @@ type Unit
     than used in the interval. E.g. if the interval is 2 hours, then
     this will be a `Just Day` when the day changes. Useful if you
     want a different formatting for those ticks!
-
 -}
 type alias Time =
-  { timestamp : Float
+  { timestamp : Time.Posix
+  , zone : Time.Zone
   , isFirst : Bool
   , interval : Interval
   , change : Maybe Unit
@@ -184,10 +148,8 @@ time =
     }
 
 
-
 {-| This is the default formatting of the time type. Useful when you want to
 change other properties of your time tick, but won't bother with the formatting.
-
     tickConfig : Tick.Time -> Tick.Config msg
     tickConfig time =
       Tick.custom
@@ -200,11 +162,15 @@ change other properties of your time tick, but won't bother with the formatting.
         , label = Just <|
             Junk.label Color.blue (Tick.format time)
         }
-
 -}
 format : Time -> String
-format config =
-  Tick.format (toStandardTime config)
+format { zone, change, interval, timestamp, isFirst } =
+  if isFirst then
+    formatBold (nextUnit interval.unit) zone timestamp
+  else
+    case change of
+      Just change_ -> formatBold change_ zone timestamp
+      Nothing     -> formatNorm interval.unit zone timestamp
 
 
 
@@ -212,7 +178,6 @@ format config =
 
 
 {-| Explanation:
-
   - **position** is the position on the axis.
   - **color** is the color of the little line.
   - **width** is the width of the little line.
@@ -222,7 +187,6 @@ format config =
     is on the x-axis that means that positive means the tick points up,
     and negative points down.
   - **label** is the label. If set to `Nothing`, no label will be drawn.
-
 -}
 type alias Properties msg =
   { color : Color.Color
@@ -254,8 +218,7 @@ positive =
 
 
 {-| Make your own tick!
-
-    customTick : Tick.Config msg
+    customTick : Float -> Tick.Config msg
     customTick number =
       let
         color =
@@ -263,7 +226,6 @@ positive =
           if number < 50 then Colors.purple
           else if number < 70 then Colors.green
           else Colors.pinkLight
-
         label =
           Junk.label color (toString number)
       in
@@ -276,10 +238,7 @@ positive =
         , direction = Tick.positive
         , label = Just label
         }
-
-
 _See the full example [here](https://github.com/terezka/line-charts/blob/master/examples/Docs/Tick/Example1.elm)._
-
 -}
 custom : Properties msg -> Config msg
 custom =
@@ -287,28 +246,46 @@ custom =
 
 
 
--- UNIT CONVERSION
+-- INTERNAL
 
 
-toStandardTime :Time -> Tick.Time
-toStandardTime config =
-  { change = Maybe.map toStandardUnit config.change
-  , interval = Tick.Interval (toStandardUnit config.interval.unit) config.interval.multiple
-  , timestamp = config.timestamp
-  , isFirst = config.isFirst
-  }
+formatNorm : Unit -> Time.Zone -> Time.Posix -> String
+formatNorm unit =
+  let tokens =
+        case unit of
+          Millisecond -> [ DateFormat.millisecondNumber ]
+          Second      -> [ DateFormat.secondNumber ]
+          Minute      -> [ DateFormat.minuteFixed ]
+          Hour        -> [ DateFormat.hourNumber, DateFormat.amPmLowercase ]
+          Day         -> [ DateFormat.dayOfMonthSuffix ]
+          Month       -> [ DateFormat.monthNameAbbreviated ]
+          Year        -> [ DateFormat.yearNumber ]
+  in
+  DateFormat.format tokens
 
 
-toStandardUnit : Unit -> Tick.Unit
-toStandardUnit unit =
+formatBold : Unit -> Time.Zone -> Time.Posix -> String
+formatBold unit =
+  let tokens =
+        case unit of
+          Millisecond -> [ DateFormat.millisecondNumber ]
+          Second      -> [ DateFormat.secondNumber ]
+          Minute      -> [ DateFormat.minuteNumber ]
+          Hour        -> [ DateFormat.hourNumber, DateFormat.amPmLowercase ]
+          Day         -> [ DateFormat.dayOfWeekNameFull ]
+          Month       -> [ DateFormat.monthNameAbbreviated ]
+          Year        -> [ DateFormat.yearNumber ]
+  in
+  DateFormat.format tokens
+
+
+nextUnit : Unit -> Unit
+nextUnit unit =
   case unit of
-    Millisecond -> Tick.Millisecond
-    Second      -> Tick.Second
-    Minute      -> Tick.Minute
-    Hour        -> Tick.Hour
-    Day         -> Tick.Day
-    Week        -> Tick.Week
-    Month       -> Tick.Month
-    Year        -> Tick.Year
-
-
+    Millisecond -> Second
+    Second      -> Minute
+    Minute      -> Hour
+    Hour        -> Day
+    Day         -> Month
+    Month       -> Year
+    Year        -> Year

@@ -10,11 +10,6 @@ module Chart.Junk exposing
 
 {-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 Junk is a way to draw whatever you like in the chart. The name comes from
 [Edward Tufte's concept of "chart junk"](https://en.wikipedia.org/wiki/Chartjunk).
@@ -139,7 +134,7 @@ hoverDot hovered =
 
     Just (Internal.Events.Found hovered_) ->
       Junk.Config <| \args system ->
-        Junk.hover 
+        Junk.hover
           { line = False
           , position = { x = Just hovered_.coordinates.x, y = Just hovered_.coordinates.y }
           , offset = { x = 15, y = 0 }
@@ -160,13 +155,13 @@ hoverDots hovered =
 
     (Internal.Events.Found first) :: _ ->
       Junk.Config <| \args system ->
-        Junk.hover 
+        Junk.hover
           { line = True
           , position = { x = Just first.coordinates.x, y = Nothing }
           , offset = { x = 15, y = 0 }
           , title = ( Color.black, Utils.pair args.independent first.element.independent )
           , values =
-              let 
+              let
                 value (Internal.Events.Found one) =
                   ( one.element.color, one.element.label, one.element.dependent)
               in List.map value hovered
@@ -182,7 +177,7 @@ hoverBlock hovered =
 
     Just (Internal.Events.Found hovered_) ->
       Junk.Config <| \args system ->
-        Junk.hover 
+        Junk.hover
           { line = False
           , position = { x = Just hovered_.coordinates.x, y = Just hovered_.coordinates.y }
           , offset =
@@ -191,7 +186,7 @@ hoverBlock hovered =
                 , vertical = { x = 15 + Coordinate.scaleSvgX system args.offsetOne, y = 0 }
                 }
           , title = ( hovered_.element.color, hovered_.element.label )
-          , values = 
+          , values =
               [ ( Color.black, args.independent, hovered_.element.independent )
               , ( Color.black, args.dependent, hovered_.element.dependent )
               ]
@@ -207,26 +202,26 @@ hoverBlocks hovered =
 
     (Internal.Events.Found first) :: _ ->
       Junk.Config <| \args system ->
-        let 
-            ( position, offset ) =
+        let
+            ( position, offset_ ) =
               Internal.Orientation.chooses args.orientation
-                { horizontal = 
+                { horizontal =
                     ( { x = Nothing, y = Just (toFloat (round first.coordinates.y)) }
-                    , { x = 0, y = -15 - Coordinate.scaleSvgY system args.offsetMany } 
+                    , { x = 0, y = -15 - Coordinate.scaleSvgY system args.offsetMany }
                     )
-                , vertical = 
+                , vertical =
                     ( { x = Just (toFloat (round first.coordinates.x)), y = Nothing }
                     , { x = 15 + Coordinate.scaleSvgX system args.offsetMany, y = 0 }
                     )
                 }
 
-            value (Internal.Events.Found one) = 
+            value (Internal.Events.Found one) =
               ( one.element.color, one.element.label, one.element.dependent )
         in
-        Junk.hover 
+        Junk.hover
           { line = False
           , position = position
-          , offset = offset
+          , offset = offset_
           , title = ( Color.black, Utils.pair args.independent first.element.independent )
           , values = List.map value hovered
           }

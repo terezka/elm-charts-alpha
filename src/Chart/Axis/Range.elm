@@ -2,11 +2,6 @@ module Chart.Axis.Range exposing (Config, default, padded, window, custom)
 
 {-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 ## Axis ranges and data ranges
 

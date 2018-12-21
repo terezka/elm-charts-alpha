@@ -1,13 +1,8 @@
 module Chart.Pattern exposing (Config, default, custom)
 
 
-{-| 
+{-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 
 This configures the striped pattern of the block, if patterned.

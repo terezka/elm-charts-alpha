@@ -84,17 +84,17 @@ onMouseLeave msg =
 {-| -}
 on : String -> (a -> msg) -> Decoder element data a -> Event element data msg
 on event toMsg decoder =
-  Event False <| \orientation data system ->
-    Svg.Events.on event (toJsonDecoder orientation data system (map toMsg decoder))
+  Event False <| \orientation data_ system ->
+    let defaultOptions = Options False False False in
+    Svg.Events.custom event (toJsonDecoder defaultOptions orientation data_ system (map toMsg decoder))
 
 
 {-| -}
 onWithOptions : String -> Options -> (a -> msg) -> Decoder element data a -> Event element data msg
 onWithOptions event options toMsg decoder =
-  Event options.catchOutsideChart <| \orientation data system ->
-    Html.Events.onWithOptions event
-      (Html.Events.Options options.stopPropagation options.preventDefault)
-      (toJsonDecoder orientation data system (map toMsg decoder))
+  Event options.catchOutsideChart <| \orientation data_ system ->
+    Html.Events.custom event
+      (toJsonDecoder options orientation data_ system (map toMsg decoder))
 
 
 {-| -}
@@ -110,20 +110,20 @@ type alias Options =
 
 {-| -}
 toChartAttributes : Orientation.Config -> List (Point.Point element data) -> System -> Config element data msg -> List (Svg.Attribute msg)
-toChartAttributes orientation data system (Config events) =
+toChartAttributes orientation data_ system (Config events) =
   let
     order (Event outside event) =
-      if outside then Nothing else Just (event orientation data system)
+      if outside then Nothing else Just (event orientation data_ system)
   in
   List.filterMap order events
 
 
 {-| -}
 toContainerAttributes : Orientation.Config -> List (Point.Point element data) -> System -> Config element data msg -> List (Svg.Attribute msg)
-toContainerAttributes orientation data system (Config events) =
+toContainerAttributes orientation data_ system (Config events) =
   let
     order (Event outside event) =
-      if outside then Just (event orientation data system) else Nothing
+      if outside then Just (event orientation data_ system) else Nothing
   in
   List.filterMap order events
 
@@ -198,15 +198,15 @@ getNearestBlock =
 getNearestBlocks : Decoder Element.Block data (List (Found Element.Block data))
 getNearestBlocks =
   Decoder <| \orientation points system searchedSvg ->
-    let searched = Coordinate.toData system searchedSvg 
-        isEqual = 
+    let searched = Coordinate.toData system searchedSvg
+        isEqual =
           Orientation.chooses orientation
             { horizontal = \point -> round point.coordinates.y == round searched.y
             , vertical = \point -> round point.coordinates.x == round searched.x
             }
     in
     points
-      |> List.filter isEqual 
+      |> List.filter isEqual
       |> List.map Found
 
 
@@ -239,7 +239,7 @@ getWithinX radius =
 
 
 
--- FOUND 
+-- FOUND
 
 
 {-| -}
@@ -403,8 +403,8 @@ withinRadiusY system radius searched dot =
 
 
 {-| -}
-toJsonDecoder : Orientation.Config -> List (Point.Point element data) -> System -> Decoder element data msg -> Json.Decoder msg
-toJsonDecoder orientation data system (Decoder decoder) =
+toJsonDecoder : Options -> Orientation.Config -> List (Point.Point element data) -> System -> Decoder element data msg -> Json.Decoder { message : msg, stopPropagation : Bool, preventDefault : Bool}
+toJsonDecoder options orientation data_ system (Decoder decoder) =
   let
     handle mouseX mouseY { left, top, height, width } =
       let
@@ -429,13 +429,19 @@ toJsonDecoder orientation data system (Decoder decoder) =
         x = (mouseX - left)
         y = (mouseY - top)
       in
-      decoder orientation data newSystem <| Point x y
+      decoder orientation data_ newSystem <| Point x y
+
+    withOptions msg =
+      { message = msg
+      , stopPropagation = options.stopPropagation
+      , preventDefault = options.preventDefault
+      }
   in
-  Json.map3 handle
+  Json.map3 (handle)
     (Json.field "pageX" Json.float) -- TODO
     (Json.field "pageY" Json.float)
     (DOM.target position)
-
+    |> Json.map withOptions
 
 position : Json.Decoder DOM.Rectangle
 position =

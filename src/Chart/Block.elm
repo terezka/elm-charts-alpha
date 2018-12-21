@@ -1,16 +1,11 @@
 module Chart.Block exposing (Config, default, custom)
 
-{-| 
+{-|
 
-# WARNING! THIS IS AN ALPHA VERSION
-
-*IT HAS MISSING, MISLEADING AND PLAIN WRONG DOCUMENTATION.*
-*IT HAS BUGS AND AWKWARDNESS.*
-*USE AT OWN RISK.*
 
 This configured general traits of all your blocks.
 
-@docs Config, default, custom 
+@docs Config, default, custom
 
 -}
 
@@ -47,7 +42,7 @@ default =
 
 _Note:_ Be aware that changing the width can meddle with how the
 numbers in your chart are perceived, as people commonly evaluate
-base of the _area_ of the block, rather than only the height. 
+base of the _area_ of the block, rather than only the height.
 
 -}
 custom : Int -> Float -> Config
