@@ -1,4 +1,4 @@
-# Line Charts
+# Charts
 
 
 # WARNING! THIS IS AN ALPHA VERSION
