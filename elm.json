@@ -5,9 +5,9 @@
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [
-        "Dots",
-        "Blocks",
-        "Lines",
+        "ScatterChart",
+        "LineChart",
+        "BarChart",
         "Chart.Axis",
         "Chart.Axis.Independent",
         "Chart.Axis.Dependent",

@@ -30,9 +30,9 @@ hit whole days, weeks, months or hours, minutes, and seconds.
 @docs custom
 -}
 
-import LineChart.Axis.Tick as Tick
+import Chart.Axis.Tick as Tick
 import Internal.Axis.Values as Values
-import LineChart.Coordinate as Coordinate
+import Chart.Coordinate as Coordinate
 import Time
 
 
