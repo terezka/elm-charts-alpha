@@ -592,7 +592,6 @@ addBelows alldata dataBelowAll =
               if Internal.Element.isReal datumBelow.element then
                 iterate datum0 (datum1 :: data) dataBelow (add datumBelow datum0 :: result)
               else
-                let breakdata = makeFake datum0 in
                 iterate datum0 (datum1 :: data) dataBelow (add datumBelow datum0 :: result)
             -- if not, try the next
             else iterate datum1 data (datumBelow :: dataBelow) result
@@ -619,12 +618,7 @@ addBelows alldata dataBelowAll =
 
 setY : Point.Point Element.LineDot data -> Float -> Point.Point Element.LineDot data
 setY datum y =
-  makeFake { datum | coordinates = Coordinate.Point datum.coordinates.x y }
-
-
-makeFake : Point.Point Element.LineDot data -> Point.Point Element.LineDot data
-makeFake point =
-  { point | element = Internal.Element.makeFake point.element }
+  { datum | coordinates = Coordinate.Point datum.coordinates.x y }
 
 
 toSystem : Config data msg -> List (Point.Point Element.LineDot data) -> Coordinate.System
