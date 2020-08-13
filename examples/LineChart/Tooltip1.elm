@@ -1,9 +1,10 @@
 module Examples.LineChart.Tooltip1 exposing (main)
 
+import Browser
 import Html exposing (Html, div, h1, node, p, text)
 import Html.Attributes exposing (class)
 import Svg exposing (Attribute, Svg, g, text_, tspan)
-import Lines
+import LineChart as Lines
 import Chart.Junk as Junk exposing (..)
 import Chart.Dot as Dot
 import Chart.Container as Container
@@ -23,10 +24,10 @@ import Color
 
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-  Html.beginnerProgram
-    { model = init
+  Browser.sandbox
+    { init = init
     , update = update
     , view = view
     }

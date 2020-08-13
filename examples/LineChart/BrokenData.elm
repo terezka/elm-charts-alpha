@@ -4,25 +4,24 @@ module BrokenData exposing (main)
 import Html
 import Html.Attributes exposing (class)
 import LineChart
-import LineChart.Dots as Dots
-import LineChart as LineChart
-import LineChart.Junk as Junk exposing (..)
-import LineChart.Colors as Colors
-import LineChart.Dots as Dots
-import LineChart.Container as Container
-import LineChart.Interpolation as Interpolation
-import LineChart.Axis.Intersection as Intersection
-import LineChart.Axis.Title as Title
-import LineChart.Axis.Ticks as Ticks
-import LineChart.Axis.Range as Range
-import LineChart.Axis.Line as AxisLine
-import LineChart.Axis as Axis
-import LineChart.Legends as Legends
-import LineChart.Line as Line
-import LineChart.Events as Events
-import LineChart.Grid as Grid
-import LineChart.Legends as Legends
-import LineChart.Area as Area
+import Chart.Dot as Dots
+import Chart.Junk as Junk exposing (..)
+import Chart.Colors as Colors
+import Chart.Container as Container
+import Chart.Interpolation as Interpolation
+import Chart.Axis.Intersection as Intersection
+import Chart.Axis.Title as Title
+import Chart.Axis.Ticks as Ticks
+import Chart.Axis.Range as Range
+import Chart.Axis.Unit as Unit
+import Chart.Axis.Line as AxisLine
+import Chart.Axis as Axis
+import Chart.Legends as Legends
+import Chart.Line as Line
+import Chart.Events as Events
+import Chart.Grid as Grid
+import Chart.Legends as Legends
+import Chart.Area as Area
 
 
 main : Html.Html msg
@@ -38,21 +37,21 @@ chart =
       { y =
         Axis.custom
           { title = Title.default "Weight"
+          , unit = Unit.kilograms
           , variable = .income -- or .weight -- as opposed to `Just << .height`
-          , pixels = 450
           , range = Range.default
-          , axisLine = AxisLine.default
+          , line = AxisLine.default
           , ticks = Ticks.default
           }
-      , x = Axis.default 700 "Age" .age
-      , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
+      , x = Axis.default "Age" Unit.years .age
+      , container = Container.styled "line-chart-1" 700 400 [ ( "font-family", "monospace" ) ]
       , interpolation = Interpolation.linear
       , intersection = Intersection.default
       , legends = Legends.default
       , events = Events.default
       , junk = Junk.default
       , grid = Grid.default
-      , area = Area.default
+      , area = Area.stacked 0.5
       , line = Line.default
       , dots = Dots.default
       }

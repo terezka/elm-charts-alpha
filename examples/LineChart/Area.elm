@@ -4,21 +4,20 @@ module CustomLines exposing (main)
 import Html
 import Html.Attributes exposing (class)
 import LineChart
-import LineChart.Dots as Dots
-import LineChart as LineChart
-import LineChart.Junk as Junk exposing (..)
-import LineChart.Dots as Dots
-import LineChart.Colors as Colors
-import LineChart.Container as Container
-import LineChart.Interpolation as Interpolation
-import LineChart.Axis.Intersection as Intersection
-import LineChart.Axis as Axis
-import LineChart.Legends as Legends
-import LineChart.Line as Line
-import LineChart.Events as Events
-import LineChart.Grid as Grid
-import LineChart.Legends as Legends
-import LineChart.Area as Area
+import Chart.Junk as Junk exposing (..)
+import Chart.Dot as Dots
+import Chart.Colors as Colors
+import Chart.Container as Container
+import Chart.Interpolation as Interpolation
+import Chart.Axis.Intersection as Intersection
+import Chart.Axis as Axis
+import Chart.Legends as Legends
+import Chart.Line as Line
+import Chart.Events as Events
+import Chart.Grid as Grid
+import Chart.Legends as Legends
+import Chart.Area as Area
+import Chart.Axis.Unit as Unit
 import Color
 
 
@@ -32,9 +31,9 @@ main =
 chart : Html.Html msg
 chart =
   LineChart.viewCustom
-    { y = Axis.default 450 "Weight" .weight
-    , x = Axis.default 700 "Age" .age
-    , container = Container.styled "line-chart-1" [ ( "font-family", "monospace" ) ]
+    { y = Axis.default "Weight" Unit.kilograms .weight
+    , x = Axis.default "Age" Unit.years .age
+    , container = Container.styled "line-chart-1" 1000 1000 [ ( "font-family", "monospace" ) ]
     , interpolation = Interpolation.default
     , intersection = Intersection.default
     , legends = Legends.default
@@ -69,26 +68,26 @@ type alias Info =
 
 alice : List Info
 alice =
-  [ Info 10 34 1.34 0
-  , Info 16 42 1.62 3000
-  , Info 25 75 1.73 25000
-  , Info 43 83 1.75 40000
+  [ Info 10 20 1.34 (Just 0)
+  , Info 15 30 1.62 3000
+  , Info 25 20 1.73 25000
+  , Info 40 10 1.75 40000
   ]
 
 
 bobby : List Info
 bobby =
-  [ Info 10 38 1.32 0
-  , Info 17 69 1.75 2000
-  , Info 25 75 1.87 32000
-  , Info 43 77 1.87 52000
+  [ Info 10 20 1.32 0
+  , Info 15 30 1.75 2000
+  , Info 25 20 1.87 32000
+  , Info 40 10 1.87 52000
   ]
 
 
 chuck : List Info
 chuck =
-  [ Info 10 42 1.35 0
-  , Info 15 72 1.72 1800
-  , Info 25 89 1.83 85000
-  , Info 43 95 1.84 120000
+  [ Info 10 20 1.35 0
+  , Info 15 30 1.72 1800
+  , Info 25 20 1.83 85000
+  , Info 40 10 1.84 120000
   ]
