@@ -1,48 +1,28 @@
-module Internal.Interpolation exposing (Config(..), toCommands)
+module Internal.Interpolation exposing (linear, monotone, stepped)
 
-{-| -}
 
-import Internal.Path as Path exposing (..)
-import Internal.Coordinate exposing (..)
-import Internal.Point as Point
-import Internal.Element as Element
+import Internal.Commands exposing (..)
 
 
 
 {-| -}
-type Config
-  = Linear
-  | Monotone
-  | Stepped
-
-
-{-| -}
-toCommands : Config -> List (List (Point.Point element data), Maybe (Point.Point element data)) -> List (List Command)
-toCommands interpolation point =
-  let
-    points =
-      List.map (Tuple.first >> List.map .coordinates)
-
-    pointsSections =
-      List.map (Tuple.mapFirst (List.map .coordinates) >> Tuple.mapSecond (Maybe.map .coordinates))
-  in
-  case interpolation of
-    Linear   -> linear (points point)
-    Monotone -> monotone (points point)
-    Stepped  -> stepped (pointsSections point)
+type alias Point =
+  { x : Float
+  , y : Float
+  }
 
 
 
--- INTERNAL / LINEAR
+-- LINEAR INTERPOLATION
 
 
 linear : List (List Point) -> List (List Command)
 linear =
-  List.map (List.map Line)
+  List.map (List.map (\{ x, y } -> Line x y))
 
 
 
--- INTERNAL / MONOTONE
+-- MONOTONE INTERPOLATION
 
 
 monotone : List (List Point) -> List (List Command)
@@ -57,7 +37,7 @@ monotoneSection points ( tangent, acc ) =
     ( t0, commands ) =
       case points of
         p0 :: rest ->
-          monotonePart (p0 :: rest) ( tangent, [ Line p0 ] )
+          monotonePart (p0 :: rest) ( tangent, [ Line p0.x p0.y ] )
 
         [] ->
           ( tangent, [] )
@@ -92,13 +72,13 @@ monotonePart points ( tangent, commands ) =
     ( First, [ p0, p1 ] ) ->
       let t1 = slope3 p0 p1 p1 in
       ( Previous t1
-      , commands ++ [ monotoneCurve p0 p1 t1 t1, Line p1 ]
+      , commands ++ [ monotoneCurve p0 p1 t1 t1, Line p1.x p1.y ]
       )
 
     ( Previous t0, [ p0, p1 ] ) ->
       let t1 = slope3 p0 p1 p1 in
       ( Previous t1
-      , commands ++ [ monotoneCurve p0 p1 t0 t1, Line p1 ]
+      , commands ++ [ monotoneCurve p0 p1 t0 t1, Line p1.x p1.y ]
       )
 
     ( _, _ ) ->
@@ -114,9 +94,12 @@ monotoneCurve point0 point1 tangent0 tangent1 =
       (point1.x - point0.x) / 3
   in
   CubicBeziers
-      { x = point0.x + dx, y = point0.y + dx * tangent0 }
-      { x = point1.x - dx, y = point1.y - dx * tangent1 }
-      point1
+      (point0.x + dx)
+      (point0.y + dx * tangent0)
+      (point1.x - dx)
+      (point1.y - dx * tangent1)
+      point1.x
+      point1.y
 
 
 {-| Calculate the slopes of the tangents (Hermite-type interpolation) based on
@@ -163,25 +146,19 @@ sign x =
 
 
 
--- INTERNAL / STEPPED
+-- STEPPED
 
 
-stepped : List (List Point, Maybe Point) -> List (List Command)
+stepped : List (List Point) -> List (List Command)
 stepped sections =
   let
     expand result section =
       case section of
-        (a :: b :: rest, broken)  -> expand (result ++ after a b) (b :: rest, broken)
-        (last :: [], Just broken) -> result ++ [ Point broken.x last.y ]
-        (last :: [], Nothing)     -> result
-        ([], _)                   -> result
+        a :: b :: rest -> expand (result ++ after a b) (b :: rest)
+        last :: []     -> result
+        []             -> result
   in
-  List.map (expand [] >> List.map Line) sections
-
-
-fakeLast : Point -> Point -> Point
-fakeLast last0 last1 =
-  Point (last1.x + last1.x - last0.x) last1.y
+  List.map (expand [] >> List.map (\{ x, y } -> Line x y)) sections
 
 
 after : Point -> Point -> List Point
