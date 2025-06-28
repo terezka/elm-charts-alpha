@@ -58,7 +58,7 @@ mapData func (I.Rendered (x, xs) _) =
 
 type Remodel a b =
   Remodel
-    (Plane -> b -> Position)
+    (b -> Position)
     (List a -> List b)
 
 
@@ -78,25 +78,25 @@ andThen (Remodel toPos2 func2) (Remodel toPos1 func1) =
 
 any : Remodel (I.One data I.Any) (I.One data I.Any)
 any =
-  Remodel I.getPosition identity
+  Remodel I.getTopLevelPosition identity
 
 
 dots : Remodel (I.One data I.Any) (I.One data S.Dot)
 dots =
-  let centerPosition plane item =
-        fromPoint (I.getPosition plane item |> Coord.center)
+  let centerPosition item =
+        fromPoint (I.getTopLevelPosition item |> Coord.center)
   in
   Remodel centerPosition (List.filterMap I.isDot)
 
 
 bars : Remodel (I.One data I.Any) (I.One data S.Bar)
 bars =
-  Remodel I.getPosition (List.filterMap I.isBar)
+  Remodel I.getTopLevelPosition (List.filterMap I.isBar)
 
 
 real : Remodel (I.One data config) (I.One data config)
 real =
-  Remodel I.getPosition (List.filter I.isReal)
+  Remodel I.getTopLevelPosition (List.filter I.isReal)
 
 
 named : List String -> Remodel (I.One data config) (I.One data config)
@@ -104,7 +104,7 @@ named names =
   let onlyAcceptedNames i =
         List.member (I.getName i) names
   in
-  Remodel I.getPosition (List.filter onlyAcceptedNames)
+  Remodel I.getTopLevelPosition (List.filter onlyAcceptedNames)
 
 
 
@@ -113,8 +113,9 @@ named names =
 
 sameX : Remodel (I.One data x) (Many (I.One data x))
 sameX =
-  let fullVertialPosition plane item =
-        I.getPosition plane item
+  let fullVertialPosition item =
+        let plane = I.getTopLevelPlane item in
+        I.getTopLevelPosition item
           |> \pos -> { pos | y1 = plane.y.min, y2 = plane.y.max }
   in
   Remodel fullVertialPosition <|
@@ -182,17 +183,25 @@ groupingHelp { shared, equality, edits } items =
 
 
 editLimits : (x -> Position -> Position) -> Many x -> Many x
-editLimits edit (I.Rendered ( x, xs ) rendering) =
-  I.Rendered ( x, xs ) { rendering | limits = edit x rendering.limits }
+editLimits edit (I.Rendered ( x, xs ) item) =
+  I.Rendered ( x, xs ) { item | limits = edit x item.limits } -- TODO
 
 
 toGroup : I.Rendered x -> List (I.Rendered x) -> Many (I.Rendered x)
 toGroup first rest =
-  let all = first :: rest in
+  let all = first :: rest 
+      limits = Coord.foldPosition I.getTopLevelLimits all
+      position = Coord.foldPosition I.getTopLevelPosition all
+      plane = I.getTopLevelPlane first
+  in
   I.Rendered ( first, rest )
-    { limits = Coord.foldPosition I.getLimits all
-    , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) all
-    , render = \plane _ -> S.g [ SA.class "elm-charts__group" ] (List.map (I.render plane) all)
+    { limits = limits
+    , position = position
+    , localPlane = plane
+    , limitsTop = limits
+    , positionTop = position
+    , planeTop = plane
+    , render = \() -> S.g [ SA.class "elm-charts__group" ] (List.map I.render all)
     , tooltip = \c -> [ H.table [] (List.concatMap I.tooltip all) ]
     }
 

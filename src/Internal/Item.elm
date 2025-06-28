@@ -1,9 +1,10 @@
 module Internal.Item exposing 
   ( Rendered(..), One, Any(..)
-  , render, tooltip, getPosition, getLimits
+  , render, tooltip, getPosition, getPositionIn, getLimits, getLimitsIn
   , getColor, getName, getDatum, getX1, getX2, getY, isReal
   , generalize, map, isDot, isBar, getX, getTooltipValue, getSize, isSame, filterMap
   , getIdentification
+  , getLocalPlane, covert, getTopLevelLimits, getTopLevelPosition, getTopLevelPlane
   )
 
 
@@ -17,7 +18,7 @@ import Html as H exposing (Html)
 import Html.Attributes as HA
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
-import Internal.Coordinates as Coord exposing (Point, Position, Plane)
+import Internal.Coordinates as Coord exposing (Point, Limits, Position, Plane)
 import Dict exposing (Dict)
 import Internal.Property as P exposing (Property)
 import Internal.Svg as S
@@ -27,9 +28,13 @@ import Internal.Property exposing (Identification)
 
 type Rendered meta =
   Rendered meta
-    { limits : Position
-    , toPosition : Plane -> Position
-    , render : Plane -> Position -> Svg Never
+    { limits : Limits         -- Local scale limits
+    , position : Position     -- Local scale position
+    , localPlane : Plane      -- Local scale plane
+    , limitsTop : Limits      -- Top level scale limits
+    , positionTop : Position  -- Top level scale position
+    , planeTop : Plane        -- Top level scale plane
+    , render : () -> Svg Never
     , tooltip : () -> List (Html Never)
     }
 
@@ -63,9 +68,9 @@ type Any
 
 
 {-| -}
-render : Plane -> Rendered x -> Svg Never
-render plane (Rendered _ item) =
-  item.render plane (item.toPosition plane)
+render : Rendered x -> Svg Never
+render (Rendered _ item) =
+  item.render ()
 
 
 {-| -}
@@ -75,15 +80,66 @@ tooltip (Rendered _ item) =
 
 
 {-| -}
-getPosition : Plane -> Rendered x -> Position
-getPosition plane (Rendered _ item) =
-  item.toPosition plane
+getPosition : Rendered x -> Position
+getPosition (Rendered _ item) =
+  item.position
 
 
 {-| -}
-getLimits : Rendered x -> Position
+getTopLevelPosition : Rendered x -> Position
+getTopLevelPosition (Rendered _ item) =
+  item.positionTop
+
+
+{-| -}
+getTopLevelLimits : Rendered x -> Limits
+getTopLevelLimits (Rendered _ item) =
+  item.limitsTop
+
+
+{-| -}
+getTopLevelPlane : Rendered x -> Plane
+getTopLevelPlane (Rendered _ item) =
+  item.planeTop
+
+
+{-| -}
+getPositionIn : Plane -> Rendered x -> Position
+getPositionIn plane (Rendered _ item) =
+  Coord.convertPos plane item.localPlane item.position
+
+
+{-| -}
+getLimits : Rendered x -> Limits
 getLimits (Rendered _ item) =
   item.limits
+
+
+{-| -}
+getLimitsIn : Plane -> Rendered x -> Position
+getLimitsIn plane (Rendered _ item) =
+  Coord.convertPos plane item.localPlane item.limits
+
+
+{-| -}
+getLocalPlane : Rendered x -> Plane
+getLocalPlane (Rendered _ item) =
+  item.localPlane
+
+
+{-| -}
+covert : Plane -> Rendered x -> Rendered x
+covert plane (Rendered meta item) =
+  Rendered meta
+    { limits = Coord.convertPos plane item.localPlane item.limits
+    , position = Coord.convertPos plane item.localPlane item.position
+    , localPlane = plane
+    , limitsTop = item.limitsTop
+    , positionTop = item.positionTop
+    , planeTop = item.planeTop
+    , render = item.render
+    , tooltip = item.tooltip
+    }
 
 
 
@@ -217,7 +273,7 @@ generalize : One data x -> One data Any
 generalize (Rendered meta item) =
   Rendered
     { presentation = meta.toAny meta.presentation
-      , color = meta.color
+    , color = meta.color
     , datum = meta.datum
     , x1 = meta.x1
     , x2 = meta.x2

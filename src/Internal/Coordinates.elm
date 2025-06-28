@@ -14,6 +14,9 @@ type alias Position =
   , y2 : Float
   }
 
+type alias Limits =
+  Position
+
 
 {-| -}
 center : Position -> Point
@@ -172,7 +175,41 @@ toId plane =
 
 
 
--- TRANSLATION
+-- TRANSLATION (ONE PLANE TO ANOTHER)
+
+
+{-| -}
+convertPos : Plane -> Plane -> Position -> Position
+convertPos topLevel plane pos =
+  { x1 = convertX topLevel plane pos.x1
+  , x2 = convertX topLevel plane pos.x2
+  , y1 = convertY topLevel plane pos.y1
+  , y2 = convertY topLevel plane pos.y2
+  }
+
+
+{-| -}
+convertPoint : Plane -> Plane -> Point -> Point
+convertPoint topLevel plane pos =
+  { x = convertX topLevel plane pos.x
+  , y = convertY topLevel plane pos.y
+  }
+
+
+{-| -}
+convertX : Plane -> Plane -> Float -> Float
+convertX topLevel plane x =
+  topLevel.x.min + (range topLevel.x) * ((x - plane.x.min) / (range plane.x))
+
+
+{-| -}
+convertY : Plane -> Plane -> Float -> Float
+convertY topLevel plane y =
+  topLevel.y.min + (range topLevel.y) * ((y - plane.y.min) / (range plane.y))
+
+
+
+-- TRANSLATION (SVG / CARTESIAN)
 
 
 {-| For scaling a cartesian value to a SVG value. Note that this will _not_
@@ -239,6 +276,19 @@ toCartesianY plane value =
     then scaleCartesianY plane (value - plane.y.marginMin) + plane.y.min
     else range plane.y - scaleCartesianY plane (value - plane.y.marginMin) + plane.y.min
 
+
+
+-- FOR EVENT HANDLER
+
+
+{-| Height/width can change be different if chart is places to fit inside box.
+
+Note that this does not currently do any attempt to make up for a change in
+chart ratio.
+-}
+scaleRadius : Plane -> Plane -> Float -> Float
+scaleRadius old new radius =
+  radius * (innerWidth new / innerWidth old)
 
 
 -- INTERNAL HELPERS

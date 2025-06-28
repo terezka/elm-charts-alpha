@@ -17,8 +17,8 @@ view model =
     [ C.xLabels []
     , C.yLabels [ CA.withGrid ]
     , C.series .x
-        [ C.interpolated .y [  ] []
-        , C.interpolated .z [  ] []
+        [ C.interpolated .y [] []
+        , C.interpolated .z [] []
         ]
         data
     ]
@@ -87,8 +87,8 @@ smallCode =
     [ C.xLabels []
     , C.yLabels [ CA.withGrid ]
     , C.series .x
-        [ C.interpolated .y [  ] []
-        , C.interpolated .z [  ] []
+        [ C.interpolated .y [] []
+        , C.interpolated .z [] []
         ]
         data
     ]
@@ -112,8 +112,8 @@ view model =
     [ C.xLabels []
     , C.yLabels [ CA.withGrid ]
     , C.series .x
-        [ C.interpolated .y [  ] []
-        , C.interpolated .z [  ] []
+        [ C.interpolated .y [] []
+        , C.interpolated .z [] []
         ]
         data
     ]

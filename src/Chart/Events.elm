@@ -1,7 +1,7 @@
 module Chart.Events exposing
   ( Attribute, Event
   , onMouseMove, onMouseLeave, onMouseUp, onMouseDown, onClick, onDoubleClick, on
-  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getWithin, getWithinX, getOffset
+  , Decoder, Point, getCoords, getSvgCoords, getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin, getNearestAndNearby, getOffset, getCustom
   , map, map2, map3, map4
   )
 
@@ -14,7 +14,7 @@ module Chart.Events exposing
 
 ## Decoders
 @docs Decoder, Point
-@docs getNearest, getNearestX, getWithin, getWithinX
+@docs getNearest, getNearestX, getNearestWithin, getNearestWithinX, getAllWithin
 @docs getCoords, getSvgCoords, getOffset
 @docs map, map2, map3, map4
 
@@ -161,6 +161,19 @@ getOffset =
   IE.getOffset
 
 
+{-| Using the list of chart items, then top level scale, and the event point, produce
+your own event decoder.
+
+Note that this has two planes. The first is the plane as calculated from
+configuration and data. The second is the plane with adjusted height
+and width as gathered from JS event. See Internal.Svg.decoder.
+
+-}
+getCustom : (List (I.One data I.Any) -> Plane -> Plane -> Point -> msg) -> Decoder data msg
+getCustom =
+  IE.getCustom
+
+
 
 {-| Decode to get the nearest item to the event. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
@@ -213,29 +226,62 @@ getNearest =
   IE.getNearest
 
 
+{-| Find the nearest item and collect all other items around that item within the specified radius.
+Use the `Remodel` functions in `Chart.Item` to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestAndNearby 10 CI.dots)
+
+-}
+getNearestAndNearby : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result), List (I.Item result))
+getNearestAndNearby =
+  IE.getNearestAndNearby
+
+
 {-| Decode to get the nearest item within certain radius to the event. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
 
+    CE.onMouseMove OnHover (CE.getNearestWithin 10 CI.dots)
+
 -}
-getWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
-getWithin =
-  IE.getWithin
+getNearestWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getNearestWithin =
+  IE.getNearestWithin
 
 
 {-| Like `getNearest`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestX CI.dots)
+
+Note: This use to return just one item unless coordinates were identical. This has been updated to
+return all items with same x coordinates as the closest item found.
+
 -}
 getNearestX : I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
 getNearestX =
   IE.getNearestX
 
 
-{-| Like `getWithin`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
+{-| Like `getNearestWithin`, but only takes x coordiante into account. Use the `Remodel` functions in `Chart.Item`
 to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getNearestWithinX 10 CI.dots)
+
 -}
-getWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
-getWithinX =
-  IE.getWithinX
+getNearestWithinX : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getNearestWithinX =
+  IE.getNearestWithinX
+
+
+{-| Find all items within the specified radius. Use the `Remodel` functions in `Chart.Item`
+to filter down what items or groups of items you will be searching for.
+
+    CE.onMouseMove OnHover (CE.getAllWithin 10 CI.dots)
+
+-}
+getAllWithin : Float -> I.Remodel (I.One data I.Any) (I.Item result) -> Decoder data (List (I.Item result))
+getAllWithin =
+  IE.getAllWithin
 
 
 

@@ -46,8 +46,8 @@ view model =
     , C.yLabels [ CA.withGrid, CA.pinned .min ]
     , C.series .x
         [ C.stacked
-          [ C.interpolated .p [  ] [ CA.circle ]
-          , C.interpolated .q [  ] [ CA.circle ]
+          [ C.interpolated .p [] [ CA.circle ]
+          , C.interpolated .q [] [ CA.circle ]
           ]
         ]
         data

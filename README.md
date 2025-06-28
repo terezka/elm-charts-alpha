@@ -1,8 +1,8 @@
-# Elm Charts Alpha
+-e # Elm Charts Alpha
 
-This is the alpha version of elm-charts. Use at own risk. Links may be wrong.
+This is the alpha version of elm-charts. Use at own risk.
 
--------------
+-e -------------
 
 # elm-charts
 

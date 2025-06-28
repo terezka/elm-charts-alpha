@@ -4,7 +4,7 @@ import Html as H exposing (Html)
 import Html.Attributes as HA
 import Svg as S exposing (Svg)
 import Svg.Attributes as SA
-import Internal.Coordinates as Coord exposing (Point, Position, Plane)
+import Internal.Coordinates as Coord exposing (Point, Position, Limits, Plane)
 import Dict exposing (Dict)
 import Internal.Property as P exposing (Property(..))
 import Chart.Attributes as CA
@@ -41,37 +41,51 @@ defaultBars =
   }
 
 
-toBarSeries : Int -> List (CA.Attribute (Bars data)) -> List (Property data () S.Bar) -> List data -> List (M.Many (I.One data S.Bar))
+toBarSeries : Int -> List (CA.Attribute (Bars data)) -> List (Property data () S.Bar) -> List data -> ( Int, List Limits, Plane -> Plane -> List (M.Many (I.One data I.Any)) )
 toBarSeries elementIndex barsAttrs properties data =
   let barsConfig = Helpers.apply barsAttrs defaultBars
       numOfStacks = if barsConfig.grouped then toFloat (List.length properties) else 1
 
-      forEachStackSeriesConfig bins stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, items ) =
-        let seriesItems =
-              case stackSeriesConfig of 
-                NotStacked barSeriesConfig ->
-                  [ forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex 1 0 barSeriesConfig ]
+      forEachStackSeriesConfig bins stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, (limits, items) ) =
+        let ( newLimits, seriesItems ) =
+              List.unzip <|
+                case stackSeriesConfig of 
+                  NotStacked barSeriesConfig ->
+                    [ forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex 1 0 barSeriesConfig ]
 
-                Stacked barSeriesConfigs ->
-                  let numOfBarsInStack = List.length barSeriesConfigs in
-                  List.indexedMap (forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack) barSeriesConfigs
+                  Stacked barSeriesConfigs ->
+                    let numOfBarsInStack = List.length barSeriesConfigs in
+                    List.indexedMap (forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack) barSeriesConfigs
         in 
         ( absoluteIndex + List.length seriesItems
         , stackSeriesConfigIndex + 1
-        , items ++ List.filterMap identity seriesItems
+        , ( limits ++ List.concat newLimits
+          , \topLevel localPlane -> items topLevel localPlane ++ List.filterMap identity (List.map (\i -> i topLevel localPlane) seriesItems)
+          )
         )
 
       forEachBarSeriesConfig bins absoluteIndex stackSeriesConfigIndex numOfBarsInStack barSeriesConfigIndex barSeriesConfig =
         let absoluteIndexNew = absoluteIndex + barSeriesConfigIndex
-            items = List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig) bins 
+            (limits, toBarItems) = List.unzip <| List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig) bins 
         in
-        Helpers.withFirst items <| \first rest ->
-          I.Rendered ( first, rest )
-            { limits = Coord.foldPosition I.getLimits items
-            , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) items
-            , render = \plane _ -> S.g [ SA.class "elm-charts__series" ] (List.map (I.render plane) items)
-            , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip items) ]
-            }
+        ( limits
+        , \topLevel localPlane -> 
+            let barItems = List.map (\i -> i topLevel localPlane) toBarItems in
+            Helpers.withFirst barItems <| \first rest ->
+              let groupLimits = Coord.foldPosition I.getLimits barItems
+                  groupPosition = Coord.foldPosition I.getPosition barItems
+              in
+              I.Rendered ( first, rest )
+                { limits = groupLimits
+                , position = groupPosition
+                , localPlane = localPlane
+                , limitsTop = Coord.convertPos topLevel localPlane groupLimits
+                , positionTop = Coord.convertPos topLevel localPlane groupPosition
+                , planeTop = topLevel
+                , render = \() -> S.g [ SA.class "elm-charts__series" ] (List.map I.render barItems)
+                , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip barItems) ]
+                }
+        )
 
       forEachDataPoint absoluteIndex stackSeriesConfigIndex barSeriesConfigIndex numOfBarsInStack barSeriesConfig dataIndex bin =
         let identification =
@@ -113,34 +127,49 @@ toBarSeries elementIndex barsAttrs properties data =
               Helpers.apply (basicAttributes ++ barSeriesConfig.presentation ++ barSeriesConfig.variation identification bin.datum) S.defaultBar
                 |> updateColorIfGradientIsSet defaultColor
                 |> updateBorder defaultColor
+
+            limits =
+              { x1 = start, x2 = end, y1 = min y1 y2, y2 = max y1 y2 }
+
+            position =
+              { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
         in
-        I.Rendered
-          { presentation = barPresentationConfig
-          , color = barPresentationConfig.color
-          , datum = bin.datum
-          , x1 = start
-          , x2 = end
-          , y = Maybe.withDefault 0 y
-          , isReal = y /= Nothing
-          , identification = identification
-          , name = barSeriesConfig.tooltipName
-          , tooltipText = barSeriesConfig.tooltipText bin.datum
-          , toAny = I.Bar
-          }
-          { limits = { x1 = x1, x2 = x2, y1 = min y1 y2, y2 = max y1 y2 }
-          , toPosition = \_ -> { x1 = x1, x2 = x2, y1 = y1, y2 = y2 }
-          , render = \plane position -> S.bar plane barPresentationConfig position
-          , tooltip = \() -> 
-              [ tooltipRow 
-                  barPresentationConfig.color 
-                  (toDefaultName identification barSeriesConfig.tooltipName) 
-                  (barSeriesConfig.tooltipText bin.datum) 
-              ]
-          }
+        ( limits 
+        , \topLevel localPlane -> 
+            I.Rendered
+              { presentation = I.Bar barPresentationConfig
+              , color = barPresentationConfig.color
+              , datum = bin.datum
+              , x1 = start
+              , x2 = end
+              , y = Maybe.withDefault 0 y
+              , isReal = y /= Nothing
+              , identification = identification
+              , name = barSeriesConfig.tooltipName
+              , tooltipText = barSeriesConfig.tooltipText bin.datum
+              , toAny = identity
+              }
+              { limits = limits
+              , position = position
+              , localPlane = localPlane
+              , limitsTop = Coord.convertPos topLevel localPlane limits
+              , positionTop = Coord.convertPos topLevel localPlane position
+              , planeTop = topLevel
+              , render = \() -> 
+                  S.bar localPlane barPresentationConfig position
+              , tooltip = \() -> 
+                  [ tooltipRow 
+                      barPresentationConfig.color 
+                      (toDefaultName identification barSeriesConfig.tooltipName) 
+                      (barSeriesConfig.tooltipText bin.datum) 
+                  ]
+              }
+        )
+        
   in
   Helpers.withSurround data (toBin barsConfig) |> \bins ->
-    List.foldl (forEachStackSeriesConfig bins) ( elementIndex, 0, [] ) properties
-      |> (\(_, _, items) -> items)
+    List.foldl (forEachStackSeriesConfig bins) ( elementIndex, 0, ([], \_ _ -> []) ) properties
+    |> (\(newElementIndex, _, (limits,items)) -> ( newElementIndex, limits, items ) )
 
 
 toBin : Bars data -> Int -> Maybe data -> data -> Maybe data -> { datum : data, start : Float, end : Float }
@@ -223,20 +252,23 @@ updateBorder defaultColor product =
 
 
 {-| -}
-toDotSeries : Int -> (data -> Float) -> List (Property data S.Interpolation S.Dot) -> List data -> List (M.Many (I.One data S.Dot))
+toDotSeries : Int -> (data -> Float) -> List (Property data S.Interpolation S.Dot) -> List data -> ( Int, List Limits, Plane -> Plane -> List (M.Many (I.One data I.Any)) )
 toDotSeries elementIndex toX properties data =
-  let forEachStackSeriesConfig stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, items ) =
-        let lineItems =
-              case stackSeriesConfig of 
-                NotStacked lineSeriesConfig ->
-                  [ forEachLine False absoluteIndex stackSeriesConfigIndex 0 lineSeriesConfig ]
+  let forEachStackSeriesConfig stackSeriesConfig ( absoluteIndex, stackSeriesConfigIndex, ( limits, items ) ) =
+        let ( newLimits, lineItems ) =
+              List.unzip <|
+                case stackSeriesConfig of 
+                  NotStacked lineSeriesConfig ->
+                    [ forEachLine False absoluteIndex stackSeriesConfigIndex 0 lineSeriesConfig ]
 
-                Stacked lineSeriesConfigs ->
-                  List.indexedMap (forEachLine True absoluteIndex stackSeriesConfigIndex) lineSeriesConfigs
+                  Stacked lineSeriesConfigs ->
+                    List.indexedMap (forEachLine True absoluteIndex stackSeriesConfigIndex) lineSeriesConfigs
         in 
         ( absoluteIndex + List.length lineItems
         , stackSeriesConfigIndex + 1
-        , items ++ List.filterMap identity lineItems
+        , ( limits ++ List.concat newLimits
+          , \topLevel localPlane -> items topLevel localPlane ++ List.filterMap identity (List.map (\i -> i topLevel localPlane) lineItems)
+          )
         )
 
       forEachLine isStacked absoluteIndex stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig =
@@ -247,9 +279,9 @@ toDotSeries elementIndex toX properties data =
             interpolationAttrs = [ CA.color defaultColor, CA.opacity defaultOpacity ] 
             interpolationConfig = Helpers.apply (interpolationAttrs ++ lineSeriesConfig.interpolation) S.defaultInterpolation 
 
-            dotItems = List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig interpolationConfig defaultColor defaultOpacity) data
+            (limits, toDotItems) = List.unzip <| List.indexedMap (forEachDataPoint absoluteIndexNew stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig interpolationConfig defaultColor defaultOpacity) data
             
-            viewSeries plane =
+            viewSeries plane dotItems =
               let toBottom datum =
                     Maybe.map2 (\y ySum -> ySum - y) (lineSeriesConfig.toY datum) (lineSeriesConfig.toYSum datum)
               in
@@ -257,16 +289,27 @@ toDotSeries elementIndex toX properties data =
                 [ SA.class "elm-charts__series" ]
                 [ S.area plane toX (Just toBottom) lineSeriesConfig.toYSum interpolationConfig data
                 , S.interpolation plane toX lineSeriesConfig.toYSum interpolationConfig data
-                , S.g [ SA.class "elm-charts__dots" ] (List.map (I.render plane) dotItems)
+                , S.g [ SA.class "elm-charts__dots" ] (List.map I.render dotItems)
                 ]
         in
-        Helpers.withFirst dotItems <| \first rest ->
-          I.Rendered ( first, rest )
-            { render = \plane _ -> viewSeries plane
-            , limits = Coord.foldPosition I.getLimits dotItems
-            , toPosition = \plane -> Coord.foldPosition (I.getPosition plane) dotItems
-            , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip dotItems) ]
-            }
+        ( limits
+        , \topLevel localPlane ->
+            let dotItems = List.map (\i -> i topLevel localPlane) toDotItems in
+            Helpers.withFirst dotItems <| \first rest ->
+              let groupLimits = Coord.foldPosition I.getLimits dotItems
+                  groupPosition = Coord.foldPosition I.getPosition dotItems
+              in
+              I.Rendered ( first, rest )
+                { limits = groupLimits
+                , position = groupPosition
+                , localPlane = localPlane
+                , limitsTop = Coord.convertPos topLevel localPlane groupLimits
+                , positionTop = Coord.convertPos topLevel localPlane groupPosition
+                , planeTop = topLevel
+                , render = \() -> viewSeries localPlane dotItems
+                , tooltip = \() -> [ H.table [ HA.style "margin" "0" ] (List.concatMap I.tooltip dotItems) ]
+                }
+        )
         
       forEachDataPoint absoluteIndex stackSeriesConfigIndex lineSeriesConfigIndex lineSeriesConfig interpolationConfig defaultColor defaultOpacity dataIndex datum =
         let identification =
@@ -302,47 +345,56 @@ toDotSeries elementIndex toX properties data =
                 if dotConfig.border == "white" then interpolationConfig.color else dotConfig.border
               else
                 dotConfig.color
-        in
-        I.Rendered
-          { presentation = dotConfig
-          , color = tooltipTextColor
-          , datum = datum
-          , x1 = x
-          , x2 = x
-          , y = y
-          , isReal = lineSeriesConfig.toY datum /= Nothing
-          , identification = identification
-          , name = lineSeriesConfig.tooltipName
-          , tooltipText = lineSeriesConfig.tooltipText datum
-          , toAny = I.Dot
-          }
-          { limits = 
+
+            limits =
               { x1 = x, x2 = x
               , y1 = y, y2 = y
               }
-
-          , toPosition = \plane ->
-              let radiusX = Coord.scaleCartesianX plane radius
-                  radiusY = Coord.scaleCartesianY plane radius
-              in
-              { x1 = x - radiusX, x2 = x + radiusX
-              , y1 = y - radiusY, y2 = y + radiusY
+        in
+        ( limits
+        , \topLevel localPlane ->
+            let radiusX = Coord.scaleCartesianX localPlane radius
+                radiusY = Coord.scaleCartesianY localPlane radius
+                position =
+                  { x1 = x - radiusX, x2 = x + radiusX
+                  , y1 = y - radiusY, y2 = y + radiusY
+                  }
+            in
+            I.Rendered
+              { presentation = I.Dot dotConfig
+              , color = tooltipTextColor
+              , datum = datum
+              , x1 = x
+              , x2 = x
+              , y = y
+              , isReal = lineSeriesConfig.toY datum /= Nothing
+              , identification = identification
+              , name = lineSeriesConfig.tooltipName
+              , tooltipText = lineSeriesConfig.tooltipText datum
+              , toAny = identity
               }
+              { limits = limits
+              , position = position
+              , localPlane = localPlane
 
-          , render = \plane _ ->
-              case lineSeriesConfig.toY datum of
-                Nothing -> S.text ""
-                Just _ -> S.dot plane .x .y dotConfig { x = x, y = y }
-                
-          , tooltip = \() -> 
-              [ tooltipRow tooltipTextColor
-                  (toDefaultName identification lineSeriesConfig.tooltipName) 
-                  (lineSeriesConfig.tooltipText datum) 
-              ]
-          }
+              , limitsTop = Coord.convertPos topLevel localPlane limits
+              , positionTop = Coord.convertPos topLevel localPlane position
+              , planeTop = topLevel
+              , render = \() ->
+                  case lineSeriesConfig.toY datum of
+                    Nothing -> S.text ""
+                    Just _ -> S.dot localPlane .x .y dotConfig (Point x y)
+                    
+              , tooltip = \() -> 
+                  [ tooltipRow tooltipTextColor
+                      (toDefaultName identification lineSeriesConfig.tooltipName) 
+                      (lineSeriesConfig.tooltipText datum) 
+                  ]
+              }
+        )
   in
-  List.foldl forEachStackSeriesConfig ( elementIndex, 0, [] ) properties
-    |> (\(_, _, items) -> items)
+  List.foldl forEachStackSeriesConfig ( elementIndex, 0, ([],\_ _ -> []) ) properties
+    |> (\(newElementIndex, _, (limits,items)) -> ( newElementIndex, limits, items))
 
 
 
